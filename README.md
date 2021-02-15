@@ -1,6 +1,13 @@
 # TinyTrackGPS
+[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](REAME.md)
 
-A simple track GPS to SD card.
+A simple track GPS to SD card logger. 
+
+This program is written in C for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. 
+
+It is tested on:
+* UNO R3 board (Arduino UNO compatible board based on Atmega328). 
+* Lgt8f328p (a replacement Arduino Pro Mini). 
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
