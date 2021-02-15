@@ -1,5 +1,5 @@
 # TinyTrackGPS
-[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](REAME.md)
+[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
 
 A simple track GPS to SD card logger. 
 
