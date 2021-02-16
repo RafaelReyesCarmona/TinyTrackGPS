@@ -32,6 +32,21 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
 
+## Working
+
+It works getting info from NMEA module and save it into de log file. Format is:
+
+'HH:MM:SS,XX.XXXXXX,YY.YYYY'
+
+Where:
+  * HH - Hours from GPS UTC.
+  * MM - Minutes
+  * SS - Seconds
+  * XX.XXXXXX - Degree of latitude.
+  * YY.YYYYYY - Degree of longitude.
+
+<img alt="Log File." src="images/image2.jpg" width="240">&nbsp;
+
 ## License
 
 This file is part of TinyTrackGPS.
