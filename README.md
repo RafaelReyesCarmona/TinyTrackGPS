@@ -3,6 +3,8 @@
 
 A simple track GPS to SD card logger. 
 
+<img alt="Location example." src="images/image1.jpg" width="240">&nbsp;
+
 This program is written in C for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. 
 
 It is tested on:
