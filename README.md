@@ -36,7 +36,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
 It works getting info from NMEA module and save it into de log file. Format is:
 
-'HH:MM:SS,XX.XXXXXX,YY.YYYY'
+`HH:MM:SS,XX.XXXXXX,YY.YYYYYY`
 
 Where:
   * HH - Hours from GPS UTC.
@@ -45,7 +45,7 @@ Where:
   * XX.XXXXXX - Degree of latitude.
   * YY.YYYYYY - Degree of longitude.
 
-<img alt="Log File." src="images/image2.jpg" width="240">&nbsp;
+<img alt="Log File." src="images/image2.png" width="240">&nbsp;
 
 ## License
 
