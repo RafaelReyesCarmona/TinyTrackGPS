@@ -43,7 +43,7 @@ rafael.reyes.carmona@gmail.com
 #include <SD.h>
 
 File GPSFile;
-char GPSLogFile[] = "YYYYMMDD.TXT"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
+char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 float flat, flon;
 unsigned long age;
 
@@ -93,10 +93,14 @@ void setup(void) {
           unsigned long age;
           
           gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-          if (sprintf(GPSLogFile, "%04d%02d%02d.txt", year, month, day) > 0) config = true;
+          if (sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day) > 0) config = true;
 
           Serial.print("Filename: ");
           Serial.println(GPSLogFile);
+
+          if (!SD.exists(GPSLogFile)) {
+
+          } 
         }
     }
   }while(!config);
