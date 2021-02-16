@@ -13,6 +13,16 @@ It is tested on:
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
+## List of componets
+
+This project use components list above:
+
+  * Arduino © UNO board or equivalent AVR. 
+  * NMEA 6 module. 
+  * MicroSD module. 
+  * LCD 16×2 char display module. 
+  * Bluetooth module. (Optional) 
+
 ## License
 
 This file is part of TinyTrackGPS.
