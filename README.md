@@ -23,6 +23,12 @@ This project use components list above:
   * LCD 16×2 char display module. 
   * Bluetooth module. (Optional) 
 
+## Source
+
+TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
+
+  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS). 
+
 ## License
 
 This file is part of TinyTrackGPS.
