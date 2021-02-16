@@ -34,7 +34,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
 ## Working
 
-It works getting info from NMEA module and save it into de log file. Format is:
+It works getting info from NMEA module every second and save it into de log file. Format is:
 
 `HH:MM:SS,XX.XXXXXX,YY.YYYYYY`
 
@@ -46,6 +46,17 @@ Where:
   * YY.YYYYYY - Degree of longitude.
 
 <img alt="Log File." src="images/image2.png" width="240">&nbsp;
+
+## Draw track on map
+
+You can upload the file and get the draw on a map using [GPS Visualizer](https://www.gpsvisualizer.com/). 
+
+<img alt="GPS Visualizer1." src="images/map1.jpg" width="240">&nbsp;
+<img alt="GPS Visualizer2." src="images/map2.jpg" width="240">&nbsp;
+
+Or using apps like AlpineQuest. 
+
+<img alt="AlpineQuest." src="images/map3.jpg" width="240">&nbsp;
 
 ## License
 
