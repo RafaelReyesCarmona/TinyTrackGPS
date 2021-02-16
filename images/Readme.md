@@ -13,3 +13,11 @@
 ## Example Log File ##
 
 <img alt="Example Log File." src="image2.png" width="240">&nbsp;
+
+## Drawing log on map ##
+
+<img alt="Map1." src="map1.jpg" width="240">&nbsp;
+
+<img alt="Map2." src="map2.jpg" width="240">&nbsp;
+
+<img alt="Map3." src="map3.jpg" width="240">&nbsp;
