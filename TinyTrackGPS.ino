@@ -1,9 +1,11 @@
 /*
 TinyTrackGPS.ino
 
-Copyright © 2014-2021 Francisco Rafael Reyes Carmona. 
-rafael.reyes.carmona@gmail.com 
+Copyright © 2019-2021 Francisco Rafael Reyes Carmona. 
 All rights reserved. 
+
+rafael.reyes.carmona@gmail.com 
+
 
   This file is part of TinyTrackGPS. 
 
@@ -41,7 +43,7 @@ All rights reserved.
 #include <SD.h>
 
 File GPSFile;
-char GPSLogFile[] = "YYYYMMDD.TXT";
+char GPSLogFile[] = "YYYYMMDD.TXT"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 float flat, flon;
 unsigned long age;
 

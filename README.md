@@ -27,7 +27,10 @@ This project use components list above:
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
-  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS). 
+  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
+  * SD library, Arduino Standard Libraries (Arduino IDE).
+  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
+  * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
 
 ## License
 
