@@ -3,6 +3,7 @@ TinyTrackGPS.ino
 
 Copyright © 2014-2021 Francisco Rafael Reyes Carmona. 
 rafael.reyes.carmona@gmail.com 
+All rights reserved. 
 
   This file is part of TinyTrackGPS. 
 
@@ -72,7 +73,7 @@ void setup(void) {
   }
   Serial.println("initialization done.");
 
-  /* Initialise l'écran LCD */
+  /* Iniciaización del LCD */
   lcd.begin(LCD_NB_COLUMNS, LCD_NB_ROWS);
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -83,7 +84,7 @@ void setup(void) {
   do {
   while (ss.available())
     {
-      if (gps.encode(ss.read())) // Did a new valid sentence come in?
+      if (gps.encode(ss.read())) // Comprueba que ha recibido una sentencia del GPS.
         {
           int year;
           byte month, day, hour, minute, second, hundredths;
