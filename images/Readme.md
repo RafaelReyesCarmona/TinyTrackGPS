@@ -12,4 +12,4 @@
 
 ## Example Log File ##
 
-<img alt="Example Log File." src="image2.jpg" width="240">&nbsp;
+<img alt="Example Log File." src="image2.png" width="240">&nbsp;
