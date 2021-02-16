@@ -36,16 +36,33 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
 It works getting info from NMEA module every second and save it into de log file. Format is:
 
-`HH:MM:SS,XX.XXXXXX,YY.YYYYYY`
+  `HH:MM:SS,YY.YYYYYY,XX.XXXXXX`
+
+Like this:
+
+  `06:11:45,38.002368,-4.792312`
+  `06:11:46,38.002414,-4.792322`
+  `06:11:47,38.002452,-4.792317`
+  `06:11:48,38.002483,-4.792314`
+  `...`
 
 Where:
   * HH - Hours from GPS UTC.
-  * MM - Minutes
-  * SS - Seconds
-  * XX.XXXXXX - Degree of latitude.
-  * YY.YYYYYY - Degree of longitude.
+  * MM - Minutes. 
+  * SS - Seconds. 
+  * YY.YYYYYY - Degree of latitude.
+  * XX.XXXXXX - Degree of longitude.
 
 <img alt="Log File." src="images/image2.png" width="240">&nbsp;
+
+File is named as:
+
+`YYYYMMDD.csv` Example: `20210216.csv`
+
+Where:
+  * YYYY - Year 4 digits format. 
+  * MM - Mouth. 
+  * DD - Day. 
 
 ## Draw track on map
 
