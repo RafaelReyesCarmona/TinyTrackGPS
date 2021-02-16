@@ -35,17 +35,17 @@ TinyTrackGPS is free software, see **License** section for more information. The
 ## Working
 
 It works getting info from NMEA module every second and save it into de log file. Format is:
-
-  `HH:MM:SS,YY.YYYYYY,XX.XXXXXX`
-
+```
+HH:MM:SS,YY.YYYYYY,XX.XXXXXX
+```
 Like this:
-
-  `06:11:45,38.002368,-4.792312`
-  `06:11:46,38.002414,-4.792322`
-  `06:11:47,38.002452,-4.792317`
-  `06:11:48,38.002483,-4.792314`
-  `...`
-
+```
+06:11:45,38.002368,-4.792312
+06:11:46,38.002414,-4.792322
+06:11:47,38.002452,-4.792317
+06:11:48,38.002483,-4.792314
+...
+```
 Where:
   * HH - Hours from GPS UTC.
   * MM - Minutes. 
