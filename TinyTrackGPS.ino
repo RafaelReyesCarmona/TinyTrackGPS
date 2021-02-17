@@ -67,13 +67,13 @@ void setup(void) {
 
   pinMode(10, OUTPUT);
 
-  Serial.print("Initializing SD card...");
+  Serial.print(F("Initializing SD card..."));
 
   if (!SD.begin(10)) {
-    Serial.println("initialization failed!");
+    Serial.println(F("FAILED!"));
     return;
   }
-  Serial.println("initialization done.");
+  Serial.println(F("Done."));
 
   /* Iniciaización del LCD */
   lcd.begin(LCD_NB_COLUMNS, LCD_NB_ROWS);
@@ -95,17 +95,17 @@ void setup(void) {
           gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
           if (sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day) > 0) config = true;
 
-          Serial.print("Filename: ");
+          Serial.print(F("Filename: "));
           Serial.println(GPSLogFile);
 
           // Si no existe el fichero lo crea y añade las cabeceras. 
           if (!SD.exists(GPSLogFile)) {
              if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
-               Serial.print("New GPSLogFile, adding heads...");
+               Serial.print(F("New GPSLogFile, adding heads..."));
                GPSFile.println(F("Time,latitude,longitude"));
-               Serial.println("Done.");
+               Serial.println(F("Done."));
              } else {
-               Serial.println("** Error creating GPSLogFile. **");
+               Serial.println(F("** Error creating GPSLogFile. **"));
              }
           } 
         }
@@ -152,15 +152,15 @@ void loop(void) {
         }
   
         if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
-          Serial.print("Open GPSLogFile to write...");
+          Serial.print(F("Open GPSLogFile to write..."));
           GPSFile.print(timestr);
           GPSFile.print(flat,6);
           GPSFile.print(",");
           GPSFile.println(flon,6);
           GPSFile.close();
-          Serial.println("Done.");
+          Serial.println(F("Done."));
         } else {
-          Serial.println("** Error opening GPSLogFile. **");
+          Serial.println(F("** Error opening GPSLogFile. **"));
         }
       }
     }
