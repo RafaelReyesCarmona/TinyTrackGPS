@@ -35,11 +35,10 @@ rafael.reyes.carmona@gmail.com
      Conectar LCD 16x2 pines 2,3,4,5,6,7 (2-amarillo , 3-azul,
      4-rojo, 5-azul oscuro, 6-verde, 7-blanco)
 */
-#include <LCD.h>
+// Include libraries.
 #include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
-#include <SPI.h>
 #include <SD.h>
 
 File GPSFile;
