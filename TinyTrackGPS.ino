@@ -98,8 +98,15 @@ void setup(void) {
           Serial.print("Filename: ");
           Serial.println(GPSLogFile);
 
+          // Si no existe el fichero lo crea y añade las cabeceras. 
           if (!SD.exists(GPSLogFile)) {
-
+             if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
+               Serial.print("New GPSLogFile, adding heads...");
+               GPSFile.println(F("Time,latitude,longitude"));
+               Serial.println("Done.");
+             } else {
+               Serial.println("** Error creating GPSLogFile. **");
+             }
           } 
         }
     }
