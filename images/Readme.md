@@ -1,5 +1,9 @@
 # List of pictures #
 
+## Schemas ##
+
+<img alt="Schema1." src="schema1.jpg" width="240">&nbsp;
+
 ## Location example ##
 
 <img alt="Location example." src="image1.jpg" width="240">&nbsp;
