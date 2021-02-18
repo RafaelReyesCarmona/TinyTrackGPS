@@ -103,6 +103,7 @@ void setup(void) {
                Serial.print(F("New GPSLogFile, adding heads..."));
                GPSFile.println(F("Time,latitude,longitude"));
                Serial.println(F("Done."));
+               GPSFile.close();
              } else {
                Serial.println(F("** Error creating GPSLogFile. **"));
              }
