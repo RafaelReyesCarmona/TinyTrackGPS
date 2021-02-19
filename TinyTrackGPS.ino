@@ -157,7 +157,7 @@ void loop(void) {
           sprintf(timestr, "%02d:%02d:%02d,", hour, minute, second);
         }
         if (year != year_actual || month != month_actual || day != day_actual) {
-          sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day)
+          sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day);
           year_actual = year;
           month_actual = month;
           day_actual = day;
