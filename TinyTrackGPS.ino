@@ -1,5 +1,6 @@
 /*
 TinyTrackGPS.ino
+v0.2
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona. 
 All rights reserved. 
@@ -26,7 +27,7 @@ rafael.reyes.carmona@gmail.com
 
 /*
      Programa de localizacion por gps que graba las posiciones en
-     un fichero de texto de forma diaria. 
+     un fichero de texto cada segundo, de forma diaria. 
 
      Conectar módulo SD con pin CS (naranja) en pin 10 arduino.
 
@@ -51,7 +52,9 @@ unsigned long age;
    de un dispositivo GPS serie de 9600-bauds conectado en pines 9(rx) y 8(tx).
 */
 TinyGPS gps;
-SoftwareSerial ss(9, 8);
+SoftwareSerial gps_serial(9, 8);
+int year_actual;
+byte month_actual, day_actual;
 
 /* Constantes para declaracion del LCD */
 const int LCD_NB_ROWS = 2;
@@ -62,7 +65,7 @@ LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 void setup(void) {
   bool config = false;
   Serial.begin(9600);
-  ss.begin(9600);
+  gps_serial.begin(9600);
 
   pinMode(10, OUTPUT);
 
@@ -83,9 +86,9 @@ void setup(void) {
   lcd.print(F("GPS signal."));
 
   do {
-  while (ss.available())
+  while (gps_serial.available())
     {
-      if (gps.encode(ss.read())) // Comprueba que ha recibido una sentencia del GPS.
+      if (gps.encode(gps_serial.read())) // Comprueba que ha recibido una sentencia del GPS.
         {
           int year;
           byte month, day, hour, minute, second, hundredths;
@@ -93,6 +96,9 @@ void setup(void) {
           
           gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
           if (sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day) > 0) config = true;
+          year_actual = year;
+          month_actual = month;
+          day_actual = day;
 
           Serial.print(F("Filename: "));
           Serial.println(GPSLogFile);
@@ -124,9 +130,9 @@ void loop(void) {
   // For one second we parse GPS data and report some key values
   for (unsigned long start = millis(); millis() - start < 1000;)
   {
-    while (ss.available())
+    while (gps_serial.available())
     {
-      if (gps.encode(ss.read())) { // Did a new valid sentence come in?
+      if (gps.encode(gps_serial.read())) { // Did a new valid sentence come in?
         gps.f_get_position(&flat, &flon, &age);
         lcd.setCursor(0, 0);
         lcd.print(F("LAT="));
@@ -150,7 +156,24 @@ void loop(void) {
         if (age != TinyGPS::GPS_INVALID_AGE){
           sprintf(timestr, "%02d:%02d:%02d,", hour, minute, second);
         }
-  
+        if (year != year_actual || month != month_actual || day != day_actual) {
+          sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day)
+          year_actual = year;
+          month_actual = month;
+          day_actual = day;
+          
+          // Si no existe el fichero lo crea y añade las cabeceras. 
+          if (!SD.exists(GPSLogFile)) {
+             if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
+               Serial.print(F("New GPSLogFile, adding heads..."));
+               GPSFile.println(F("Time,latitude,longitude"));
+               Serial.println(F("Done."));
+               GPSFile.close();
+             } else {
+               Serial.println(F("** Error creating GPSLogFile. **"));
+             }
+          }
+        }
         if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
           Serial.print(F("Open GPSLogFile to write..."));
           GPSFile.print(timestr);
