@@ -98,5 +98,5 @@ Contact me: rafael.reyes.carmona@gmail.com
 
 ## Credits
 
-Compass icon at the beginning is from [Flaticon.es](https://www.flaticon.es) designed by [Those Icons](https://www.flaticon.es/autores/those-icons) 
-and licensed by [free license](images/licencia-37862535.pdf). 
+Compass icon at the beginning is from [Flaticon.es](https://www.flaticon.es) designed by [DinosoftLabs](https://www.flaticon.es/autores/DinosoftLabs) 
+and licensed by [free license](images/licencia-37862535 (1).pdf). 
