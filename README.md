@@ -95,3 +95,8 @@ You should have received a copy of the GNU General Public License along with Tin
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona. 
 Contact me: rafael.reyes.carmona@gmail.com 
+
+## Credits
+
+Compass icon at the beginning is from [Flaticon.es](https://www.flaticon.es) designed by [Those Icons](https://www.flaticon.es/autores/those-icons) 
+and licensed by [free license](images/licencia-37862535.pdf). 
