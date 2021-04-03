@@ -1,4 +1,4 @@
-<img src="img/compass.png" width=48 height=48 align=right>
+<img src="images/compass.png" width=48 height=48 align=right>
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
