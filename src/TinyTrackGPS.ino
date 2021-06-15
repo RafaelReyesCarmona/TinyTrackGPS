@@ -39,17 +39,23 @@ rafael.reyes.carmona@gmail.com
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 #include <SD.h>
+#include "UTMconversion.h"
 
 File GPSFile;
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 float flat, flon;
 unsigned long age;
+word alt;
 
 /* Código de demostración uso de librería TinyGPS.
    Requiere uso de librería SoftwareSerial, se presupone que disponemos
    de un dispositivo GPS serie de 9600-bauds conectado en pines 9(rx) y 8(tx).
 */
 TinyGPS gps;
+GPS_UTM utm;
+#define UTM_LCD
+#define PIN_SELECT 8
+bool pin = LOW;
 SoftwareSerial gps_serial(9, 8);
 int year_actual;
 byte month_actual, day_actual;
@@ -74,6 +80,9 @@ void setup(void) {
     return;
   }
   Serial.println(F("Done."));
+
+  /* Declaramos pin para selector visor coordenadas */
+  pinMode(PIN_SELECT,INPUT_PULLUP);
 
   /* Iniciaización del LCD */
   lcd.begin(LCD_NB_COLUMNS, LCD_NB_ROWS);
@@ -105,7 +114,7 @@ void setup(void) {
           if (!SD.exists(GPSLogFile)) {
              if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
                Serial.print(F("New GPSLogFile, adding heads..."));
-               GPSFile.println(F("Time,latitude,longitude"));
+               GPSFile.println(F("Time,latitude,longitude,utm"));
                Serial.println(F("Done."));
                GPSFile.close();
              } else {
@@ -115,6 +124,7 @@ void setup(void) {
         }
     }
   }while(!config);
+  lcd.clear();
 }
 
 void loop(void) {
@@ -124,6 +134,7 @@ void loop(void) {
   byte month, day, hour, minute, second, hundredths;
   unsigned long age;
   char timestr[10];
+  char utmstr[] = "30S 123456 1234567,";
 
   // For one second we parse GPS data and report some key values
   for (unsigned long start = millis(); millis() - start < 1000;)
@@ -132,12 +143,34 @@ void loop(void) {
     {
       if (gps.encode(gps_serial.read())) { // Did a new valid sentence come in?
         gps.f_get_position(&flat, &flon, &age);
+        gps.altitude();
+        utm.UTM(flat, flon);
+        sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
+        if (pin != digitalRead(PIN_SELECT)) {
+          lcd.clear();
+          pin = digitalRead(PIN_SELECT);
+        }
+      if (pin == LOW) {
+        lcd.setCursor(0, 0);
+        if (utm.zone()<10) lcd.print("0");
+        lcd.print(utm.zone());
+        lcd.setCursor(3,0);
+        lcd.print(utm.band());
+        lcd.setCursor(5, 0);
+        lcd.print(F("X="));
+        lcd.print(utm.X());
+        lcd.setCursor(4, 1);
+        lcd.print(F("Y="));
+        lcd.print(utm.Y());
+        }
+      else {
         lcd.setCursor(0, 0);
         lcd.print(F("LAT="));
         lcd.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
         lcd.setCursor(0, 1);
         lcd.print(F("LON="));
         lcd.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
+        };
 /*
         gps.stats(&chars, &sentences, &failed);
         Serial.print(" CHARS=");
@@ -164,7 +197,7 @@ void loop(void) {
           if (!SD.exists(GPSLogFile)) {
              if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
                Serial.print(F("New GPSLogFile, adding heads..."));
-               GPSFile.println(F("Time,latitude,longitude"));
+               GPSFile.println(F("Time,latitude,longitude,utm"));
                Serial.println(F("Done."));
                GPSFile.close();
              } else {
@@ -177,7 +210,9 @@ void loop(void) {
           GPSFile.print(timestr);
           GPSFile.print(flat,6);
           GPSFile.print(",");
-          GPSFile.println(flon,6);
+          GPSFile.print(flon,6);
+          GPSFile.print(",");
+          GPSFile.println(utmstr);
           GPSFile.close();
           Serial.println(F("Done."));
         } else {
