@@ -45,7 +45,7 @@ File GPSFile;
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 float flat, flon;
 unsigned long age;
-word alt;
+long alt;
 
 /* Código de demostración uso de librería TinyGPS.
    Requiere uso de librería SoftwareSerial, se presupone que disponemos
@@ -114,7 +114,7 @@ void setup(void) {
           if (!SD.exists(GPSLogFile)) {
              if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
                Serial.print(F("New GPSLogFile, adding heads..."));
-               GPSFile.println(F("Time,latitude,longitude,utm"));
+               GPSFile.println(F("Time,latitude,longitude,alt,utm"));
                Serial.println(F("Done."));
                GPSFile.close();
              } else {
@@ -143,7 +143,7 @@ void loop(void) {
     {
       if (gps.encode(gps_serial.read())) { // Did a new valid sentence come in?
         gps.f_get_position(&flat, &flon, &age);
-        gps.altitude();
+        alt = gps.altitude();
         utm.UTM(flat, flon);
         sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
         if (pin != digitalRead(PIN_SELECT)) {
@@ -157,10 +157,14 @@ void loop(void) {
         lcd.setCursor(3,0);
         lcd.print(utm.band());
         lcd.setCursor(5, 0);
-        lcd.print(F("X="));
+        lcd.print(F("Alt: "));
+        lcd.print(alt);
+        lcd.print(F(" m"));
+        lcd.setCursor(0, 1);
+        //lcd.print(F("X="));
         lcd.print(utm.X());
-        lcd.setCursor(4, 1);
-        lcd.print(F("Y="));
+        lcd.setCursor(8, 1);
+        //lcd.print(F("Y="));
         lcd.print(utm.Y());
         }
       else {
@@ -197,7 +201,7 @@ void loop(void) {
           if (!SD.exists(GPSLogFile)) {
              if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
                Serial.print(F("New GPSLogFile, adding heads..."));
-               GPSFile.println(F("Time,latitude,longitude,utm"));
+               GPSFile.println(F("Time,latitude,longitude,alt,utm"));
                Serial.println(F("Done."));
                GPSFile.close();
              } else {
@@ -211,6 +215,8 @@ void loop(void) {
           GPSFile.print(flat,6);
           GPSFile.print(",");
           GPSFile.print(flon,6);
+          GPSFile.print(",");
+          GPSFile.print(alt);
           GPSFile.print(",");
           GPSFile.println(utmstr);
           GPSFile.close();
