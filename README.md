@@ -3,15 +3,15 @@
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
 
-A simple track GPS to SD card logger. 
+A simple track GPS to SD card logger.
 
 <img alt="Location example." src="images/image1.jpg" width="240">&nbsp;
 
-This program is written in C for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. 
+This program is written in C for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
 
 It is tested on:
-* UNO R3 board (Arduino UNO compatible board based on Atmega328). 
-* Lgt8f328p (a replacement Arduino Pro Mini). 
+* UNO R3 board (Arduino UNO compatible board based on Atmega328).
+* Lgt8f328p (a replacement Arduino Pro Mini).
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -19,11 +19,11 @@ It is tested on:
 
 This project use components list above:
 
-  * Arduino © UNO board or equivalent AVR. 
-  * NMEA 6 module. 
-  * MicroSD module. 
-  * LCD 16×2 char display module. 
-  * Bluetooth module. (Optional) 
+  * Arduino © UNO board or equivalent AVR.
+  * NMEA 6 module.
+  * MicroSD module.
+  * LCD 16×2 char display module.
+  * Bluetooth module. (Optional)
 
 <img alt="Schema1." src="images/schema1.jpg" width="240">&nbsp;
 
@@ -40,22 +40,24 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
 It works getting info from NMEA module every second and save it into de log file. Format is:
 ```
-HH:MM:SS,YY.YYYYYY,XX.XXXXXX
+HH:MM:SS,YY.YYYYYY,XX.XXXXXX,ALT,UTM
 ```
 Like this:
 ```
-06:11:45,38.002368,-4.792312
-06:11:46,38.002414,-4.792322
-06:11:47,38.002452,-4.792317
-06:11:48,38.002483,-4.792314
+12:42:47,37.990493,-4.785790,571,30S 343186 4206265
+12:42:48,37.990276,-4.785741,571,30S 343190 4206240
+12:42:49,37.990062,-4.785705,571,30S 343193 4206216
+12:42:50,37.989860,-4.785694,571,30S 343193 4206194
 ...
 ```
 Where:
   * HH - Hours from GPS UTC.
-  * MM - Minutes. 
-  * SS - Seconds. 
+  * MM - Minutes.
+  * SS - Seconds.
   * YY.YYYYYY - Degree of latitude.
   * XX.XXXXXX - Degree of longitude.
+  * ALT - Altitude in meters.
+  * UTM - Coordenates in UTM format: Zone Band X Y (00A XXXXXX YYYYYYY)
 
 <img alt="Log File." src="images/image2.png" width="240">&nbsp;
 
@@ -64,18 +66,18 @@ File is named as:
 `YYYYMMDD.csv` Example: `20210216.csv`
 
 Where:
-  * YYYY - Year 4 digits format. 
-  * MM - Mouth. 
-  * DD - Day. 
+  * YYYY - Year 4 digits format.
+  * MM - Mouth.
+  * DD - Day.
 
 ## Draw track on map
 
-You can upload the file and get the draw on a map using [GPS Visualizer](https://www.gpsvisualizer.com/). 
+You can upload the file and get the draw on a map using [GPS Visualizer](https://www.gpsvisualizer.com/).
 
 <img alt="GPS Visualizer1." src="images/map1.jpg" width="240">&nbsp;
 <img alt="GPS Visualizer2." src="images/map2.jpg" width="240">&nbsp;
 
-Or using apps like AlpineQuest. 
+Or using apps like AlpineQuest.
 
 <img alt="AlpineQuest." src="images/map3.jpg" width="240">&nbsp;
 
@@ -93,10 +95,10 @@ You should have received a copy of the GNU General Public License along with Tin
 
 ## Authors
 
-Copyright © 2019-2021 Francisco Rafael Reyes Carmona. 
-Contact me: rafael.reyes.carmona@gmail.com 
+Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
+Contact me: rafael.reyes.carmona@gmail.com
 
 ## Credits
 
-Compass icon at the beginning is from [Flaticon.es](https://www.flaticon.es) designed by [DinosoftLabs](https://www.flaticon.es/autores/DinosoftLabs) 
-and licensed by [free license](images/license-37862535_compass.pdf). 
+Compass icon at the beginning is from [Flaticon.es](https://www.flaticon.es) designed by [DinosoftLabs](https://www.flaticon.es/autores/DinosoftLabs)
+and licensed by [free license](images/license-37862535_compass.pdf).
