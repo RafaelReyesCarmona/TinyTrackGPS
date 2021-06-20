@@ -76,7 +76,7 @@ You can upload the file and get the draw on a map using [GPS Visualizer](https:/
 
 <img alt="GPS Visualizer1." src="images/map1.jpg" width="240">&nbsp;
 <img alt="GPS Visualizer2." src="images/map2.jpg" width="240">&nbsp;
-<img alt="GPS Visualizer3." src="images/gpsvisualizer2.jpg" width="480">&nbsp;
+<img alt="GPS Visualizer3." src="images/gpsvisualizer2.png" width="480">&nbsp;
 
 Or using apps like AlpineQuest.
 
