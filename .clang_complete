@@ -1,6 +1,7 @@
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/include
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/src
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src
+-IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/Ticker
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/SD
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/SPI/src
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/TinyGPS
