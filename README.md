@@ -57,7 +57,7 @@ Where:
   * YY.YYYYYY - Degree of latitude.
   * XX.XXXXXX - Degree of longitude.
   * ALT - Altitude in meters.
-  * UTM - Coordenates in UTM format: Zone Band X Y (00A XXXXXX YYYYYYY)
+  * UTM - Coordenates in UTM format(WGS84): Zone Band X Y (00A XXXXXX YYYYYYY)
 
 <img alt="Log File." src="images/image2.png" width="480">&nbsp;
 
