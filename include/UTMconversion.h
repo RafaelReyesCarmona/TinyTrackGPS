@@ -1,6 +1,6 @@
 /*
 UTMconsersion.h - Library to convert in UTM coordenates.
-TinyTrackGPS v0.3
+TinyTrackGPS v0.4
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -61,11 +61,11 @@ class GPS_UTM {
       double c = sq(a) / b; ///< Radio Polar de Curvatura.
 			*/
 
-			/// Se realiza el calculo para agilizar el calculo.
+			/// Se realiza las declaraciones para agilizar el calculo a UTM de X e Y.
 			double e2 = 673949675659e-14; ///< Segunda excentricidad al cuadrado.
 			double e2_2 = 336974837829e-14; // (e2 / 2.0)
-			double c = 6399593.62580397; ///< Radio Polar de Curvatura.
-			double PI_180 = 0.01745329251994;// (PI / 180.0)
+			double c = 639959362580397e-8; ///< Radio Polar de Curvatura.
+			double PI_180 = 1745329251994e-14;// (PI / 180.0)
 			double alf = 505462256744e-14; // (0.75 * e2)
 			double bet = 425820155e-13; // ((5.0 / 3.0) * alf * alf)
 			double gam = 16740579e-14; // ((35.0 / 27.0) * alf * alf * alf)

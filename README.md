@@ -2,6 +2,7 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
+[![Version: v0.3](https://img.shields.io/badge/Version-v0.3-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -11,7 +12,7 @@ This program is written in C for Arduino © UNO R3 and other compatible microcon
 
 It is tested on:
 * UNO R3 board (Arduino UNO compatible board based on Atmega328).
-* Lgt8f328p (a replacement Arduino Pro Mini).
+* Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1 and v0.2.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -24,6 +25,7 @@ This project use components list above:
   * MicroSD module.
   * LCD 16×2 char display module.
   * Bluetooth module. (Optional)
+  * Switch for select visual data on LCD.(Pin8 and GND)
 
 <img alt="Schema1." src="images/schema1.jpg" width="240">&nbsp;
 
@@ -32,6 +34,8 @@ This project use components list above:
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
+  * Ticker librry, Stefan Staub (https://github.com/sstaub/Ticker).
+  * Low-Power library, rocketscream (https://github.com/rocketscream/Low-Power).
   * SD library, Arduino Standard Libraries (Arduino IDE).
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
