@@ -2,13 +2,13 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.3](https://img.shields.io/badge/Version-v0.3-blue?style=for-the-badge&logo=v)]()
+[![Version: v0.4](https://img.shields.io/badge/Version-v0.4-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
 <img alt="Location example." src="images/image1.jpg" width="240">&nbsp;
 
-This program is written in C for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
+This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
 
 It is tested on:
 * UNO R3 board (Arduino UNO compatible board based on Atmega328).
@@ -65,6 +65,33 @@ Where:
 
 <img alt="Log File." src="images/image2.png" width="480">&nbsp;
 
+For conversion to UTM coordinates it has been implemented library UTMconversion.h
+
+Example of use:
+
+```
+#include "UTMconversion.h"
+
+float flat = 37.8959210;
+float flon = -4.7478210;
+
+GPS_UTM utm;
+
+void setup() {
+  char utmstr[] = "30S 123456 1234567";
+
+  Serial.begin(9600);  
+
+  utm.UTM(flat, flon);
+  sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
+  Serial.println(utmstr);
+}
+
+void loop() {
+
+}
+```
+
 File is named as:
 
 `YYYYMMDD.csv` Example: `20210216.csv`
@@ -73,6 +100,8 @@ Where:
   * YYYY - Year 4 digits format.
   * MM - Mouth.
   * DD - Day.
+
+Low-Power the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
 
 ## Draw track on map
 
