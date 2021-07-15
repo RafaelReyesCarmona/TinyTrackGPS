@@ -6,7 +6,7 @@
 
 A simple track GPS to SD card logger.
 
-<img alt="Location example." src="images/InShot_20210626_020206205.jpg" width="240">&nbsp;
+<img alt="Location example." src="images/InShot_20210713_181415551.jpg" width="240">&nbsp;
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
 
@@ -34,7 +34,7 @@ This project use components list above:
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
-  * Ticker librry, Stefan Staub (https://github.com/sstaub/Ticker).
+  * Ticker library, Stefan Staub (https://github.com/sstaub/Ticker).
   * Low-Power library, rocketscream (https://github.com/rocketscream/Low-Power).
   * SD library, Arduino Standard Libraries (Arduino IDE).
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
