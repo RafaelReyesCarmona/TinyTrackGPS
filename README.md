@@ -2,7 +2,7 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.5](https://img.shields.io/badge/Version-v0.4-blue?style=for-the-badge&logo=v)]()
+[![Version: v0.5](https://img.shields.io/badge/Version-v0.5-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -23,7 +23,7 @@ This project use components list above:
   * Arduino © UNO board or equivalent AVR.
   * NMEA 6 module.
   * MicroSD module.
-  * LCD 16×2 char display module.
+  * _LCD 16×2 char display module._
   * Bluetooth module. (Optional)
   * Switch for select visual data on LCD.(Pin8 and GND)
 
