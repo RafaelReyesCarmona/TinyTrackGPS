@@ -1,6 +1,8 @@
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/include
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/src
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/SoftwareSerial/src
+-IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/U8g2/src
+-IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/Wire/src
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/Low-Power
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/Ticker
 -IC:/Users/recaf/Documents/GitHub/TinyTrackGPS/.pio/libdeps/Uno/SD
@@ -11,12 +13,11 @@
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/variants/standard
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/EEPROM/src
 -IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/HID/src
--IC:/Users/recaf/.platformio/packages/framework-arduino-avr/libraries/Wire/src
 -IC:/Users/recaf/.platformio/packages/toolchain-atmelavr@1.70300.191015/lib/gcc/avr/7.3.0/include
 -IC:/Users/recaf/.platformio/packages/toolchain-atmelavr@1.70300.191015/lib/gcc/avr/7.3.0/include-fixed
 -IC:/Users/recaf/.platformio/packages/toolchain-atmelavr@1.70300.191015/avr/include
 -IC:/Users/recaf/.platformio/packages/tool-unity
--DPLATFORMIO=50101
+-DPLATFORMIO=50200
 -DARDUINO_AVR_UNO
 -DF_CPU=16000000L
 -DARDUINO_ARCH_AVR

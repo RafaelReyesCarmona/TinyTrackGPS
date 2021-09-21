@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.ino - A simple track GPS to SD card logger.
-TinyTrackGPS v0.4
+TinyTrackGPS v0.5
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -34,14 +34,39 @@ rafael.reyes.carmona@gmail.com
      Conectar LCD 16x2 pines 2,3,4,5,6,7 (2-amarillo , 3-azul,
      4-rojo, 5-azul oscuro, 6-verde, 7-blanco)
 */
+
 // Include libraries.
+#include <Arduino.h>
 #include <Ticker.h>
-#include <LiquidCrystal.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
 #include <SD.h>
 #include <LowPower.h>
+#include <U8x8lib.h>
+#include <U8g2lib.h>
+#include <SPI.h>
 #include "UTMconversion.h"
+
+#define SDD1306_128X64        // Define para usar pantalla OLED 0.96" I2C 128x64 pixels
+//#define HX1230_96X68        // Define para usar pantalla HX1230 96x68 pixels LCD SPI(Nokia simil.)
+
+#if defined(SDD1306_128X64)
+  #define SCREEN_WIDTH 128 // OLED display width, in pixels
+  #define SCREEN_HEIGHT 64 // OLED display height, in pixels
+  #define display_offset 0
+  // Crea el objeto u8g para pantalla OLED 0.96 128x64 px.
+  U8G2_SSD1306_128X64_NONAME_1_SW_I2C u8g2(U8G2_R0, /* clock=*/ SCL, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);   // All Boards without Reset of the Display
+#elif defined(HX1230_96X68)
+  #define LCD_DIN 11
+  #define LCD_CLK 13
+  #define LCD_RST 5
+  #define LCD_CS  12
+  #define LCD_BL  6
+  #define SCREEN_WIDTH 96 // OLED display width, in pixels
+  #define SCREEN_HEIGHT 68 // OLED display height, in pixels
+  #define display_offset 32
+  U8G2_HX1230_96X68_1_3W_SW_SPI u8g2(U8G2_R0, /* clock=*/ LCD_CLK, /* data=*/ LCD_DIN, /* cs=*/ LCD_CS, /* reset=*/ LCD_RST);
+#endif
 
 File GPSFile;
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
@@ -66,46 +91,6 @@ byte hour_prev, minute_prev, second_prev;
 void GPSData();
 Ticker GPSRefresh(GPSData, 1000);
 
-/* Constantes para declaracion del LCD */
-const int LCD_NB_ROWS = 2;
-const int LCD_NB_COLUMNS = 16;
-/* Crea el objeto lcd */
-LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
-
-// DEFINICION DE CARACTERES PERSONALIZADOS
-byte alt[8] = {
-  0b00000100,
-  0b00001110,
-  0b00011111,
-  0b00000100,
-  0b00000100,
-  0b00000100,
-  0b00000100,
-  0b00000100,
-};
-
-byte ant[8] = {
-  0b00001110,
-  0b00010001,
-  0b00010101,
-  0b00010001,
-  0b00000100,
-  0b00000100,
-  0b00001110,
-  0b00000000,
-};
-
-byte sd[8] = {
-  0b00001110,
-  0b00010001,
-  0b00011111,
-  0b00000000,
-  0b00000000,
-  0b00010111,
-  0b00010101,
-  0b00011101,
-};
-
 
 void setup(void) {
   boolean config = 0;
@@ -122,7 +107,9 @@ void setup(void) {
   /* Declaramos pin para selector visor coordenadas */
   pinMode(PIN_SELECT,INPUT_PULLUP);
 
-  /* Iniciaización del LCD */
+  /* Iniciaización del display LCD u OLED */
+
+  /*
   lcd.begin(LCD_NB_COLUMNS, LCD_NB_ROWS);
 
   lcd.createChar(0, alt);
@@ -134,6 +121,7 @@ void setup(void) {
   lcd.print(F("Waiting for"));
   lcd.setCursor(0, 1);
   lcd.print(F("GPS signal."));
+  */
 
   Serial.print(F("Waiting for GPS signal..."));
 
@@ -178,7 +166,7 @@ void setup(void) {
     Serial.println(GPSLogFile);
   }
   Serial.println(F("Configuration ended."));
-  lcd.clear();
+  //lcd.clear();
   GPSRefresh.start();
 }
 
@@ -211,9 +199,10 @@ void GPSData() {
   utm.UTM(flat, flon);
   sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
   if (pin != digitalRead(PIN_SELECT)) {
-    lcd.clear();
+    //lcd.clear();
     pin = digitalRead(PIN_SELECT);
     }
+/*
   if (pin == LOW) {
     lcd.setCursor(0, 0);
     if (utm.zone()<10) lcd.print("0");
@@ -250,7 +239,7 @@ void GPSData() {
     lcd.print(F("LON="));
     lcd.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
     };
-
+*/
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
   if (age != TinyGPS::GPS_INVALID_AGE){
     sprintf(timestr, "%02d:%02d:%02d,", hour, minute, second);
