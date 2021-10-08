@@ -42,21 +42,47 @@ rafael.reyes.carmona@gmail.com
 #include <Ticker.h>
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
-#include <Fat16.h>
-#include <Fat16util.h> // use functions to print strings from flash memory
+//#include <Fat16.h>
+//#include <Fat16util.h> // use functions to print strings from flash memory
 //#include <SD.h>
 #include <LowPower.h>
+#include <SPI.h>
+#include <SdFat.h>
+#include <sdios.h>
 #include "UTMconversion.h"
 
-//File GPSFile;
+//File GPSFile;   //Adafruit Sparkfun SD.h library.
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
-SdCard card;
-Fat16 file;
-
+SdFat card;   //SdFat.h library.
+SdFile file;
 boolean SDReady;
+boolean SaveOK;
+
 float flat, flon;
+int year;
+byte month, day, hour, minute, second, hundredths;
 unsigned long age;
+int elevation;
+
+//------------------------------------------------------------------------------
+/*
+ * User provided date time callback function.
+ * See SdFile::dateTimeCallback() for usage.
+ */
+void dateTime(uint16_t* date, uint16_t* time) {
+  // User gets date and time from GPS or real-time
+  // clock in real callback function
+
+  // return date using FAT_DATE macro to format fields
+  //*date = FAT_DATE(year, month, day);
+  *date = (year-1980) << 9 | month << 5 | day;
+
+  // return time using FAT_TIME macro to format fields
+  //*time = FAT_TIME(hour, minute, second);
+  *time = hour << 11 | minute << 5 | second >> 1;
+}
+//------------------------------------------------------------------------------
 
 /* Código de demostración uso de librería TinyGPS.
    Requiere uso de librería SoftwareSerial, se presupone que disponemos
@@ -72,22 +98,23 @@ byte month_actual, day_actual;
 byte hour_prev, minute_prev, second_prev;
 
 Display LCD(LCD_16X2);
+//Display LCD(SDD1306_128X64);
 void GPSData();
+void ScreenPrint();
 Ticker GPSRefresh(GPSData, 1000);
+//Ticker ScreenRefresh(ScreenPrint,1000);
 
 
 void setup(void) {
-  boolean config = 0;
   Serial.begin(9600);
   gps_serial.begin(9600);
 
-  pinMode(10, OUTPUT);
+  //pinMode(10, OUTPUT);
 
   //Serial.print(F("Initializing SD card..."));
 
-//  SDReady = SD.begin(10);
-  SDReady = card.begin(CHIP_SELECT) & Fat16::init(&card);
-  file.writeError = false;
+  //SDReady = SD.begin(CHIP_SELECT);
+  SDReady = card.begin(CHIP_SELECT);
 
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
 
@@ -97,104 +124,74 @@ void setup(void) {
   /* Iniciaización del display LCD u OLED */
   LCD.start();
   LCD.clr();
-  LCD.splash();
+  LCD.splash(750);
   
   //Serial.print(F("Waiting for GPS signal..."));
   LCD.clr();
   LCD.print("Waiting for","GPS signal...");
 
-unsigned int time = 0;
+  unsigned int time = 0;
+  bool config = false;
 
   do {
     LCD.wait_anin(time++);
-
-    while (gps_serial.available())
-    {
-      if (gps.encode(gps_serial.read())) // Comprueba que ha recibido una sentencia del GPS.
-        {
-          int year;
-          byte month, day, hour, minute, second, hundredths;
-          unsigned long age;
-
+    
+    for (unsigned long start = millis(); millis() - start < 1000;) {
+      while (gps_serial.available()) {
+        char c = gps_serial.read();
+        //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+        if (gps.encode(c)) {// Did a new valid sentence come in?
           gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-          if (sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day) > 0) {
-            config = true;
-            //Serial.println(F("Done."));
-            }
-          year_actual = year;
-          month_actual = month;
-          day_actual = day;
-          hour_prev = hour;
-          minute_prev = minute;
-          second_prev = second;
-
-          // Si no existe el fichero lo crea y añade las cabeceras.
-          if (SDReady && !file.open(GPSLogFile,O_READ)) {
-//            if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
-            if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
-              //Serial.print(F("New GPSLogFile, adding heads..."));
-              file.println("Time,latitude,longitude,alt,utm");
-              //Serial.println(F("Done."));
-              file.close();
-            } else { 
-               //Serial.println(F("** Error creating GPSLogFile. **"));
-            }
-          }
+          (age != TinyGPS::GPS_INVALID_AGE) ? config = true : config = false;
         }
+      }
     }
   }while(!config);
 
-//  if (SDReady) {
-//    Serial.print(F("Filename: "));
-//    Serial.println(GPSLogFile);
-//  }
-//  Serial.println(F("Configuration ended."));
+  sprintf(GPSLogFile, "%04d%02d%02d.csv", year, month, day);
+  
+  year_actual = year;
+  month_actual = month;
+  day_actual = day;
+  hour_prev = hour;
+  minute_prev = minute;
+  second_prev = second;
+
+  //Serial.println(F("Done."));
+  
+  //Serial.println(F("Configuration ended."));
+
   LCD.clr();
-  //lcd.clear();
   GPSRefresh.start();
+  //ScreenRefresh.start();
 }
 
 void loop(void) {
-//  boolean gps_ok = false;
 
-//  do {
-  while (gps_serial.available())
-    gps.encode(gps_serial.read()); //{
-//        gps_ok = true;
-//    }
-//  }while(!gps_ok);
-
+  //for (unsigned long start = millis(); millis() - start < 500;) {
+  while (gps_serial.available()) gps.encode(gps_serial.read());
+  //}
+  //GPSData();
+  //ScreenPrint();
   GPSRefresh.update();
+  //ScreenRefresh.update();
 }
 
 void GPSData() {
-  int year;
-  byte month, day, hour, minute, second, hundredths;
-  unsigned long age;
-  int elevation;
   float f_elevation;
   char timestr[]= "00:00:00";
   char utmstr[] = "30S 123456 1234567";
   long timeidle = millis();
 
+
   gps.f_get_position(&flat, &flon, &age);
+  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
   f_elevation = gps.f_altitude();
+
   elevation = abs((int)f_elevation);
   utm.UTM(flat, flon);
   sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
-  if (pin != digitalRead(PIN_SELECT)) {
-    LCD.clr();
-    pin = digitalRead(PIN_SELECT);
-    }
 
-  if (pin == LOW) {
-    LCD.print_utm(utm.zone(),utm.band(),utm.X(),utm.Y(),gps.satellites(),elevation,SDReady);
-    }
-  else {
-    LCD.print_grades(flat, flon);
-    };
-
-  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
   if (age != TinyGPS::GPS_INVALID_AGE){
     sprintf(timestr, "%02d:%02d:%02d,", hour, minute, second);
     //Serial.print(timestr);
@@ -205,50 +202,114 @@ void GPSData() {
     year_actual = year;
     month_actual = month;
     day_actual = day;
+  }
 
-    // Si no existe el fichero lo crea y añade las cabeceras.
-    if (SDReady && !file.open(GPSLogFile,O_READ)) {
-//    if (SDReady && !SD.exists(GPSLogFile)) {
+  SdFile::dateTimeCallback(dateTime);
+
+  // Si no existe el fichero lo crea y añade las cabeceras.
+    if (SDReady && !card.exists(GPSLogFile)) {
       if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
+//    if (SDReady && !SD.exists(GPSLogFile)) {
+//      if (GPSFile = SD.open(GPSLogFile, FILE_WRITE)) {
         //Serial.print(F("New GPSLogFile, adding heads..."));
         file.println("Time,latitude,longitude,alt,utm");
+//        GPSFile.println("Time,latitude,longitude,alt,utm");
         //Serial.println(F("Done."));
         file.close();
+//        GPSFile.close();
         }
-        else {
+        //else {
         //Serial.println(F("** Error creating GPSLogFile. **"));
-        }
+        //}
     }
-  }
+  
   if (!((hour_prev == hour) && (minute_prev == minute) && (second_prev == second))) {
-  if (SDReady && file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
+  if (SDReady && file.open(GPSLogFile, O_APPEND | O_WRITE)) {
+//  if (SDReady && (GPSFile = SD.open(GPSLogFile, FILE_WRITE))) {
     //Serial.print(F("Open GPSLogFile to write..."));
+    SaveOK = true;
+    char comma = 0X2c;
     file.print(timestr);
     file.print(flat,6);
-    file.print(",");
+    file.print(comma);
     file.print(flon,6);
-    file.print(",");
+    file.print(comma);
     file.print(elevation);
-    file.print(",");
+    file.print(comma);
     file.println(utmstr);
     file.close();
     //Serial.println(F("Done."));
     hour_prev = hour;
     minute_prev = minute;
     second_prev = second;
-//  } else if (!GPSFile){
+  } else {
+    SaveOK = false;
     //Serial.println(F("** Error opening GPSLogFile. **"));
+    }
+  } //else Serial.println(F("** GPS signal lost. **"));
+
+  ScreenPrint();
+
+
+  timeidle -= millis();
+  timeidle += 1000L;
+  //Serial.println(timeidle);
+
+  //delay(timeidle);
+
+  if (timeidle > 500L)
+    LowPower.idle(SLEEP_500MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
+  else if(timeidle > 250L)
+    LowPower.idle(SLEEP_250MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
+  else if(timeidle > 120L)
+    LowPower.idle(SLEEP_120MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
+  else if(timeidle > 60L)
+    LowPower.idle(SLEEP_60MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
+
+}
+
+void ScreenPrint(){
+  if (pin != digitalRead(PIN_SELECT)) {
+    LCD.clr();
+    pin = digitalRead(PIN_SELECT);
   }
-} //else Serial.println(F("** GPS signal lost. **"));
-timeidle -= millis();
-timeidle += 1000L;
-//Serial.println(timeidle);
-if (timeidle > 500L)
-  LowPower.idle(SLEEP_500MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
-else if(timeidle > 250L)
-  LowPower.idle(SLEEP_250MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
-else if(timeidle > 120L)
-  LowPower.idle(SLEEP_120MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
-else if(timeidle > 60L)
-  LowPower.idle(SLEEP_60MS, ADC_OFF, TIMER2_ON, TIMER1_ON, TIMER0_ON, SPI_ON, USART0_ON, TWI_OFF);
+
+  if (pin == LOW) {
+        char line[12];
+        sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
+        LCD.print(0,0,line);
+        LCD.print_PChar((byte)6);
+        sprintf(line, "%02d ", gps.satellites());
+        LCD.print(12,0,line);
+        SaveOK ? LCD.print_PChar((byte)7) : LCD.print("-");
+
+        // New line
+        sprintf(line, "%ld ", utm.Y());
+        LCD.print(1,1,line);
+        LCD.print_PChar((byte)5);
+        LCD.print(10,1,"     ");
+        sprintf(line, "%dm", elevation);
+        if (elevation < 10) LCD.print(14,1,line);
+        else if (elevation < 100) LCD.print(13,1,line);
+        else if (elevation < 1000) LCD.print(12,1,line);
+        else LCD.print(11,1,line);
+  }
+  else {
+    char line1[14] = "LAT=";
+    char line2[14] = "LON=";
+    char lat[10];
+    char lon[10];
+    //strcpy(line1, "LAT=");
+    //String lat = String (flat, 6);
+    dtostrf(flat, 2, 6, lat);
+    strcat(line1,lat);
+    //strcpy(line2, "LON=");
+    //String lon = String (flon, 6);
+    dtostrf(flon, 2, 6, lon);
+    strcat(line2, lon);
+
+    //sprintf(line1,"LAT=%s",lat);
+    //sprintf(line2,"LON=%s",lon);
+    LCD.print(line1,line2);
+  }
 }
