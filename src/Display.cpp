@@ -183,7 +183,9 @@ void Display::print(int vertical, int horizontal, const char text[]){
         #if defined(DISPLAY_TYPE_SDD1306_128X64)
         //u8x8_SSD1306->setCursor(vertical, (horizontal*2));
         //u8x8_SSD1306->print(text);
-        u8x8_SSD1306->drawString(vertical, (horizontal*2),text);
+        u8x8_SSD1306->setCursor(vertical, (horizontal*2));
+        this->print(text);
+        //u8x8_SSD1306->display();
         #endif
     }
 }
@@ -199,6 +201,12 @@ void Display::print(const char text[]){
     #if defined(DISPLAY_TYPE_LCD_16X2)||(DISPLAY_TYPE_LCD_16X2_I2C)
     lcd->print(text);
     #endif
+    }
+    else if (_screen == SDD1306_128X64) {
+        #if defined(DISPLAY_TYPE_SDD1306_128X64)
+        u8x8_SSD1306->print(text);
+        u8x8_SSD1306->flush();
+        #endif
     }
 }
 

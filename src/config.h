@@ -23,16 +23,22 @@ rafael.reyes.carmona@gmail.com
   along with TinyTrackGPS.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+// Definimos nombre aplicación y versión.
 #define NAME "TinyTrackGPS"
 #define VERSION "V0.5"
 
+// Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
 #define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 
+// Definiciones para display LCD 16x2 caracteres.
 #define RS 2
 #define ENABLE 3
 #define D0 4
 #define D1 5
 #define D2 6
 #define D3 7
+
+// Define pin selector para visualizar coordenadas en grados o UTM.
+#define PIN_SELECT 8

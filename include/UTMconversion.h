@@ -34,8 +34,8 @@ rafael.reyes.carmona@gmail.com
 
 class GPS_UTM {
   private:
-		int _h;
-		char _letter;
+	int _h;
+	char _letter;
     long _x;
     long _y;
 
@@ -47,19 +47,21 @@ class GPS_UTM {
 			_y = 0L;
 		};
 
-    void UTM(double lati, double longi) {
+    bool UTM(double lati, double longi) {
       /*!
       * Transformación de las coordenadas geográficas a UTM
       */
-      /* // Sobre la geometría del delipsoide WGS84
-      double a = 6378137.0;
-      double b = 6356752.3142;
+	  //Verificamos que los datos no son erróneos.
+
+	/*// Sobre la geometría del delipsoide WGS84
+    	double a = 6378137.0;
+    	double b = 6356752.3142;
 
       //  float e = sqrt((a*a) - (b*b))/a; ///< Excentricidad.
       double e = sqrt(sq(a) - sq(b))/b; ///< Segunda excentricidad.
       double e2 = sq(e); ///< al cuadrado. Usaremos esta directamente.
       double c = sq(a) / b; ///< Radio Polar de Curvatura.
-			*/
+	*/
 
 			/// Se realiza las declaraciones para agilizar el calculo a UTM de X e Y.
 			double e2 = 673949675659e-14; ///< Segunda excentricidad al cuadrado.
@@ -84,8 +86,9 @@ class GPS_UTM {
       double lonRad = longi * PI_180; ///< Longitud en Radianes.
 
       /// Sobre el huso.
-      float huso = ((longi + 180.0) / 6.0) + 1.0;  ///< Nos interesa quedarnos solo con la parte entera.
-      _h = (int)huso;
+      //float huso = ((longi + 180.0) / 6.0) + 1.0;  ///< Nos interesa quedarnos solo con la parte entera.
+      //_h = (int)huso;
+	  _h = (int)((longi + 180.0) / 6.0) + 1;
 
 			// Handle special case of west coast of Norway
 			if ( lati >= 56.0 && lati < 64.0 && longi >= 3.0 && longi < 12.0 ) {
@@ -198,6 +201,7 @@ class GPS_UTM {
       Serial.print (" X = "); Serial.print (_x); Serial.println (" (m)");
       Serial.print (" Y = "); Serial.print (_y); Serial.println (" (m)");
 			*/
+		return true;
     };
 
 		int zone(){

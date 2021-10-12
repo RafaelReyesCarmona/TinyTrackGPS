@@ -33,10 +33,16 @@ rafael.reyes.carmona@gmail.com
 #define Display_h
 
 #include "config.h"
-#include <LiquidCrystal.h>
-//#include <LiquidCrystal_I2C.h>
-#include <U8x8lib.h>
-//#include <U8g2lib.h>
+
+#if defined(DISPLAY_TYPE_LCD_16X2)
+    #include <LiquidCrystal.h>
+#elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #include <LiquidCrystal_I2C.h>
+#elif defined(DISPLAY_TYPE_SDD1306_128X64)
+    #define U8X8_HAVE_HW_I2C
+    #include <U8x8lib.h>
+    //#include <U8g2lib.h>
+#endif
 
 enum Display_Type {
     SDD1306_128X64,     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
