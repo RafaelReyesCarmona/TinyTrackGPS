@@ -34,13 +34,12 @@ rafael.reyes.carmona@gmail.com
 
 #include "config.h"
 #include <LiquidCrystal.h>
-#include <LiquidCrystal_I2C.h>
+//#include <LiquidCrystal_I2C.h>
 #include <U8x8lib.h>
-#include <U8g2lib.h>
+//#include <U8g2lib.h>
 
 enum Display_Type {
     SDD1306_128X64,     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
-    HX1230_96X68,       // Para usar pantalla HX1230 96x68 pixels LCD SPI(Nokia simil.)
     LCD_16X2,           // Para usar LCD 16 x 2 carateres.
     LCD_16X2_I2C        // Para usar LCD 16 x 2 carateres. I2C.
 };
@@ -56,7 +55,8 @@ class Display {
         #elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
             LiquidCrystal_I2C* lcd_i2c;
         #elif defined(DISPLAY_TYPE_SDD1306_128X64)
-            U8G2_SSD1306_128X64_NONAME_1_SW_I2C* u8g2_SSD1306;
+            //U8G2_SSD1306_128X64_NONAME_1_HW_I2C* u8g2_SSD1306;
+            U8X8_SSD1306_128X64_NONAME_HW_I2C* u8x8_SSD1306;
         #elif defined(DISPLAY_TYPE_HX1230_96X68)
             U8G2_HX1230_96X68_1_3W_SW_SPI* u8g2_HX1230;
         #endif
@@ -74,10 +74,9 @@ class Display {
         void print(const char[], const char[]);
         void print(const char[], const char[], const char[]);
         void print(const char[], const char[], const char[], const char[]);
-        void wait_anin(int);
+        void wait_anin(unsigned int);
+        void draw_wait(byte);
         void print_PChar(byte);
-        void print_utm(int, char, long, long, unsigned short, int, boolean);
-        void print_grades(float, float);
         void splash(int time_delay = 750);
 };
 
