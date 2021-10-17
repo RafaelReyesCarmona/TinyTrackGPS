@@ -28,7 +28,6 @@ This project use components list above:
   * MicroSD module.
   * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306)
   * Bluetooth module. (Optional)
-  * Switch for select visual data on LCD.(Pin8 and GND)
 
 ### LCD 16x2
 
@@ -137,6 +136,7 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * Added support for OLED 0'96" 128x64. 
   * GPS log file set time for create and modify.
   * Use SdFat library, Bill Greiman, for better performance.
+  * Remove switch for select visual data on LCD 16x2. Now data change automatically every 4 seconds between UTM and grades coordenates.
 
 ## Working
 
