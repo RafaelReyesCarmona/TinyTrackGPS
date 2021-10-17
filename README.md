@@ -30,11 +30,30 @@ This project use components list above:
   * Bluetooth module. (Optional)
   * Switch for select visual data on LCD.(Pin8 and GND)
 
+### LCD 16x2
+
 If you use LCD 16x2 char wired (6-wires), uncomment line like this in 'config.h' file:
-```
+```C++
 #define DISPLAY_TYPE_LCD_16X2
 ```
 <img alt="Schema1." src="images/schema1.jpg" width="240">&nbsp;
+
+### LCD 16x2 I2C
+
+If you use LCD 16x2 char I2C (4-wires), uncomment line like this in 'config.h' file:
+```C++
+#define DISPLAY_TYPE_LCD_16X2_I2C
+```
+<img alt="Schema1." src="images/InShot_20211018_000644613.jpg" width="240">&nbsp;
+
+### OLED 0'96" 128x64 I2C
+
+If you use OLED 0'96" 128X64 I2C (4-wires), uncomment line like this in 'config.h' file:
+```C++
+#define DISPLAY_TYPE_SDD1306_128X64
+```
+<img alt="Schema1." src="images/InShot_20211018_000545242.jpg" width="240">&nbsp;
+
 
 ## Source
 
@@ -50,14 +69,14 @@ TinyTrackGPS is free software, see **License** section for more information. The
 ## How to compile
 ### Config
 Edit 'config.h' file before, to configure display type commenting the proper line:
-```
+```C++
 // Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
 #define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 ```
 Modify Arduino pin where you connect the LCD 16x2 char:
-```
+```C++
 // Definiciones para display LCD 16x2 caracteres.
 #define RS 2
 #define ENABLE 3
@@ -67,7 +86,7 @@ Modify Arduino pin where you connect the LCD 16x2 char:
 #define D3 7
 ```
 Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
-```
+```C++
 // Define direccion I2C para LCD16x2 char.
 #define I2C 0x27
 ```
@@ -148,7 +167,7 @@ For conversion to UTM coordinates it has been implemented library UTMconversion.
 
 Example of use:
 
-```
+```C++
 #include "UTMconversion.h"
 
 float flat = 37.8959210;
@@ -182,6 +201,16 @@ Where:
 
 Low-Power the library is trying to used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
 But yet not implemented. 
+
+## Accuracy
+
+NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.
+
+<img alt="GPS accuracy" src="images/InShot_20211018_001600256.jpg" width="480">&nbsp;
+
+  * 'Ref' was at _(30S 341554 4194119)_ location exactly. 
+  * 'TinyGPS' was located at _(30S 341556 4194126)_, 7m error. 
+  * 'GPS device' reported _(30S 341553 4194111)_, 8m error. 
 
 ## Draw track on map
 
