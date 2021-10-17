@@ -6,6 +6,8 @@
 
 A simple track GPS to SD card logger.
 
+<img alt="Location example." src="images/InShot_20211017_232153417.gif" width="240">&nbsp;
+<img alt="Location example." src="images/InShot_20211017_232434869.gif" width="240">&nbsp;
 <img alt="Location example." src="images/InShot_20210713_181415551.jpg" width="240">&nbsp;
 <img alt="Location example." src="images/InShot_20211005_101104059.gif" width="240">&nbsp;
 
@@ -178,7 +180,8 @@ Where:
   * MM - Mouth.
   * DD - Day.
 
-Low-Power the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+Low-Power the library is trying to used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+But yet not implemented. 
 
 ## Draw track on map
 
