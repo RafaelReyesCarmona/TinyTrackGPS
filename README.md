@@ -24,10 +24,14 @@ This project use components list above:
   * Arduino © UNO board or equivalent AVR.
   * NMEA 6 module.
   * MicroSD module.
-  * _LCD 16×2 char display module._
+  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306)
   * Bluetooth module. (Optional)
   * Switch for select visual data on LCD.(Pin8 and GND)
 
+If you use LCD 16x2 char wired (6-wires), uncomment line like this in 'config.h' file:
+```
+#define DISPLAY_TYPE_LCD_16X2
+```
 <img alt="Schema1." src="images/schema1.jpg" width="240">&nbsp;
 
 ## Source
@@ -35,11 +39,83 @@ This project use components list above:
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
-  * Ticker library, Stefan Staub (https://github.com/sstaub/Ticker).
-  * Low-Power library, rocketscream (https://github.com/rocketscream/Low-Power).
-  * SD library, Arduino Standard Libraries (Arduino IDE).
-  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
+  * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
+  * U8g2 library, oliver (https://github.com/olikraus/u8g2).
+  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE). (only for debug)
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
+  * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
+
+## How to compile
+### Config
+Edit 'config.h' file before, to configure display type commenting the proper line:
+```
+// Descomentar solo uno de los displays utilizados.
+//#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
+#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
+//#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
+```
+Modify Arduino pin where you connect the LCD 16x2 char:
+```
+// Definiciones para display LCD 16x2 caracteres.
+#define RS 2
+#define ENABLE 3
+#define D0 4
+#define D1 5
+#define D2 6
+#define D3 7
+```
+Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
+```
+// Define direccion I2C para LCD16x2 char.
+#define I2C 0x27
+```
+### Platformio
+Run command `pio.exe run`.
+```
+Processing Uno (platform: atmelavr; board: uno; framework: arduino)
+---------------------------------------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
+PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
+HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
+DEBUG: Current (avr-stub) On-board (avr-stub, simavr)
+PACKAGES:
+ - framework-arduino-avr 5.1.0
+ - toolchain-atmelavr 1.70300.191015 (7.3.0)
+LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 11 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- <LiquidCrystal> 1.0.7
+|-- <TinyGPS> 0.0.0-alpha+sha.db4ef9c97a
+|-- <U8g2> 2.28.8
+|   |-- <SPI> 1.0
+|   |-- <Wire> 1.0
+|-- <SdFat> 2.1.0
+|   |-- <SPI> 1.0
+|-- <LiquidCrystal_I2C> 1.1.4
+|   |-- <Wire> 1.0
+|-- <SoftwareSerial> 1.0
+Building in release mode
+Checking size .pio\build\Uno\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [========  ]  79.6% (used 1630 bytes from 2048 bytes)
+Flash: [==========]  95.6% (used 30844 bytes from 32256 bytes)
+========================================= [SUCCESS] Took 2.28 seconds =========================================
+Environment    Status    Duration
+-------------  --------  ------------
+Uno            SUCCESS   00:00:02.277
+========================================= 1 succeeded in 00:00:02.277 =========================================
+```
+For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
+
+## Changelog
+### V0.5
+  * Added wait animation for LCD 16x2 on "Waitting for GPS signal..." screen.
+  * Added support for OLED 0'96" 128x64. 
+  * GPS log file set time for create and modify.
+  * Use SdFat library, Bill Greiman, for better performance.
 
 ## Working
 
