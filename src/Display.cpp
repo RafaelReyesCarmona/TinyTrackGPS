@@ -259,24 +259,7 @@ void Display::wait_anin(unsigned int t){
         #endif
     }
 }
-/*
-void Display::draw_wait(byte t) {
-    #if defined(DISPLAY_TYPE_SDD1306_128X64)
-    byte draw_percet;
-    if (t == 0) draw_percet = 0b0000;
-    else if (t == 1) draw_percet = 0b0001;
-    else if (t == 2) draw_percet = 0b1001;
-    else if (t == 3) draw_percet = 0b1101;
-    else if (t == 4) draw_percet = 0b1111;
-    else if (t == 5) draw_percet = 0b1110;
-    else if (t == 6) draw_percet = 0b0110;
-    else if (t == 7) draw_percet = 0b0010;
 
-    u8x8_SSD1306->drawDisc(_width>>1,_height-8,7,draw_percet);
-    u8x8_SSD1306->drawCircle(_width>>1,_height-8,7,U8G2_DRAW_ALL);
-    #endif
-}
-*/
 void Display::print_PChar(byte c) {
     if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
