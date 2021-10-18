@@ -6,6 +6,8 @@
 
 A simple track GPS to SD card logger.
 
+<img alt="Location example." src="images/InShot_20211017_232153417.gif" width="240">&nbsp;
+<img alt="Location example." src="images/InShot_20211017_232434869.gif" width="240">&nbsp;
 <img alt="Location example." src="images/InShot_20210713_181415551.jpg" width="240">&nbsp;
 <img alt="Location example." src="images/InShot_20211005_101104059.gif" width="240">&nbsp;
 
@@ -26,7 +28,6 @@ This project use components list above:
   * MicroSD module.
   * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306)
   * Bluetooth module. (Optional)
-
 
 ### LCD 16x2
 
@@ -205,7 +206,18 @@ Where:
   * MM - Mouth.
   * DD - Day.
 
-Low-Power the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+Low-Power the library is trying to used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+But yet not implemented. 
+
+## Accuracy
+
+NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.
+
+<img alt="GPS accuracy" src="images/InShot_20211018_001600256.jpg" width="480">&nbsp;
+
+  * 'Ref' was at _(30S 341554 4194119)_ location exactly. 
+  * 'TinyGPS' was located at _(30S 341556 4194126)_, 7m error. 
+  * 'GPS device' reported _(30S 341553 4194111)_, 8m error. 
 
 ## Accuracy
 
