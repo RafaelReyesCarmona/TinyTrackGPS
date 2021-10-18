@@ -1,6 +1,6 @@
 /*
 Display.h - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.5
+TinyTrackGPS v0.6
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -59,7 +59,7 @@ class Display {
         #if defined(DISPLAY_TYPE_LCD_16X2)
             LiquidCrystal* lcd;
         #elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
-            LiquidCrystal_I2C* lcd_i2c;
+            LiquidCrystal_I2C* lcd;
         #elif defined(DISPLAY_TYPE_SDD1306_128X64)
             //U8G2_SSD1306_128X64_NONAME_1_HW_I2C* u8g2_SSD1306;
             U8X8_SSD1306_128X64_NONAME_HW_I2C* u8x8_SSD1306;
@@ -84,6 +84,7 @@ class Display {
         void draw_wait(byte);
         void print_PChar(byte);
         void splash(int time_delay = 750);
+        Display_Type display_type(){return _screen;};
 };
 
 #endif

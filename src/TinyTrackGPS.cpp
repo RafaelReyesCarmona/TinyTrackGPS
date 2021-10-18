@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.5
+TinyTrackGPS v0.6
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -52,6 +52,7 @@ rafael.reyes.carmona@gmail.com
 
 // Variables para grabar en SD.
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
+
 const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
 SdFat card;   //SdFat.h library.
 SdFile file;
@@ -75,7 +76,9 @@ int sats;
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
 Display LCD(LCD_16X2);
-#elif defined (DISPLAY_TYPE_SDD1306_128X64)
+#elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
+Display LCD(LCD_16X2_I2C);
+#elif defined(DISPLAY_TYPE_SDD1306_128X64)
 Display LCD(SDD1306_128X64);
 #endif
 
@@ -113,11 +116,6 @@ void setup(void) {
 
   SDReady = card.begin(CHIP_SELECT);
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
-
-  /* Declaramos pin para selector visor coordenadas */
-  //pinMode(PIN_SELECT,INPUT_PULLUP); <--- Produce fallos en el proceso ScreenPrint.
-  //pinMode(PIN_SELECT, INPUT); -> Chane every 4 seconds automatically.
-  //attachInterrupt(digitalPinToInterrupt(PIN_SELECT), pinswitch, CHANGE); <- Solo pines 2,3. Arduino UNO.
 
   /* Iniciaización del display LCD u OLED */
   LCD.start();
@@ -179,30 +177,40 @@ void loop(void) {
 
 void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   float f_elevation;
-  char utmstr[]= "30S 123456 1234567";
-  char timestr[]= "00:00:00";
+  char buffer[60];
+  char line[11];
+  int index;
+  int zone;
+  char band;
+  long X;
+  long Y;
 
   gps.f_get_position(&flat, &flon, &age);
-  GPSRefresh();
+  utm.UTM(flat, flon);
+  zone = utm.zone();
+  band = utm.band();
+  X = utm.X();
+  Y = utm.Y();
 
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
   GPSRefresh();
   
   f_elevation = gps.f_altitude();
   elev = abs((int)f_elevation);
-  //elevation = (int)gps.altitude()/100;
   GPSRefresh();  
   
   sats = gps.satellites();
   GPSRefresh();
 
-  if (utm.UTM(flat, flon)) {
-    sprintf(utmstr, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
-  }
-
   if (age != TinyGPS::GPS_INVALID_AGE){
-    sprintf(timestr, "%02d:%02d:%02d,", hour, minute, second);
-    //Serial.print(timestr);
+    index = snprintf(buffer,10, "%02d:%02d:%02d,", hour, minute, second);
+    dtostrf(flat, 10, 6, line);
+    index += snprintf(buffer+index,12,"%s,",line);
+    dtostrf(flon, 10, 6, line);
+    index += snprintf(buffer+index,12,"%s,",line);
+    index += snprintf(buffer+index,7,"%05d,",elev);
+    index += snprintf(buffer+index,19,"%02d%c %ld %ld", zone, band, X, Y);
+    //Serial.print(buffer);
   }
 
   if (year != year_actual || month != month_actual || day != day_actual) {
@@ -218,7 +226,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
     if (SDReady && !card.exists(GPSLogFile)) {
       if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
         //Serial.print(F("New GPSLogFile, adding heads..."));
-        file.println(F("Time,latitude,longitude,alt,utm"));
+        file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords"));
         //Serial.println(F("Done."));
         file.close();
         }
@@ -231,16 +239,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   if (SDReady && file.open(GPSLogFile, O_APPEND | O_WRITE)) {
     //Serial.print(F("Open GPSLogFile to write..."));
     SaveOK = true;
-    char comma = 0X2c;
-    file.print(timestr);
-    file.print(flat,6);
-    file.print(comma);
-    file.print(flon,6);
-    file.print(comma);
-    file.print(elev);
-    file.print(comma);
-    file.print(utmstr);
-    file.print("\n");
+    file.println(buffer);
     file.close();
     //Serial.println(F("Done."));
     hour_prev = hour;
@@ -254,45 +253,49 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
 }
 
 void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
-/*
-  if (pin != digitalRead(PIN_SELECT)) {
-    LCD.clr();
-    pin = digitalRead(PIN_SELECT);
-  }
-*/
-  if (!pinswitch()) {
-        char line[12];
+  bool print_utm = false;
+  bool print_grades = false;
 
-        sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
-        //Serial.println(line);
-        LCD.print(0,0,line);
-        LCD.print_PChar((byte)6);
-        sprintf(line, "%02d ", sats);
-        //Serial.println(line);
-        LCD.print(12,0,line);
-        SaveOK ? LCD.print_PChar((byte)7) : LCD.print("-");
-
-        // New line
-        sprintf(line, "%ld ", utm.Y());
-        //Serial.println(line);
-        LCD.print(1,1,line);
-        LCD.print_PChar((byte)5);
-        LCD.print(10,1,"     ");
-        sprintf(line, "%dm", elev);
-        //Serial.println(line);
-        
-        if (elev < 10) LCD.print(14,1,line);
-        else if (elev < 100) LCD.print(13,1,line);
-        else if (elev < 1000) LCD.print(12,1,line);
-        else LCD.print(11,1,line);
-        
+  if (LCD.display_type() == SDD1306_128X64) {
+    print_utm = true;
+    print_grades = true;
   }
-  else {
+  else if (!pinswitch()) print_utm = true;
+  else print_grades = true;
+
+  if (print_utm) {
+    char line[12];
+
+    sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
+    //Serial.println(line);
+    LCD.print(0,0,line);
+    LCD.print_PChar((byte)6);
+    sprintf(line, "%02d ", sats);
+    //Serial.println(line);
+    LCD.print(12,0,line);
+    SaveOK ? LCD.print_PChar((byte)7) : LCD.print("-");
+
+    // New line
+    sprintf(line, "%ld ", utm.Y());
+    //Serial.println(line);
+    LCD.print(1,1,line);
+    LCD.print_PChar((byte)5);
+    LCD.print(10,1,"_____");
+    sprintf(line, "%dm", elev);
+    //Serial.println(line);
+    
+    if (elev < 10) LCD.print(14,1,line);
+    else if (elev < 100) LCD.print(13,1,line);
+    else if (elev < 1000) LCD.print(12,1,line);
+    else LCD.print(11,1,line);
+  }
+
+  if (print_grades) {
     char line[11];
-    LCD.print(1,0,"LAT=");
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT=");
     dtostrf(flat, 10, 6, line);
     LCD.print(line);
-    LCD.print(1,1,"LON=");
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON=");
     dtostrf(flon, 10, 6, line);
     LCD.print(line);
   }
@@ -307,6 +310,9 @@ void GPSRefresh()
 bool pinswitch()
 {
   bool pin;
+  
+  if (LCD.display_type() == SDD1306_128X64) return true;
+  
   pin = bitRead(iteration,3); // Change every 4 seconds.
   //pin = digitalRead(PIN_SELECT);
   //LCD.clr(); -> Too slow clear individual characters.

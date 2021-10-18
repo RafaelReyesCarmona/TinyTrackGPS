@@ -2,7 +2,7 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.5](https://img.shields.io/badge/Version-v0.5-blue?style=for-the-badge&logo=v)]()
+[![Version: v0.6](https://img.shields.io/badge/Version-v0.6-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -24,26 +24,129 @@ This project use components list above:
   * Arduino © UNO board or equivalent AVR.
   * NMEA 6 module.
   * MicroSD module.
-  * _LCD 16×2 char display module._
+  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306)
   * Bluetooth module. (Optional)
-  * Switch for select visual data on LCD.(Pin8 and GND)
 
+
+### LCD 16x2
+
+If you use LCD 16x2 char wired (6-wires), uncomment line like this in 'config.h' file:
+```C++
+#define DISPLAY_TYPE_LCD_16X2
+```
 <img alt="Schema1." src="images/schema1.jpg" width="240">&nbsp;
+
+### LCD 16x2 I2C
+
+If you use LCD 16x2 char I2C (4-wires), uncomment line like this in 'config.h' file:
+```C++
+#define DISPLAY_TYPE_LCD_16X2_I2C
+```
+<img alt="Schema1." src="images/InShot_20211018_000644613.jpg" width="240">&nbsp;
+
+### OLED 0'96" 128x64 I2C
+
+If you use OLED 0'96" 128X64 I2C (4-wires), uncomment line like this in 'config.h' file:
+```C++
+#define DISPLAY_TYPE_SDD1306_128X64
+```
+<img alt="Schema1." src="images/InShot_20211018_000545242.jpg" width="240">&nbsp;
 
 ## Source
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
-  * Ticker library, Stefan Staub (https://github.com/sstaub/Ticker).
-  * Low-Power library, rocketscream (https://github.com/rocketscream/Low-Power).
-  * SD library, Arduino Standard Libraries (Arduino IDE).
-  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
+  * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
+  * U8g2 library, oliver (https://github.com/olikraus/u8g2).
+  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE). (only for debug)
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
+  * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
+
+## How to compile
+### Config
+Edit 'config.h' file before, to configure display type commenting the proper line:
+```C++
+// Descomentar solo uno de los displays utilizados.
+//#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
+#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
+//#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
+```
+Modify Arduino pin where you connect the LCD 16x2 char:
+```C++
+// Definiciones para display LCD 16x2 caracteres.
+#define RS 2
+#define ENABLE 3
+#define D0 4
+#define D1 5
+#define D2 6
+#define D3 7
+```
+Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
+```C++
+// Define direccion I2C para LCD16x2 char.
+#define I2C 0x27
+```
+### Platformio
+Run command `pio.exe run`.
+```
+Processing Uno (platform: atmelavr; board: uno; framework: arduino)
+---------------------------------------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
+PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
+HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
+DEBUG: Current (avr-stub) On-board (avr-stub, simavr)
+PACKAGES:
+ - framework-arduino-avr 5.1.0
+ - toolchain-atmelavr 1.70300.191015 (7.3.0)
+LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 11 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- <LiquidCrystal> 1.0.7
+|-- <TinyGPS> 0.0.0-alpha+sha.db4ef9c97a
+|-- <U8g2> 2.28.8
+|   |-- <SPI> 1.0
+|   |-- <Wire> 1.0
+|-- <SdFat> 2.1.0
+|   |-- <SPI> 1.0
+|-- <LiquidCrystal_I2C> 1.1.4
+|   |-- <Wire> 1.0
+|-- <SoftwareSerial> 1.0
+Building in release mode
+Checking size .pio\build\Uno\firmware.elf
+Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
+RAM:   [========  ]  79.6% (used 1630 bytes from 2048 bytes)
+Flash: [==========]  95.6% (used 30844 bytes from 32256 bytes)
+========================================= [SUCCESS] Took 2.28 seconds =========================================
+Environment    Status    Duration
+-------------  --------  ------------
+Uno            SUCCESS   00:00:02.277
+========================================= 1 succeeded in 00:00:02.277 =========================================
+```
+For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
+
+## Changelog
+### V0.6
+  * Fixed error GPS log file when compiling for OLED 0'96".
+  * Added wait animation for OLED 0'96" 128x64.
+  * Written new procedure to save data in GPS log file.
+  * Less global variables, so code with less size when compile it.
+### V0.5
+  * Added wait animation for LCD 16x2 on "Waitting for GPS signal..." screen.
+  * Added support for OLED 0'96" 128x64. 
+  * GPS log file set time for create and modify.
+  * Use SdFat library, Bill Greiman, for better performance.
+  * Remove switch for select visual data on LCD 16x2. Now data change automatically every 4 seconds between UTM and grades coordenates.
 
 ## Working
 
-It works getting info from NMEA module every second and save it into de log file. Format is:
+It works getting info from NMEA module every second and save it into de log file. 
+
+
+Log file Format is:
 ```
 HH:MM:SS,YY.YYYYYY,XX.XXXXXX,ALT,UTM
 ```
@@ -70,7 +173,7 @@ For conversion to UTM coordinates it has been implemented library UTMconversion.
 
 Example of use:
 
-```
+```C++
 #include "UTMconversion.h"
 
 float flat = 37.8959210;
@@ -103,6 +206,16 @@ Where:
   * DD - Day.
 
 Low-Power the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+
+## Accuracy
+
+NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.
+
+<img alt="GPS accuracy" src="images/InShot_20211018_001600256.jpg" width="480">&nbsp;
+
+  * `Ref` was at _(30S 341554 4194119)_ location exactly. 
+  * `TinyGPS` was located at _(30S 341556 4194126)_, 7m error. 
+  * `GPS device` reported _(30S 341553 4194111)_, 8m error. 
 
 ## Draw track on map
 

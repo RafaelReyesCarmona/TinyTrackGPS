@@ -1,6 +1,6 @@
 /*
 UTMconsersion.h - Library to convert in UTM coordenates.
-TinyTrackGPS v0.5
+TinyTrackGPS v0.6
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -47,7 +47,7 @@ class GPS_UTM {
 			_y = 0L;
 		};
 
-    bool UTM(double lati, double longi) {
+    void UTM(double lati, double longi) {
       /*!
       * Transformación de las coordenadas geográficas a UTM
       */
@@ -201,7 +201,6 @@ class GPS_UTM {
       Serial.print (" X = "); Serial.print (_x); Serial.println (" (m)");
       Serial.print (" Y = "); Serial.print (_y); Serial.println (" (m)");
 			*/
-		return true;
     };
 
 		int zone(){
