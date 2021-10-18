@@ -215,16 +215,6 @@ NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can 
 
 <img alt="GPS accuracy" src="images/InShot_20211018_001600256.jpg" width="480">&nbsp;
 
-  * 'Ref' was at _(30S 341554 4194119)_ location exactly. 
-  * 'TinyGPS' was located at _(30S 341556 4194126)_, 7m error. 
-  * 'GPS device' reported _(30S 341553 4194111)_, 8m error. 
-
-## Accuracy
-
-NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.
-
-<img alt="GPS accuracy" src="images/InShot_20211018_001600256.jpg" width="480">&nbsp;
-
   * `Ref` was at _(30S 341554 4194119)_ location exactly. 
   * `TinyGPS` was located at _(30S 341556 4194126)_, 7m error. 
   * `GPS device` reported _(30S 341553 4194111)_, 8m error. 
