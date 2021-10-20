@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.6
+TinyTrackGPS v0.7
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -48,6 +48,7 @@ rafael.reyes.carmona@gmail.com
 #include <TinyGPS.h>
 #include <SdFat.h>
 #include <sdios.h>
+#include <LowPower.h>
 #include "UTMconversion.h"
 
 // Variables para grabar en SD.
@@ -70,8 +71,7 @@ float flat, flon;
 int year;
 byte month, day, hour, minute, second, hundredths;
 unsigned long age;
-int elev;
-int sats;
+unsigned int elev;
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -80,6 +80,8 @@ Display LCD(LCD_16X2);
 Display LCD(LCD_16X2_I2C);
 #elif defined(DISPLAY_TYPE_SDD1306_128X64)
 Display LCD(SDD1306_128X64);
+#else
+#define NO_DISPLAY
 #endif
 
 //------------------------------------------------------------------------------
@@ -102,9 +104,11 @@ void dateTime(uint16_t* date, uint16_t* time) {
 //------------------------------------------------------------------------------
 
 void GPSData(TinyGPS &gps, GPS_UTM &utm);
+#ifndef NO_DISPLAY
 void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm);
-void GPSRefresh();
 bool pinswitch();
+#endif
+void GPSRefresh();
 
 unsigned long iteration = 0;
 
@@ -118,22 +122,27 @@ void setup(void) {
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
 
   /* Iniciaización del display LCD u OLED */
+  #ifndef NO_DISPLAY
   LCD.start();
   LCD.clr();
   LCD.splash(750);      // Dibujamos la presensación.
-  
-  //Serial.print(F("Waiting for GPS signal..."));
-  LCD.clr();
-  LCD.print("Waiting for","GPS signal...");
+  #endif
 
+  //Serial.print(F("Waiting for GPS signal..."));
+  #ifndef NO_DISPLAY
+  LCD.clr();
+  LCD.print("Waiting for","GPS signal...","");
   unsigned int time = 0;
+  #endif
+
   bool config = false;
 
   do {
+    #ifndef NO_DISPLAY
     LCD.wait_anin(time++);
-    
+    #endif
     for (unsigned long start = millis(); millis() - start < 1000;) {
-      while (gps_serial.available()) {
+      while (gps_serial.available() > 0) {
         char c = gps_serial.read();
         //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
         if (gps.encode(c)) {// Did a new valid sentence come in?
@@ -156,27 +165,43 @@ void setup(void) {
   //Serial.println(F("Done."));
   //Serial.println(F("Configuration ended."));
 
+  #ifndef NO_DISPLAY
   LCD.clr();
+  #endif
 }
 
 void loop(void) {
   bool gps_ok = false;
-  for (unsigned long start = millis(); millis() - start < 940;) {
-    while (gps_serial.available()) {
-      if (gps.encode(gps_serial.read())) {
-        gps_ok = true;
-      }
+
+  while (gps_serial.available() > 0) {
+    char c = gps_serial.read();
+    //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+    if (gps.encode(c)) {
+      gps_ok = true;
     }
   }
-  iteration++;
+  
+  gps.f_get_position(&flat, &flon, &age);
+  utm.UTM(flat, flon);
+  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
+  if ((elev = gps.altitude()) == TinyGPS::GPS_INVALID_ALTITUDE) elev = 0;
+  else elev /= 100L;
+
   if (gps_ok) {
-    GPSData(gps, utm);
+    GPSRefresh();
+    if (!((hour_prev == hour) && (minute_prev == minute) && (second_prev == second))) {
+      GPSData(gps, utm);
+      iteration++;
+    }
+    #ifndef NO_DISPLAY
     ScreenPrint(LCD, gps, utm);
+    #endif
   }
+
+  LowPower.idle(SLEEP_120MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
 }
 
 void GPSData(TinyGPS &gps, GPS_UTM &utm) {
-  float f_elevation;
   char buffer[60];
   char line[11];
   int index;
@@ -185,22 +210,10 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   long X;
   long Y;
 
-  gps.f_get_position(&flat, &flon, &age);
-  utm.UTM(flat, flon);
   zone = utm.zone();
   band = utm.band();
   X = utm.X();
   Y = utm.Y();
-
-  gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
-  GPSRefresh();
-  
-  f_elevation = gps.f_altitude();
-  elev = abs((int)f_elevation);
-  GPSRefresh();  
-  
-  sats = gps.satellites();
-  GPSRefresh();
 
   if (age != TinyGPS::GPS_INVALID_AGE){
     index = snprintf(buffer,10, "%02d:%02d:%02d,", hour, minute, second);
@@ -208,7 +221,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
     index += snprintf(buffer+index,12,"%s,",line);
     dtostrf(flon, 10, 6, line);
     index += snprintf(buffer+index,12,"%s,",line);
-    index += snprintf(buffer+index,7,"%05d,",elev);
+    index += snprintf(buffer+index,7,"%05u,",elev);
     index += snprintf(buffer+index,19,"%02d%c %ld %ld", zone, band, X, Y);
     //Serial.print(buffer);
   }
@@ -223,19 +236,19 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   SdFile::dateTimeCallback(dateTime);
 
   // Si no existe el fichero lo crea y añade las cabeceras.
-    if (SDReady && !card.exists(GPSLogFile)) {
-      if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
-        //Serial.print(F("New GPSLogFile, adding heads..."));
-        file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords"));
-        //Serial.println(F("Done."));
-        file.close();
-        }
-        //else {
-        //Serial.println(F("** Error creating GPSLogFile. **"));
-        //}
-    }
+  if (SDReady && !card.exists(GPSLogFile)) {
+    if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
+      //Serial.print(F("New GPSLogFile, adding heads..."));
+      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
+      //Serial.println(F("Done."));
+      file.close();
+      }
+      //else {
+      //Serial.println(F("** Error creating GPSLogFile. **"));
+      //}
+  }
   
-  if (!((hour_prev == hour) && (minute_prev == minute) && (second_prev == second))) {
+  //if (!((hour_prev == hour) && (minute_prev == minute) && (second_prev == second))) {
   if (SDReady && file.open(GPSLogFile, O_APPEND | O_WRITE)) {
     //Serial.print(F("Open GPSLogFile to write..."));
     SaveOK = true;
@@ -249,12 +262,16 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
     SaveOK = false;
     //Serial.println(F("** Error opening GPSLogFile. **"));
     }
-  } //else Serial.println(F("** GPS signal lost. **"));
+  //} //else Serial.println(F("** GPS signal lost. **"));
 }
 
+#ifndef NO_DISPLAY
 void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   bool print_utm = false;
   bool print_grades = false;
+  unsigned short sats;
+
+  sats = gps.satellites();
 
   if (LCD.display_type() == SDD1306_128X64) {
     print_utm = true;
@@ -270,7 +287,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     //Serial.println(line);
     LCD.print(0,0,line);
     LCD.print_PChar((byte)6);
-    sprintf(line, "%02d ", sats);
+    sprintf(line, "%02hu ", sats);
     //Serial.println(line);
     LCD.print(12,0,line);
     SaveOK ? LCD.print_PChar((byte)7) : LCD.print("-");
@@ -281,7 +298,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     LCD.print(1,1,line);
     LCD.print_PChar((byte)5);
     LCD.print(10,1,"_____");
-    sprintf(line, "%dm", elev);
+    sprintf(line, "%um", elev);
     //Serial.println(line);
     
     if (elev < 10) LCD.print(14,1,line);
@@ -301,24 +318,26 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   }
 }
 
-void GPSRefresh()
-{
-    while (gps_serial.available())
-      gps.encode(gps_serial.read());
-}
-
 bool pinswitch()
 {
   bool pin;
   
   if (LCD.display_type() == SDD1306_128X64) return true;
   
-  pin = bitRead(iteration,3); // Change every 4 seconds.
-  //pin = digitalRead(PIN_SELECT);
+  pin = bitRead(iteration,4); // Change every 8 seconds.
   //LCD.clr(); -> Too slow clear individual characters.
-  LCD.print(0,0," ");
-  LCD.print(15,0," ");
-  LCD.print(0,1," ");
-  LCD.print(15,1," ");
+  if ((iteration%16) == 0) {
+    LCD.print(0,0," ");
+    LCD.print(15,0," ");
+    LCD.print(0,1," ");
+    LCD.print(15,1," ");
+  }
   return pin;
+}
+#endif
+
+void GPSRefresh()
+{
+    while (gps_serial.available() > 0)
+      gps.encode(gps_serial.read());
 }

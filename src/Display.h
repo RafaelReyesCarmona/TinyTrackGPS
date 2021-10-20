@@ -1,6 +1,6 @@
 /*
 Display.h - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.6
+TinyTrackGPS v0.7
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.

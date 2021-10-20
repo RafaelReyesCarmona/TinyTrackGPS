@@ -1,6 +1,6 @@
 /*
 Display.cpp - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.6
+TinyTrackGPS v0.7
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -222,7 +222,14 @@ void Display::print(const char text1[], const char text2[]){
 }
 
 void Display::print(const char text1[], const char text2[], const char text3[]){
-
+if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
+        this->print(text1, text2);
+    }
+    else if (_screen == SDD1306_128X64) {
+        this->print(0, text1);
+        this->print(1, text2);
+        this->print(2, text3);
+    }
 }
 
 void Display::print(const char text1[], const char text2[], const char text3[], const char text4[]){
@@ -254,8 +261,8 @@ void Display::wait_anin(unsigned int t){
                                         0x80,0xf8,0xfe,0xf9,0xf9,0xfe,0xf8,0x80,
                                         0x80,0xf8,0xfe,0xff,0xff,0xfe,0xf8,0x80
                                         };
-        u8x8_SSD1306->drawTile((_width>>1)-1, 6, 1, hourglass_UP[t%5]);
-        u8x8_SSD1306->drawTile((_width>>1)-1, 7, 1, hourglass_DOWN[t%5]);
+        u8x8_SSD1306->drawTile((_width>>1)-1, 5, 1, hourglass_UP[t%5]);
+        u8x8_SSD1306->drawTile((_width>>1)-1, 6, 1, hourglass_DOWN[t%5]);
         #endif
     }
 }

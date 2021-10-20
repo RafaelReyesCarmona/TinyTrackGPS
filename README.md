@@ -2,7 +2,7 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.6](https://img.shields.io/badge/Version-v0.6-blue?style=for-the-badge&logo=v)]()
+[![Version: v0.7](https://img.shields.io/badge/Version-v0.7-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -24,8 +24,17 @@ This project use components list above:
   * Arduino © UNO board or equivalent AVR.
   * NMEA 6 module.
   * MicroSD module.
-  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306)
+  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306) (Optional)
   * Bluetooth module. (Optional)
+
+### NO DISPLAY
+Now you can use a minimal hardware to track GPS location. When no display use MicroSD module and card are mandatory. Comment all lines in 'config.h' file:
+```C++
+//#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
+//#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
+//#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
+```
+<img alt="Schema1." src="images/schema0.jpg" width="240">&nbsp;
 
 ### LCD 16x2
 
@@ -58,6 +67,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
+  * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE). (only for debug)
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
@@ -68,7 +78,7 @@ Edit 'config.h' file before, to configure display type commenting the proper lin
 ```C++
 // Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
-#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
+#define DISPLAY_TYPE_LCD_16X2             // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 ```
 Modify Arduino pin where you connect the LCD 16x2 char:
@@ -127,7 +137,37 @@ Uno            SUCCESS   00:00:02.277
 ```
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
 
+### Use of memory (Arduino UNO or equivalent) V0.7
+#### NO DISPLAY
+```
+RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
+Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
+```
+
+#### LCD 16x2 I2C
+```
+RAM:   [=======   ]  70.2% (used 1437 bytes from 2048 bytes)
+Flash: [========= ]  86.0% (used 27748 bytes from 32256 bytes)
+```
+
+#### LCD 16x2 6-WIRED
+```
+RAM:   [======    ]  59.2% (used 1213 bytes from 2048 bytes)
+Flash: [========  ]  81.5% (used 26296 bytes from 32256 bytes)
+```
+
+#### OLED 0'96" 128x64 I2C
+```
+RAM:   [========  ]  79.7% (used 1632 bytes from 2048 bytes)
+Flash: [==========]  96.2% (used 31032 bytes from 32256 bytes)
+```
+
 ## Changelog
+### V0.7
+  * Use Low-Power library to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+  * No display support for minimal implementation.
+  * Fixed some errors when displays on LCD 16x2.
+  * Fixed error when save log on SD. Sometimes data didn't save correctly.
 ### V0.6
   * Fixed error GPS log file when compiling for OLED 0'96".
   * Added wait animation for OLED 0'96" 128x64.
@@ -138,7 +178,7 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * Added support for OLED 0'96" 128x64. 
   * GPS log file set time for create and modify.
   * Use SdFat library, Bill Greiman, for better performance.
-  * Remove switch for select visual data on LCD 16x2. Now data change automatically every 4 seconds between UTM and grades coordenates.
+  * Remove switch for select visual data on LCD 16x2. Now data change automatically every 8 seconds between UTM and grades coordenates.
 
 ## Working
 
@@ -204,8 +244,8 @@ Where:
   * MM - Mouth.
   * DD - Day.
 
-Low-Power the library is trying to used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
-But yet not implemented. 
+`Low-Power` - the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+Implemented in v0.4 first time and from v0.7. 
 
 ## Accuracy
 

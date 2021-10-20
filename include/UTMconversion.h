@@ -1,6 +1,6 @@
 /*
 UTMconsersion.h - Library to convert in UTM coordenates.
-TinyTrackGPS v0.6
+TinyTrackGPS v0.7
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
