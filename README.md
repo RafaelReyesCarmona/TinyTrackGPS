@@ -100,8 +100,7 @@ Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
 Run command `pio.exe run`.
 ```
 Processing Uno (platform: atmelavr; board: uno; framework: arduino)
----------------------------------------------------------------------------------------------------------------
-Verbose mode can be enabled via `-v, --verbose` option
+---------------------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
 CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
 PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
 HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
@@ -111,7 +110,7 @@ PACKAGES:
  - toolchain-atmelavr 1.70300.191015 (7.3.0)
 LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
 LDF Modes: Finder ~ chain, Compatibility ~ soft
-Found 11 compatible libraries
+Found 12 compatible libraries
 Scanning dependencies...
 Dependency Graph
 |-- <LiquidCrystal> 1.0.7
@@ -123,17 +122,22 @@ Dependency Graph
 |   |-- <SPI> 1.0
 |-- <LiquidCrystal_I2C> 1.1.4
 |   |-- <Wire> 1.0
+|-- <Low-Power> 1.81.0
 |-- <SoftwareSerial> 1.0
 Building in release mode
+Compiling .pio\build\Uno\src\Display.cpp.o
+Compiling .pio\build\Uno\src\TinyTrackGPS.cpp.o
+Linking .pio\build\Uno\firmware.elf
 Checking size .pio\build\Uno\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [========  ]  79.6% (used 1630 bytes from 2048 bytes)
-Flash: [==========]  95.6% (used 30844 bytes from 32256 bytes)
-========================================= [SUCCESS] Took 2.28 seconds =========================================
+RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
+Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
+Building .pio\build\Uno\firmware.hex
+========================================= [SUCCESS] Took 8.62 seconds =========================================
 Environment    Status    Duration
 -------------  --------  ------------
-Uno            SUCCESS   00:00:02.277
-========================================= 1 succeeded in 00:00:02.277 =========================================
+Uno            SUCCESS   00:00:08.616
+========================================= 1 succeeded in 00:00:08.616 =========================================
 ```
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
 

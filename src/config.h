@@ -28,7 +28,7 @@ rafael.reyes.carmona@gmail.com
 #define VERSION "V0.7.16"
 
 // Descomentar solo uno de los displays utilizados. No cambiar para uso NO DISPLAY.
-#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels
+//#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels
 //#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 
