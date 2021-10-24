@@ -2,7 +2,7 @@
 
 # TinyTrackGPS
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.7](https://img.shields.io/badge/Version-v0.7-blue?style=for-the-badge&logo=v)]()
+[![Version: v0.8](https://img.shields.io/badge/Version-v0.8-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -71,6 +71,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE). (only for debug)
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
+  * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
 
 ## How to compile
 ### Config
@@ -100,7 +101,7 @@ Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
 Run command `pio.exe run`.
 ```
 Processing Uno (platform: atmelavr; board: uno; framework: arduino)
----------------------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
+-------------------------------------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
 CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
 PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
 HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
@@ -123,21 +124,18 @@ Dependency Graph
 |-- <LiquidCrystal_I2C> 1.1.4
 |   |-- <Wire> 1.0
 |-- <Low-Power> 1.81.0
+|-- <UTMConversion> 1.0.0
 |-- <SoftwareSerial> 1.0
 Building in release mode
-Compiling .pio\build\Uno\src\Display.cpp.o
-Compiling .pio\build\Uno\src\TinyTrackGPS.cpp.o
-Linking .pio\build\Uno\firmware.elf
 Checking size .pio\build\Uno\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
 RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
 Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
-Building .pio\build\Uno\firmware.hex
-========================================= [SUCCESS] Took 8.62 seconds =========================================
+================================================= [SUCCESS] Took 2.21 seconds =================================================
 Environment    Status    Duration
 -------------  --------  ------------
-Uno            SUCCESS   00:00:08.616
-========================================= 1 succeeded in 00:00:08.616 =========================================
+Uno            SUCCESS   00:00:02.214
+================================================= 1 succeeded in 00:00:02.214 =================================================
 ```
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
 
@@ -167,6 +165,9 @@ Flash: [==========]  96.2% (used 31032 bytes from 32256 bytes)
 ```
 
 ## Changelog
+### V0.8
+  * Added UTMConversion library for conversion to UTM coordinates. It has been implemented From library UTMconversion.h (TinyTrackGPS V0.7). Now it is an independent library.
+
 ### V0.7
   * Use Low-Power library to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
   * No display support for minimal implementation.
@@ -212,7 +213,7 @@ Where:
 
 <img alt="Log File." src="images/image2.png" width="480">&nbsp;
 
-For conversion to UTM coordinates it has been implemented library UTMconversion.h
+For conversion to UTM coordinates use UTMConversion library. (https://github.com/RafaelReyesCarmona/UTMConversion)
 
 Example of use:
 
