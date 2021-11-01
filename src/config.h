@@ -1,6 +1,6 @@
 /*
 config.h - Config file for TinyTrackGPS, a simple track GPS to SD card logger.
-TinyTrackGPS v0.8
+TinyTrackGPS v0.9
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -25,7 +25,7 @@ rafael.reyes.carmona@gmail.com
 
 // Definimos nombre aplicación y versión.
 #define NAME "TinyTrackGPS"
-#define VERSION "V0.8"
+#define VERSION "V0.9.10"
 
 // Descomentar solo uno de los displays utilizados. No cambiar para uso NO DISPLAY.
 //#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels

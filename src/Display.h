@@ -1,6 +1,6 @@
 /*
 Display.h - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.8
+TinyTrackGPS v0.9
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -52,7 +52,7 @@ enum Display_Type {
 
 class Display {
     private:
-        byte _offset;
+        //byte _offset;
         byte _width;       // Width pixels or numbers of columns for LCD.
         byte _height;       // Height pixels os numbers of rows for LCD.
         Display_Type _screen;
@@ -83,7 +83,7 @@ class Display {
         void wait_anin(unsigned int);
         void draw_wait(byte);
         void print_PChar(byte);
-        void splash(int time_delay = 750);
+        //void splash(int time_delay = 750);
         Display_Type display_type(){return _screen;};
 };
 

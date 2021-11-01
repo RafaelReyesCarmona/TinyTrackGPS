@@ -1,12 +1,11 @@
 <img src="images/compass.png" width=48 height=48 align=right>
 
 # TinyTrackGPS
-[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md)
-[![Version: v0.8](https://img.shields.io/badge/Version-v0.8-blue?style=for-the-badge&logo=v)]()
+[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.9](https://img.shields.io/badge/Version-v0.9-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
-<img alt="Location example." src="images/InShot_20211017_231200992.gif" width="240">&nbsp;
+<img alt="Location example." src="images/InShot_20211017_231200992.gif" width="240">
 <img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
@@ -60,6 +59,59 @@ If you use OLED 0'96" 128X64 I2C (4-wires), uncomment line like this in 'config.
 ```
 <img alt="Schema1." src="images/InShot_20211018_000545242.jpg" width="240">&nbsp;
 
+### UST/UT Time.
+_(Universal Summer Timer/Universal Standard Time)_
+
+Now TinyTrackGPS record the info in local time. It is used Timezone library for that. Select 
+the proper config at _line 74_ of `TinyTrackGPS.cpp` file. There are some info for time zone:
+```C++
+// Australia Eastern Time Zone (Sydney, Melbourne)
+TimeChangeRule aEDT = {"AEDT", First, Sun, Oct, 2, 660};    // UTC + 11 hours
+TimeChangeRule aEST = {"AEST", First, Sun, Apr, 3, 600};    // UTC + 10 hours
+Timezone ausET(aEDT, aEST);
+
+// Moscow Standard Time (MSK, does not observe DST)
+TimeChangeRule msk = {"MSK", Last, Sun, Mar, 1, 180};
+Timezone tzMSK(msk);
+
+// Central European Time (Frankfurt, Paris)
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
+Timezone CE(CEST, CET);
+
+// United Kingdom (London, Belfast)
+TimeChangeRule BST = {"BST", Last, Sun, Mar, 1, 60};        // British Summer Time
+TimeChangeRule GMT = {"GMT", Last, Sun, Oct, 2, 0};         // Standard Time
+Timezone UK(BST, GMT);
+
+// UTC
+TimeChangeRule utcRule = {"UTC", Last, Sun, Mar, 1, 0};     // UTC
+Timezone UTC(utcRule);
+
+// US Eastern Time Zone (New York, Detroit)
+TimeChangeRule usEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
+TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
+Timezone usET(usEDT, usEST);
+
+// US Central Time Zone (Chicago, Houston)
+TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};
+TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};
+Timezone usCT(usCDT, usCST);
+
+// US Mountain Time Zone (Denver, Salt Lake City)
+TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
+TimeChangeRule usMST = {"MST", First, Sun, Nov, 2, -420};
+Timezone usMT(usMDT, usMST);
+
+// Arizona is US Mountain Time Zone but does not use DST
+Timezone usAZ(usMST);
+
+// US Pacific Time Zone (Las Vegas, Los Angeles)
+TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};
+TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};
+Timezone usPT(usPDT, usPST);
+```
+
 ## Source
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
@@ -72,6 +124,8 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
+  * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
+  * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
 
 ## How to compile
 ### Config
@@ -97,11 +151,57 @@ Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
 // Define direccion I2C para LCD16x2 char.
 #define I2C 0x27
 ```
+### Coding TimeChangeRules
+Normally these will be coded in pairs for a given time zone: One rule to describe when daylight (summer) time starts, and one to describe when standard time starts.
+
+As an example, here in the Eastern US time zone, Eastern Daylight Time (EDT) starts on the 2nd Sunday in March at 02:00 local time. Eastern Standard Time (EST) starts on the 1st Sunday in November at 02:00 local time.
+
+Define a **TimeChangeRule** as follows:
+
+`TimeChangeRule myRule = {abbrev, week, dow, month, hour, offset};`
+
+Where:
+
+  * **abbrev** is a character string abbreviation for the time zone; it must be no longer than five characters.
+  * **week** is the week of the month that the rule starts.
+  * **dow** is the day of the week that the rule starts.
+  * **hour** is the hour in local time that the rule starts (0-23).
+  * **offset** is the UTC offset in minutes for the time zone being defined.
+
+For convenience, the following symbolic names can be used:
+
+**week:** First, Second, Third, Fourth, Last
+**dow:** Sun, Mon, Tue, Wed, Thu, Fri, Sat
+**month:** Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+
+For the Eastern US time zone, the TimeChangeRules could be defined as follows:
+
+```C++
+TimeChangeRule usEDT = {"EDT", Second, Sun, Mar, 2, -240};  //UTC - 4 hours
+TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};   //UTC - 5 hours
+```
+For Central European time zone (Frankfurt, Paris), TimeChangeRules could be as:
+```C++
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
+```
+
+For more information see Timezone info at: https://github.com/JChristensen/Timezone#readme
+### Set the Time Zone
+
+Change lines like above in `TinyTrackGPS.cpp` file, at line **74**, with appropriate definition for your time zone.
+
+<img alt="Log File." src="images/Timezone CE - code.png" width="760">&nbsp;
+
+If your time zone is Australia, you can use this lines:
+
+<img alt="Log File." src="images/Timezone ausET - code.png" width="760">&nbsp;
+
 ### Platformio
 Run command `pio.exe run`.
 ```
 Processing Uno (platform: atmelavr; board: uno; framework: arduino)
--------------------------------------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
+-------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
 CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
 PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
 HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
@@ -111,7 +211,7 @@ PACKAGES:
  - toolchain-atmelavr 1.70300.191015 (7.3.0)
 LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
 LDF Modes: Finder ~ chain, Compatibility ~ soft
-Found 12 compatible libraries
+Found 14 compatible libraries
 Scanning dependencies...
 Dependency Graph
 |-- <LiquidCrystal> 1.0.7
@@ -125,46 +225,74 @@ Dependency Graph
 |   |-- <Wire> 1.0
 |-- <Low-Power> 1.81.0
 |-- <UTMConversion> 1.0.0
+|-- <Timezone> 1.2.4
+|   |-- <Time> 1.6.1
 |-- <SoftwareSerial> 1.0
 Building in release mode
+Compiling .pio\build\Uno\src\Display.cpp.o
+Compiling .pio\build\Uno\src\TinyTrackGPS.cpp.o
+Linking .pio\build\Uno\firmware.elf
 Checking size .pio\build\Uno\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
-Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
-================================================= [SUCCESS] Took 2.21 seconds =================================================
+RAM:   [=======   ]  68.6% (used 1404 bytes from 2048 bytes)
+Flash: [========= ]  85.7% (used 27634 bytes from 32256 bytes)
+Building .pio\build\Uno\firmware.hex
+================================== [SUCCESS] Took 3.33 seconds ==================================
 Environment    Status    Duration
 -------------  --------  ------------
-Uno            SUCCESS   00:00:02.214
-================================================= 1 succeeded in 00:00:02.214 =================================================
+Uno            SUCCESS   00:00:03.332
+================================== 1 succeeded in 00:00:03.332 ==================================
 ```
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
 
-### Use of memory (Arduino UNO or equivalent) V0.7
+### Use of memory (Arduino UNO or equivalent) V0.7 vs. V0.9
 #### NO DISPLAY
+Compile V0.7:
 ```
 RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
 Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
 ```
-
+Compile V0.9:
+```
+RAM:   [======    ]  58.6% (used 1200 bytes from 2048 bytes)
+Flash: [========  ]  76.7% (used 24748 bytes from 32256 bytes)
+```
 #### LCD 16x2 I2C
+Compile V0.7:
 ```
 RAM:   [=======   ]  70.2% (used 1437 bytes from 2048 bytes)
 Flash: [========= ]  86.0% (used 27748 bytes from 32256 bytes)
 ```
-
+Compile V0.9:
+```
+RAM:   [========  ]  79.6% (used 1631 bytes from 2048 bytes)
+Flash: [========= ]  90.2% (used 29100 bytes from 32256 bytes)
+```
 #### LCD 16x2 6-WIRED
+Compile V0.7:
 ```
 RAM:   [======    ]  59.2% (used 1213 bytes from 2048 bytes)
 Flash: [========  ]  81.5% (used 26296 bytes from 32256 bytes)
 ```
-
+Compile V0.9:
+```
+RAM:   [=======   ]  68.7% (used 1407 bytes from 2048 bytes)
+Flash: [========= ]  85.7% (used 27646 bytes from 32256 bytes)
+```
 #### OLED 0'96" 128x64 I2C
+Compile V0.7:
 ```
 RAM:   [========  ]  79.7% (used 1632 bytes from 2048 bytes)
 Flash: [==========]  96.2% (used 31032 bytes from 32256 bytes)
 ```
-
+Compile V0.9:
+```
+RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
+Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
+```
 ## Changelog
+### V0.9
+  * Added Timezone library for local time log.
 ### V0.8
   * Added UTMConversion library for conversion to UTM coordinates. It has been implemented From library UTMconversion.h (TinyTrackGPS V0.7). Now it is an independent library.
 
