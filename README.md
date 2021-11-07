@@ -119,7 +119,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
   * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
-  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE). (only for debug)
+  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
@@ -128,7 +128,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
 ## How to compile
 ### Config
-Edit 'config.h' file before, to configure display type commenting the proper line:
+Edit 'config.h' file before, to configure display type uncommenting the proper line:
 ```C++
 // Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
@@ -195,6 +195,10 @@ Change lines like above in `TinyTrackGPS.cpp` file, at line **74**, with appropr
 If your time zone is Australia, you can use this lines:
 
 <img alt="Log File." src="images/Timezone ausET - code.png" width="760">&nbsp;
+
+Timezone uses Time library so time is based on the standard Unix time_t.
+The value is the number of seconds since Jan 1, 1970. And store in unsigned long variable. Arduino
+Reference describe unsigned long as : ```Unsigned long variables are extended size variables for number storage, and store 32 bits (4 bytes). Unlike standard longs unsigned longs won’t store negative numbers, making their range from 0 to 4,294,967,295 (2^32 - 1).``` It is predict to not be afected with 2038 effect. For more information see [Unix Time](https://en.wikipedia.org/wiki/Unix_time) at Wikipedia, and [Year 2038 problem](https://en.wikipedia.org/wiki/Year_2038_problem). Assuming that timestamp is 4,294,967,295 (maximal value of unsigned long in Arduino, 2^32 - 1), it wil be in: **GMT: Sunday, 7 February 2106 6:28:15** when time_t overflow. Then time_t reset to 0 and date will be **GMT: Thursday, 1 January 1970 0:00:00**
 
 ### Platformio
 Run command `pio.exe run`.
@@ -319,7 +323,7 @@ It works getting info from NMEA module every second and save it into de log file
 
 Log file Format is:
 ```
-HH:MM:SS,YY.YYYYYY,XX.XXXXXX,ALT,UTM
+HH:MM:SS,YY.YYYYYY,XX.XXXXXX,ALT,UTM (WGS86)
 ```
 Like this:
 ```
@@ -376,8 +380,178 @@ Where:
   * MM - Mouth.
   * DD - Day.
 
+### NMEA Secuence from GPS Module.
+
+I am using a Ublox NEO-6MV2 module for get possition and time from GPS System. When GPS signal is ok, the module send the above information through serial:
+```
+$GPRMC,091620.00,A,3753.16481,N,00447.76212,W,9.209,273.97,201021,,,A*75
+$GPVTG,273.97,T,,M,9.209,N,17.064,K,A*03
+$GPGGA,091620.00,3753.16481,N,00447.76212,W,1,03,5.72,511.8,M,47.7,M,,*47
+$GPGSA,A,2,21,31,22,,,,,,,,,,5.81,5.72,1.00*0F
+$GPGSV,2,1,06,01,51,098,32,03,64,025,28,06,14,305,,21,33,114,40*73
+$GPGSV,2,2,06,22,46,053,21,31,09,057,37*75
+$GPGLL,3753.16481,N,00447.76212,W,091620.00,A,A*78
+```
+
+It is very important how to program for get GPS information correctly. 
+### Information on GPS NMEA sentences
+
+You can get more information about [GPS - NMEA sentence information](http://aprs.gids.nl/nmea/) in the web page. Or [RF Wireless World](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html) page. And [SatSleuth Electronic circuits page](http://www.satsleuth.com/GPS_NMEA_sentences.aspx).
+
+All sentences of NMEA start with "$GP___" secuence.  
+#### GPRMC sentence
+
+GPRMC secuence is 'Recommended minimum specific GPS/Transit data'
+
+Format is:
+`$GPRMC,hhmmss.ss,A,LLLL.LLLL,a,YYYYY.YYYY,b,x.xxx,ccc.cc,ddmmyy,v.v,m,M*hh`
+
+  * `hhmmss.ss` = UTC time: hh-hour, mm - minute, ss.ss - seconds with decimals.
+  * `A` = Data status, navigation receiver warning (A=Ok, V=warning)
+  * `LLLL.LLLL` = Latitude (ddmm.mmmm)
+  * `a` = North/South ('N' or 'S')
+  * `YYYYY.YYYY` = Longitude (dddmm.mmmm)
+  * `b` = East/West = ('E' or 'W')
+  * `x.xxx` = Speed over ground in knots
+  * `ccc.cc` = True course in degrees
+  * `ddmmyy` = UT date (dd-day, mm-mounth, yy-year)
+  * `v.v` = Magnetic variation degrees (Easterly var. subtracts from true course)
+  * `m` = East/West of variation ('E' or 'W')
+  * `M` = Mode (A = Autonomous, D = DGPS, E =DR)
+  * `*hh` = Checksum
+
+`eg.: $GPRMC,091620.00,A,3753.16481,N,00447.76212,W,9.209,273.97,201021,,,A*75`
+
+    091620.00    UTC Time 09:16:20
+    A            Navigation receiver OK
+    3753.16481   Latitude 37 deg. 53.16481 min.
+    N            North
+    00447.76212  Longitude 004 deg. 47.76212 min 
+    W            West
+    9.209        Speed over ground, Knots
+    273.97       Course
+    201021       UTC Date 10 November 2021
+    A            Mode Autonomous
+    *75          Checksum
+
+#### GPVTG sentence
+
+GPVTG sentence is 'Course and speed information relative to the ground'.
+
+Format is:
+`$GPVTG,ccc.cc,T,ccc.cc,M,x.xxx,U,ss.sss,K,M*03`
+
+  * `ccc.cc` = True course in degrees
+  * `T` = Reference (T = True heading)
+  * `ccc.cc` = Course in degrees
+  * `M` = Reference (M = Magnetic heading)
+  * `x.xxx` = Speed in knots
+  * `U` = Units (N = Knots)
+  * `ss.sss` = Speed in km/h
+  * `K` = Unit (K = Km/h)
+  * `M` = Mode (A = Autonomous, D = DGPS, E =DR)
+  * `*hh` = Checksum
+
+`eg.: $GPVTG,273.97,T,,M,9.209,N,17.064,K,A*03`
+
+#### GPGGA sentence
+
+GPGGA sentence is 'Global positioning system fix data (time, position, fix type data)'.
+
+Format is:
+`$GPGGA,hhmmss.ss,LLLL.LLLL,a,YYYYY.YYYY,b,P,SS,H.HH,EEE.E,M,GG.G,M,A,ID*hh`
+
+  * `hhmmss.ss` = UTC time: hh-hour, mm - minute, ss.ss - seconds with decimals.
+  * `LLLL.LLLL` = Latitude (ddmm.mmmm)
+  * `a` = North/South ('N' or 'S')
+  * `YYYYY.YYYY` = Longitude (dddmm.mmmm)
+  * `b` = East/West = ('E' or 'W')
+  * `P` = Position Fix Indicator (0-Unavailable or invalid; 1-GPS SS Mode,valid; 2-Differencial GPS SS Mode,valid; 3-5 Not sopported)
+  * `SS` = Satellites in use.
+  * `H.HH` = HDOP (Horizontal Dilution of Precision)
+  * `EEE.E` = Altitude
+  * `M` = Unit (M=meters)
+  * `GG.G` = Geoid Separation
+  * `M` = Unit (M=meters)
+  * `A` = Age of difference correction (seconds)
+  * `ID` = Diff. ref. station ID
+  * `*hh` = Checksum
+
+`eg.: $GPGGA,091620.00,3753.16481,N,00447.76212,W,1,03,5.72,511.8,M,47.7,M,,*47`
+
+    091620.00    UTC Time 09:16:20
+    3753.16481   Latitude 37 deg. 53.16481 min.
+    N            North
+    00447.76212  Longitude 004 deg. 47.76212 min 
+    W            West
+    1            GPS SS Mode
+    03           Satellites in use
+    5.72         Horizontal Dilution of Precision
+    511.8        Altitude
+    M            Unit meters
+    47.7         Geoid Separation
+    M            Unit meters
+    *47          Checksum
+
+#### GPGSA and GPGSV sentences
+
+Both are sentences about satellites information. GPGSA sentence is 'Active satellites' and GPGSV is 'Satellites in view'.
+
+#### GPGLL sentence
+
+GPGLL sentence is 'Geographic position, latitude, longitude'.
+
+Format is:
+`$GPGLL,LLLL.LLLL,a,YYYYY.YYYY,b,hhmmss.ss,A,M,*hh`
+
+  * `LLLL.LLLL` = Latitude (ddmm.mmmm)
+  * `a` = North/South ('N' or 'S')
+  * `YYYYY.YYYY` = Longitude (dddmm.mmmm)
+  * `b` = East/West = ('E' or 'W')
+  * `hhmmss.ss` = UTC time: hh-hour, mm - minute, ss.ss - seconds with decimals.
+  * `A` = Data status, navigation receiver warning (A=Ok, V=warning)
+  * `M` = Mode (A = Autonomous, D = DGPS, E =DR)
+  * `*hh` = Checksum
+
+`eg.: $GPGLL,3753.16481,N,00447.76212,W,091620.00,A,A*78`
+
+    3753.16481   Latitude 37 deg. 53.16481 min.
+    N            North
+    00447.76212  Longitude 004 deg. 47.76212 min 
+    W            West
+    091620.00    UTC Time 09:16:20
+    A            Navigation receiver OK
+    A            Mode Autonomous
+    *78          Checksum
+
+### Low Energy Comsuption
 `Low-Power` - the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
 Implemented in v0.4 first time and from v0.7. 
+
+## TinyGPS library
+
+TinyGPS library works getting information from GPRMC and GPGGA sentences. It extract time, date, latitude, longitude, speed and course information from GPRMC sentence. And altitude, time, latitude, longitude, numbers of satellites in use and hdop information from GPGGA sentence.
+
+The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC or GPGGA sentence is decoded correctly. The above code on TinyTrackGPS:
+
+<img alt="Log File." src="images/code_GPS_setup.png" width="760">&nbsp;
+
+It is in ```setup()``` section. This code wait until GPRMC sentence is correctly recieved. Then config time and date whith the code: 
+
+```C++
+  utctime = makeTime(time_gps);
+  localtime = TimeZone.toLocal(utctime);
+```
+
+Usually NEO6 module is config to 9600 bauds and with 1 Hz for transmit information. So, rest of sentences are ignored in ```setup()```.
+
+In ```loop()``` the while loop get the first sentence from NEO6 module, it is GPRMC sentence.
+
+<img alt="Log File." src="images/code_GPS_loop1.png" width="760">&nbsp;
+
+To get altitude information is needed to decode GPGAA sentence, so call ```GPSRefresh()``` to do that.
+
+<img alt="Log File." src="images/code_GPS_loop2.png" width="760">&nbsp;
 
 ## Accuracy
 
