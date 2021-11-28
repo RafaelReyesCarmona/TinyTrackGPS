@@ -571,6 +571,11 @@ Fixed version is located on 'lib/TinyGPS_fixed'. Files are called 'TinyGPS_fixed
 
 The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC _and_ GPGGA sentence is decoded correctly. So all information is decoded at same time. Now ```GPSRefresh()``` is no neccessary.
 
+Original code TinyGPS:
+<img alt="Log File." src="images/code_TinyGPS.png" width="760">&nbsp;
+
+Fixed code TinyGPS (change return and break at the end):
+<img alt="Log File." src="images/code_TinyGPS_fixed.png" width="760">&nbsp;
 ## Accuracy
 
 NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.
