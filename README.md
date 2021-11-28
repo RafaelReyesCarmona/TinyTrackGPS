@@ -5,7 +5,7 @@
 
 A simple track GPS to SD card logger.
 
-<img alt="Location example." src="images/InShot_20211017_231200992.gif" width="240"><img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
+<img alt="Location example." src="images/IMG_20211128_192557.jpg" width="240"><img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
 
@@ -300,6 +300,10 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
   * Better support for LGT8F328P.
   * Use [LGTISP](LGTISP.md) when use LGT8F328P to burn TinyTrackGPS into board. No bootloader.
   * Added lcdgfx library from https://github.com/lexus2k/lcdgfx.
+  * New logo for splash at start.
+   <img alt="Schema1." src="images/Logo.png" width="128">&nbsp;
+
+<img alt="Schema1." src="images/LogoScreenshot.jpg" width="240">&nbsp;
 ### V0.9
   * Added Timezone library for local time log.
 ### V0.8
