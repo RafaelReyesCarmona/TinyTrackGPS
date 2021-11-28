@@ -1,7 +1,7 @@
 <img src="images/compass.png" width=48 height=48 align=right>
 
 # TinyTrackGPS
-[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.9](https://img.shields.io/badge/Version-v0.9-blue?style=for-the-badge&logo=v)]()
+[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.10](https://img.shields.io/badge/Version-v0.10-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 
@@ -11,7 +11,7 @@ This program is written in C/C++ for Arduino © UNO R3 and other compatible micr
 
 It is tested on:
 * UNO R3 board (Arduino UNO compatible board based on Atmega328).
-* Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1 and v0.2.
+* Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and v0.10.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -117,6 +117,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
+  * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx)
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
   * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
   * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
@@ -294,6 +295,11 @@ RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
 Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ```
 ## Changelog
+### V0.10
+  * LowPower library only when no display is defined, to reduce flash memory.
+  * Better support for LGT8F328P.
+  * Use [LGTISP](LGTISP.md) when use LGT8F328P to burn TinyTrackGPS into board. No bootloader.
+  * Added lcdgfx library from https://github.com/lexus2k/lcdgfx.
 ### V0.9
   * Added Timezone library for local time log.
 ### V0.8

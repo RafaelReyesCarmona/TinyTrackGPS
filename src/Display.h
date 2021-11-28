@@ -1,6 +1,6 @@
 /*
 Display.h - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.9
+TinyTrackGPS v0.10
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -42,6 +42,8 @@ rafael.reyes.carmona@gmail.com
     #define U8X8_HAVE_HW_I2C
     #include <U8x8lib.h>
     //#include <U8g2lib.h>
+#elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    #include <lcdgfx.h>
 #endif
 
 enum Display_Type {
@@ -63,6 +65,8 @@ class Display {
         #elif defined(DISPLAY_TYPE_SDD1306_128X64)
             //U8G2_SSD1306_128X64_NONAME_1_HW_I2C* u8g2_SSD1306;
             U8X8_SSD1306_128X64_NONAME_HW_I2C* u8x8_SSD1306;
+        #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+            DisplaySSD1306_128x64_I2C* display;
         #elif defined(DISPLAY_TYPE_HX1230_96X68)
             U8G2_HX1230_96X68_1_3W_SW_SPI* u8g2_HX1230;
         #endif
@@ -83,8 +87,11 @@ class Display {
         void wait_anin(unsigned int);
         void draw_wait(byte);
         void print_PChar(byte);
-        //void splash(int time_delay = 750);
+        void DrawLogo();
         Display_Type display_type(){return _screen;};
 };
+
+extern const uint8_t TinyTrackGPS_font8x16[] PROGMEM;
+extern const uint8_t Logo[] PROGMEM;
 
 #endif

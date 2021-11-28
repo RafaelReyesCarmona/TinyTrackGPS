@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.9
+TinyTrackGPS v0.10
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -44,13 +44,29 @@ rafael.reyes.carmona@gmail.com
 #include <Arduino.h>
 #include "config.h"
 #include "Display.h"
-#include <SoftwareSerial.h>
-#include <TinyGPS.h>
+//#include <SoftwareSerial.h>
+#include "TinyGPS_fixed.h"
+#if defined(__LGT8F__) && defined(nop)
+#undef nop
+#endif
 #include <SdFat.h>
 #include <sdios.h>
-#include <LowPower.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
+
+// Definimos el Display
+#if defined(DISPLAY_TYPE_LCD_16X2)
+Display LCD(LCD_16X2);
+#elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
+Display LCD(LCD_16X2_I2C);
+#elif defined(DISPLAY_TYPE_SDD1306_128X64)
+Display LCD(SDD1306_128X64);
+#elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+Display LCD(SDD1306_128X64);
+#else
+#define NO_DISPLAY
+#include <LowPower.h>
+#endif
 
 // Variables para grabar en SD.
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
@@ -64,7 +80,8 @@ bool SaveOK;
 // Variables y clases para obtener datos del GPS y conversion UTM.
 TinyGPS gps;
 GPS_UTM utm;
-SoftwareSerial gps_serial(9, 8);
+//SoftwareSerial gps_serial(9, 8);
+#define gps_serial Serial
 int year_gps;
 byte month_gps, day_gps, hour_gps, minute_gps, second_gps;
 float flat, flon;
@@ -145,17 +162,6 @@ Timezone usPT(usPDT, usPST);
 ----------------------------------------------------------------------------------------
 */
 
-// Definimos el Display
-#if defined(DISPLAY_TYPE_LCD_16X2)
-Display LCD(LCD_16X2);
-#elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
-Display LCD(LCD_16X2_I2C);
-#elif defined(DISPLAY_TYPE_SDD1306_128X64)
-Display LCD(SDD1306_128X64);
-#else
-#define NO_DISPLAY
-#endif
-
 //------------------------------------------------------------------------------
 /*
  * User provided date time callback function.
@@ -182,13 +188,16 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm);
 bool pinswitch();
 #endif
 #endif
-void GPSRefresh();
-//time_t makeTime_elements(int, byte, byte, byte, byte, byte);
+//void GPSRefresh();
 #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
 unsigned long iteration = 0;
 #endif
 
 void setup(void) {
+  #if defined(__LGT8F__)
+  ECCR = 0x80;
+  ECCR = 0x00;
+  #endif
   //Serial.begin(9600);
   gps_serial.begin(9600);
 
@@ -201,13 +210,22 @@ void setup(void) {
   #ifndef NO_DISPLAY
   LCD.start();
   //LCD.clr();
-  //LCD.splash(750);      // Dibujamos la presensación.
+
   #endif
 
   //Serial.print(F("Waiting for GPS signal..."));
   #ifndef NO_DISPLAY
   //LCD.clr();
+  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C) || defined(DISPLAY_TYPE_SDD1306_128X64)
   LCD.print(NAME, VERSION, "Waiting for ","GPS signal...");
+  #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+  #if defined(__LGT8F__)
+  //LCD.print(NAME_M, VERSION);
+  LCD.DrawLogo();
+  #else
+  LCD.print(NAME_M, VERSION);
+  #endif
+  #endif
   unsigned int time = 0;
   #endif
 
@@ -272,7 +290,6 @@ void loop(void) {
   localtime = TimeZone.toLocal(utctime);
 
   if (gps_ok) {
-    GPSRefresh();
     if (utctime > prevtime) {
       GPSData(gps, utm);
       prevtime = utctime;
@@ -284,8 +301,12 @@ void loop(void) {
     ScreenPrint(LCD, gps, utm);
     #endif
   }
-
-  LowPower.idle(SLEEP_120MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
+  // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
+  //LowPower.idle(SLEEP_12MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
+  // 
+  #ifdef NO_DISPLAY
+  LowPower.powerSave(SLEEP_250MS, ADC_OFF, BOD_ON,TIMER2_OFF); // para NO_DISPLAY.
+  #endif
 }
 
 void GPSData(TinyGPS &gps, GPS_UTM &utm) {
@@ -307,7 +328,10 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
 
   sprintf(GPSLogFile, "%04d%02d%02d.csv", year(localtime), month(localtime), day(localtime));
 
-  SdFile::dateTimeCallback(dateTime);
+  //SdFile::dateTimeCallback(dateTime);
+  FsDateTime::setCallback(dateTime);
+  
+
 
   // Si no existe el fichero lo crea y añade las cabeceras.
   if (SDReady && !card.exists(GPSLogFile)) {
@@ -340,37 +364,51 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   static unsigned short sats;
 
   sats = gps.satellites();
-  #ifdef DISPLAY_TYPE_SDD1306_128X64
+  #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   //if (LCD.display_type() == SDD1306_128X64) {
     print_utm = true;
     print_grades = true;
   //}
   #endif
-  #ifndef DISPLAY_TYPE_SDD1306_128X64
+  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
   if (!pinswitch()) print_utm = true;
   else print_grades = true;
   #endif
 
   if (print_utm) {
     static char line[12];
-
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%02d%c?%ld?", utm.zone(), utm.band(), utm.X());
+    #else
     sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
+    #endif
     //Serial.println(line);
     LCD.print(0,0,line);
     LCD.print_PChar((byte)6);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%02hu?", sats);
+    #else
     sprintf(line, "%02hu ", sats);
+    #endif
     //Serial.println(line);
     LCD.print(12,0,line);
     if (SaveOK) LCD.print_PChar((byte)7);
     else LCD.print("-");
 
     // New line
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%ld?", utm.Y());
+    #else
     sprintf(line, "%ld ", utm.Y());
+    #endif
     //Serial.println(line);
     LCD.print(1,1,line);
     LCD.print_PChar((byte)5);
-    //LCD.print(10,1,"_____");
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%u@", elev);
+    #else
     sprintf(line, "%um", elev);
+    #endif
     //Serial.println(line);
     
     if (elev < 10) LCD.print(14,1,line);
@@ -389,16 +427,16 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     #endif
     */
     static char line[11];
-    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT=");
-    dtostrf(flat, 10, 6, line);
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
+    dtostrf(flat, 8, 6, line);
     LCD.print(line);
-    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON=");
-    dtostrf(flon, 10, 6, line);
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
+    dtostrf(flon, 8, 6, line);
     LCD.print(line);
   }
 }
 
-#ifndef DISPLAY_TYPE_SDD1306_128X64
+#if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
 bool pinswitch() {
   bool pin;
   
@@ -414,13 +452,13 @@ bool pinswitch() {
 }
 #endif
 #endif
-
+/*
 void GPSRefresh()
 {
     while (gps_serial.available() > 0)
       gps.encode(gps_serial.read());
 }
-
+*/
 /*
 time_t makeTime_elements(int year, byte month, byte day, byte hour, byte minute, byte second){ 
   static TimeElements tm;
