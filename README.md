@@ -115,7 +115,7 @@ Timezone usPT(usPDT, usPST);
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
-  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS).
+  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS). Fixed version on 'lib'.
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
   * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx)
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
@@ -535,7 +535,7 @@ Format is:
     *78          Checksum
 
 ### Low Energy Comsuption
-`Low-Power` - the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries.
+`Low-Power` - the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries. Use only when no display configuration.
 Implemented in v0.4 first time and from v0.7. 
 
 ## TinyGPS library
@@ -562,6 +562,12 @@ In ```loop()``` the while loop get the first sentence from NEO6 module, it is GP
 To get altitude information is needed to decode GPGAA sentence, so call ```GPSRefresh()``` to do that.
 
 <img alt="Log File." src="images/code_GPS_loop2.png" width="760">&nbsp;
+
+### Fixed TinyGPS
+
+Fixed version is located on 'lib/TinyGPS_fixed'. Files are called 'TinyGPS_fixed.cpp' and 'FixedGPS_.h'.
+
+The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC _and_ GPGGA sentence is decoded correctly. So all information is decoded at same time. Now ```GPSRefresh()``` is no neccessary.
 
 ## Accuracy
 
