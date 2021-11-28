@@ -540,6 +540,8 @@ Implemented in v0.4 first time and from v0.7.
 
 ## TinyGPS library
 
+### Versions prior V0.10
+
 TinyGPS library works getting information from GPRMC and GPGGA sentences. It extract time, date, latitude, longitude, speed and course information from GPRMC sentence. And altitude, time, latitude, longitude, numbers of satellites in use and hdop information from GPGGA sentence.
 
 The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC or GPGGA sentence is decoded correctly. The above code on TinyTrackGPS:
@@ -563,7 +565,7 @@ To get altitude information is needed to decode GPGAA sentence, so call ```GPSRe
 
 <img alt="Log File." src="images/code_GPS_loop2.png" width="760">&nbsp;
 
-### Fixed TinyGPS
+### Fixed TinyGPS on V0.10
 
 Fixed version is located on 'lib/TinyGPS_fixed'. Files are called 'TinyGPS_fixed.cpp' and 'FixedGPS_.h'.
 
