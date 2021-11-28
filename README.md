@@ -11,6 +11,7 @@ This program is written in C/C++ for Arduino © UNO R3 and other compatible micr
 
 It is tested on:
 * UNO R3 board (Arduino UNO compatible board based on Atmega328).
+* ProMini 5v 16MHz (Arduino ProMini compatible board based on Atmega328p).
 * Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and v0.10.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
