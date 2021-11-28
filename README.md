@@ -23,8 +23,7 @@ This project use components list above:
   * Arduino © UNO board or equivalent AVR.
   * NMEA 6 module.
   * MicroSD module.
-  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306) (Optional)
-  * Bluetooth module. (Optional)
+  * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306) (Optional).
 
 ### NO DISPLAY
 Now you can use a minimal hardware to track GPS location. When no display use MicroSD module and card are mandatory. Comment all lines in 'config.h' file:
@@ -121,7 +120,6 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx)
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
   * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
-  * SoftwareSerial library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
@@ -298,6 +296,7 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ## Changelog
 ### V0.10
   * LowPower library only when no display is defined, to reduce flash memory.
+  * Connect NMEA 6 GPS module to digital pins 0, 1 (hardware serial). SoftwareSerial library don't use now. So reduce flash memory. 
   * Better support for LGT8F328P.
   * Use [LGTISP](LGTISP.md) when use LGT8F328P to burn TinyTrackGPS into board. No bootloader.
   * Added lcdgfx library from https://github.com/lexus2k/lcdgfx.
