@@ -297,6 +297,7 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ### V0.10
   * LowPower library only when no display is defined, to reduce flash memory.
   * Connect NMEA 6 GPS module to digital pins 0, 1 (hardware serial). SoftwareSerial library don't use now. So reduce flash memory. 
+  * Fixed TinyGPS library to decode  GPRMC _and_ GPGGA sentence at same time.
   * Better support for LGT8F328P.
   * Use [LGTISP](LGTISP.md) when use LGT8F328P to burn TinyTrackGPS into board. No bootloader.
   * Added lcdgfx library from https://github.com/lexus2k/lcdgfx.
