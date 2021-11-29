@@ -307,9 +307,9 @@ void Display::print_PChar(byte c) {
             //display->printChar(p[2]);
         }
         */
-        #ifndef __LGT8F__
+        //#ifndef __LGT8F__
         display->printChar((char)(c+86));
-        #endif
+        //#endif
     #endif
 }
 
