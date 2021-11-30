@@ -49,7 +49,7 @@ rafael.reyes.carmona@gmail.com
 #if defined(__LGT8F__) && defined(nop)
 #undef nop
 #endif
-#include <SdFat.h>
+#include "SdFat.h"
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
@@ -71,9 +71,26 @@ Display LCD(SDD1306_128X64);
 // Variables para grabar en SD.
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 
-const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
+//const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
+// Chip select may be constant or RAM variable.
+const uint8_t SD_CS_PIN = 10;
+//
+// Pin numbers in templates must be constants.
+const uint8_t SOFT_MISO_PIN = 12;
+const uint8_t SOFT_MOSI_PIN = 11;
+const uint8_t SOFT_SCK_PIN  = 13;
+
+// SdFat software SPI template
+SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
+// Speed argument is ignored for software SPI.
+#if ENABLE_DEDICATED_SPI
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, DEDICATED_SPI, SD_SCK_MHZ(0), &softSpi)
+#else  // ENABLE_DEDICATED_SPI
+#define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(0), &softSpi)
+#endif  // ENABLE_DEDICATED_SPI
+
 SdFat card;   //SdFat.h library.
-SdFile file;
+File file;
 bool SDReady;
 bool SaveOK;
 
@@ -198,12 +215,13 @@ void setup(void) {
   ECCR = 0x80;
   ECCR = 0x00;
   #endif
+  delay(100);
   //Serial.begin(9600);
   gps_serial.begin(9600);
 
   //Serial.print(F("Initializing SD card..."));
 
-  SDReady = card.begin(CHIP_SELECT);
+  SDReady = card.begin(SD_CONFIG);
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
 
   /* Iniciaización del display LCD u OLED */

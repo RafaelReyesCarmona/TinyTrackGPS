@@ -4,7 +4,7 @@
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.10](https://img.shields.io/badge/Version-v0.10-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
-
+<img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480">&nbsp;
 <img alt="Location example." src="images/IMG_20211128_192557.jpg" width="240"><img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
@@ -29,6 +29,7 @@ This project use components list above:
 Now you can use a minimal hardware to track GPS location. When no display use MicroSD module and card are mandatory. Comment all lines in 'config.h' file:
 ```C++
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
+//#define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
 //#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 ```
@@ -54,9 +55,26 @@ If you use LCD 16x2 char I2C (4-wires), uncomment line like this in 'config.h' f
 
 If you use OLED 0'96" 128X64 I2C (4-wires), uncomment line like this in 'config.h' file:
 ```C++
-#define DISPLAY_TYPE_SDD1306_128X64
+#define DISPLAY_TYPE_SDD1306_128X64 // Uses u8g2 library.
 ```
+-- or --
+```C++
+#define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Uses lcdgfx library.
+```
+
 <img alt="Schema1." src="images/InShot_20211018_000545242.jpg" width="240">&nbsp;
+
+### Lcdgfx library.
+
+TinyTrackGPS uses this library by default. Use less flash memory and RAM. Fast running and no display flickering. For more information see at https://github.com/lexus2k/lcdgfx.
+
+<img alt="TinyTrackGPS_font" src="images/IMG_20211130_132157.jpg" width="240">&nbsp;
+
+The project define a new font (TinyTrackGPS_font8x16), a modified version of ssd1306xled_font8x16 of lcdgfx fonts (canvas/fonts/fonts.c). For information about create a new font visit: https://github.com/lexus2k/lcdgfx/wiki/How-to-create-new-font-for-the-library. 
+
+<img alt="TinyTrackGPS_font" src="images/GLCD Font Creator.jpg" width="540">&nbsp;
+<img alt="TinyTrackGPS_font" src="images/GLCD new font.jpg" width="240">&nbsp;
+<img alt="TinyTrackGPS_font" src="images/GLCD icons.jpg" width="370"><img alt="TinyTrackGPS_font" src="images/GLCD wait char.jpg" width="370">&nbsp;
 
 ### UST/UT Time.
 _(Universal Summer Timer/Universal Standard Time)_
@@ -116,8 +134,8 @@ Timezone usPT(usPDT, usPST);
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
   * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS). Fixed version on 'lib'.
-  * SdFat library, Bill Greiman (https://github.com/greiman/SdFat).
-  * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx)
+  * SdFat library, Bill Greiman (https://github.com/greiman/SdFat). Fixed version on 'lib'.
+  * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
   * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
@@ -132,7 +150,8 @@ Edit 'config.h' file before, to configure display type uncommenting the proper l
 ```C++
 // Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
-#define DISPLAY_TYPE_LCD_16X2             // Para usar LCD 16 x 2 carateres.
+#define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
+//#define DISPLAY_TYPE_LCD_16X2             // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 ```
 Modify Arduino pin where you connect the LCD 16x2 char:
@@ -246,7 +265,7 @@ Environment    Status    Duration
 Uno            SUCCESS   00:00:03.332
 ================================== 1 succeeded in 00:00:03.332 ==================================
 ```
-For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal.
+For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal. This project use LGT_ISP enviroment by default. To burn it use an LGTISP device as describe in [LGTISP](LGTISP.md).
 
 ### Use of memory (Arduino UNO or equivalent) V0.7 vs. V0.9
 #### NO DISPLAY
@@ -294,6 +313,9 @@ RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
 Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ```
 ## Changelog
+### V0.10.4
+  * Fixed SDCard not save.
+
 ### V0.10
   * LowPower library only when no display is defined, to reduce flash memory.
   * Connect NMEA 6 GPS module to digital pins 0, 1 (hardware serial). SoftwareSerial library don't use now. So reduce flash memory. 
