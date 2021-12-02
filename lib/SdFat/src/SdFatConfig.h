@@ -118,7 +118,11 @@
  * 3 - An external SPI driver derived from SdSpiBaseClass is always used.
  */
 #ifndef SPI_DRIVER_SELECT
+#if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
 #define SPI_DRIVER_SELECT 2
+#else
+#define SPI_DRIVER_SELECT 0
+#endif
 #endif  // SPI_DRIVER_SELECT
 /**
  * If USE_SPI_ARRAY_TRANSFER is non-zero and the standard SPI library is

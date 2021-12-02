@@ -1,7 +1,7 @@
 <img src="images/compass.png" width=48 height=48 align=right>
 
 # TinyTrackGPS
-[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.10](https://img.shields.io/badge/Version-v0.10-blue?style=for-the-badge&logo=v)]()
+[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.11](https://img.shields.io/badge/Version-v0.11-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
 <img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480">&nbsp;
@@ -12,7 +12,7 @@ This program is written in C/C++ for Arduino © UNO R3 and other compatible micr
 It is tested on:
 * UNO R3 board (Arduino UNO compatible board based on Atmega328).
 * ProMini 5v 16MHz (Arduino ProMini compatible board based on Atmega328p).
-* Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and v0.10.
+* Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and since v0.10. (default option)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -80,7 +80,7 @@ The project define a new font (TinyTrackGPS_font8x16), a modified version of ssd
 _(Universal Summer Timer/Universal Standard Time)_
 
 Now TinyTrackGPS record the info in local time. It is used Timezone library for that. Select 
-the proper config at _line 74_ of `TinyTrackGPS.cpp` file. There are some info for time zone:
+the proper config at _line 111_ of `TinyTrackGPS.cpp` file. There are some info for time zone:
 ```C++
 // Australia Eastern Time Zone (Sydney, Melbourne)
 TimeChangeRule aEDT = {"AEDT", First, Sun, Oct, 2, 660};    // UTC + 11 hours
@@ -133,7 +133,7 @@ Timezone usPT(usPDT, usPST);
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
-  * TinyGPS library, Mikal Hart (https://github.com/mikalhart/TinyGPS). Fixed version on 'lib'.
+  * TinyGPS library fork, Paul Stoffregen (https://github.com/PaulStoffregen/TinyGPS). Fixed version on 'lib'.
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat). Fixed version on 'lib'.
   * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
@@ -207,7 +207,7 @@ TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European 
 For more information see Timezone info at: https://github.com/JChristensen/Timezone#readme
 ### Set the Time Zone
 
-Change lines like above in `TinyTrackGPS.cpp` file, at line **74**, with appropriate definition for your time zone.
+Change lines like above in `TinyTrackGPS.cpp` file, at line **111**, with appropriate definition for your time zone.
 
 <img alt="Log File." src="images/Timezone CE - code.png" width="760">&nbsp;
 
@@ -313,6 +313,8 @@ RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
 Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ```
 ## Changelog
+### V0.11
+  * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
 ### V0.10.4
   * Fixed SDCard not save.
 
@@ -426,12 +428,31 @@ $GPGSV,2,2,06,22,46,053,21,31,09,057,37*75
 $GPGLL,3753.16481,N,00447.76212,W,091620.00,A,A*78
 ```
 
-It is very important how to program for get GPS information correctly. 
+It is very important how to program for get GPS information correctly. (Fixed since V0.10) 
+
+With updated GPS module to Ublox NMEA-8M we recibe more information, now the module uses GPS+GLONASS+GALILEO systems. Information through serial port is like above:
+```
+$GNRMC,102140.00,A,3801.27758,N,00446.88703,W,0.561,,011221,,,A*7E
+$GNVTG,,T,,M,0.561,N,1.038,K,A*35
+$GNGGA,102140.00,3801.27758,N,00446.88703,W,1,04,3.29,546.4,M,47.8,M,,*55
+$GNGSA,A,3,06,30,,,,,,,,,,,10.39,3.29,9.86*2D
+$GNGSA,A,3,79,71,,,,,,,,,,,10.39,3.29,9.86*20
+$GPGSV,3,1,09,02,51,274,07,06,45,193,28,07,64,093,,09,39,054,*79
+$GPGSV,3,2,09,11,60,261,,13,15,250,06,20,48,313,08,29,04,316,*79
+$GPGSV,3,3,09,30,57,167,19*49
+$GLGSV,2,1,06,69,24,069,,71,24,294,16,79,30,049,25,80,40,123,*65
+$GLGSV,2,2,06,84,06,193,,85,37,245,*68
+$GNGLL,3801.27758,N,00446.88703,W,102140.00,A,A*64
+```
 ### Information on GPS NMEA sentences
 
 You can get more information about [GPS - NMEA sentence information](http://aprs.gids.nl/nmea/) in the web page. Or [RF Wireless World](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html) page. And [SatSleuth Electronic circuits page](http://www.satsleuth.com/GPS_NMEA_sentences.aspx).
 
-All sentences of NMEA start with "$GP___" secuence.  
+All sentences of NMEA start with "$GX___" secuence. Where X could be 'G', 'L', 'N'. 
+* G - GPS satellital system.
+* L - GLONASS.
+* N - For a combination of 2 or more satellital system.
+
 #### GPRMC sentence
 
 GPRMC secuence is 'Recommended minimum specific GPS/Transit data'
@@ -595,10 +616,18 @@ Fixed version is located on 'lib/TinyGPS_fixed'. Files are called 'TinyGPS_fixed
 The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC _and_ GPGGA sentence is decoded correctly. So all information is decoded at same time. Now ```GPSRefresh()``` is no neccessary.
 
 Original code TinyGPS:
-<img alt="Log File." src="images/code_TinyGPS.png" width="760">&nbsp;
+<img alt="TinyGPS" src="images/code_TinyGPS.png" width="760">&nbsp;
 
 Fixed code TinyGPS (change return and break at the end):
-<img alt="Log File." src="images/code_TinyGPS_fixed.png" width="760">&nbsp;
+<img alt="TinyGPS fix" src="images/code_TinyGPS_fixed.png" width="760">&nbsp;
+
+### Fixed TinyGPS on V0.11
+
+In TinyTrackGPS V0.11, TinyGPS library is a modified version from https://github.com/fmgomes/TinyGPS to adds support for newer NMEA-capable GPS devices that implement the [v3.x GNSS spec](http://geostar-navi.com/files/docs/geos3/geos_nmea_protocol_v3_0_eng.pdf) as well as devices that support [GLONASS](https://en.wikipedia.org/wiki/GLONASS). This version is fixed to add support to GNGGA sentence and decode GPRMC _and_ GPGGA sentences at same time.
+
+Fixed version is placed in 'lib/TinyGPS_GLONASS_fixed'. 
+<img alt="TinyGPS Glonass Fix" src="images/code_TinyGPS_GLONASS_fixed.png" width="760">&nbsp;
+
 ## Accuracy
 
 NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can see it.

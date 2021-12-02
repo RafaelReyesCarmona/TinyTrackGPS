@@ -45,7 +45,7 @@ rafael.reyes.carmona@gmail.com
 #include "config.h"
 #include "Display.h"
 //#include <SoftwareSerial.h>
-#include "TinyGPS_fixed.h"
+#include "TinyGPS_GLONASS_fixed.h"
 #if defined(__LGT8F__) && defined(nop)
 #undef nop
 #endif
@@ -71,7 +71,7 @@ Display LCD(SDD1306_128X64);
 // Variables para grabar en SD.
 char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
 
-//const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
+#if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
 // Chip select may be constant or RAM variable.
 const uint8_t SD_CS_PIN = 10;
 //
@@ -88,6 +88,9 @@ SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 #else  // ENABLE_DEDICATED_SPI
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(0), &softSpi)
 #endif  // ENABLE_DEDICATED_SPI
+#else
+const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
+#endif
 
 SdFat card;   //SdFat.h library.
 File file;
@@ -221,7 +224,11 @@ void setup(void) {
 
   //Serial.print(F("Initializing SD card..."));
 
+  #if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
   SDReady = card.begin(SD_CONFIG);
+  #else
+  SDReady = card.begin(SS);
+  #endif
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
 
   /* Iniciaización del display LCD u OLED */
