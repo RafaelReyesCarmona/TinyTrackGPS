@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.10
+TinyTrackGPS v0.11
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.

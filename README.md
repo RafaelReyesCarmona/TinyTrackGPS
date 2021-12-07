@@ -4,6 +4,7 @@
 [![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.11](https://img.shields.io/badge/Version-v0.11-blue?style=for-the-badge&logo=v)]()
 
 A simple track GPS to SD card logger.
+
 <img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480">&nbsp;
 <img alt="Location example." src="images/IMG_20211128_192557.jpg" width="240"><img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
 
@@ -315,6 +316,7 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ## Changelog
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
+
 ### V0.10.4
   * Fixed SDCard not save.
 
@@ -449,11 +451,14 @@ $GNGLL,3801.27758,N,00446.88703,W,102140.00,A,A*64
 You can get more information about [GPS - NMEA sentence information](http://aprs.gids.nl/nmea/) in the web page. Or [RF Wireless World](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html) page. And [SatSleuth Electronic circuits page](http://www.satsleuth.com/GPS_NMEA_sentences.aspx).
 
 All sentences of NMEA start with "$GX___" secuence. Where X could be 'G', 'L', 'N'. 
-* G - GPS satellital system.
+* P - GPS satellital system.
 * L - GLONASS.
+* A - Galileo constellation.
 * N - For a combination of 2 or more satellital system.
 
-#### GPRMC sentence
+The above information '_' could be replace with appropiate constellation.
+
+#### G_RMC sentence (GPRMC, GLRMC, GARMC, GNRMC)
 
 GPRMC secuence is 'Recommended minimum specific GPS/Transit data'
 
@@ -488,7 +493,7 @@ Format is:
     A            Mode Autonomous
     *75          Checksum
 
-#### GPVTG sentence
+#### G_VTG sentence (GPVTG ... GNVTG)
 
 GPVTG sentence is 'Course and speed information relative to the ground'.
 
@@ -508,7 +513,7 @@ Format is:
 
 `eg.: $GPVTG,273.97,T,,M,9.209,N,17.064,K,A*03`
 
-#### GPGGA sentence
+#### G_GGA sentence (GPGGA ... GNGGA)
 
 GPGGA sentence is 'Global positioning system fix data (time, position, fix type data)'.
 
@@ -547,11 +552,11 @@ Format is:
     M            Unit meters
     *47          Checksum
 
-#### GPGSA and GPGSV sentences
+#### G_GSA and G_GSV sentences (GPGSA ... GNGSA; GPGSV, GLGSV, GAGSV )
 
 Both are sentences about satellites information. GPGSA sentence is 'Active satellites' and GPGSV is 'Satellites in view'.
 
-#### GPGLL sentence
+#### GPGLL sentence (G_GLL)
 
 GPGLL sentence is 'Geographic position, latitude, longitude'.
 
@@ -623,7 +628,7 @@ Fixed code TinyGPS (change return and break at the end):
 
 ### Fixed TinyGPS on V0.11
 
-In TinyTrackGPS V0.11, TinyGPS library is a modified version from https://github.com/fmgomes/TinyGPS to adds support for newer NMEA-capable GPS devices that implement the [v3.x GNSS spec](http://geostar-navi.com/files/docs/geos3/geos_nmea_protocol_v3_0_eng.pdf) as well as devices that support [GLONASS](https://en.wikipedia.org/wiki/GLONASS). This version is fixed to add support to GNGGA sentence and decode GPRMC _and_ GPGGA sentences at same time.
+In TinyTrackGPS V0.11, TinyGPS library is a modified version from https://github.com/fmgomes/TinyGPS to adds support for newer NMEA-capable GPS devices that implement the [v3.x GNSS spec](http://geostar-navi.com/files/docs/geos3/geos_nmea_protocol_v3_0_eng.pdf) as well as devices that support [GLONASS](https://en.wikipedia.org/wiki/GLONASS). This version is fixed to add support to GNGGA sentence and decode G_RMC _and_ G_GGA sentences at same time.
 
 Fixed version is placed in 'lib/TinyGPS_GLONASS_fixed'. 
 <img alt="TinyGPS Glonass Fix" src="images/code_TinyGPS_GLONASS_fixed.png" width="760">&nbsp;

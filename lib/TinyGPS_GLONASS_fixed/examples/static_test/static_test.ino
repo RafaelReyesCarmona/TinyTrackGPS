@@ -1,4 +1,5 @@
-#include <TinyGPS.h>
+#include <TinyGPS_GLONASS_fixed.h>
+
 
 /* This sample code demonstrates the basic use of a TinyGPS object.
    Typically, you would feed it characters from a serial GPS device, but 

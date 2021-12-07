@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
-#include <TinyGPS.h>
+#include <TinyGPS_GLONASS_fixed.h>
+
 
 /* This sample code demonstrates the normal use of a TinyGPS object.
    It assumes that you have a 4800-baud serial GPS device hooked up
