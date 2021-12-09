@@ -1,12 +1,13 @@
 <img src="images/compass.png" width=48 height=48 align=right>
 
 # TinyTrackGPS
-[![Arduino ©: TinyTrackGPS](https://img.shields.io/badge/Arduino©-TinyTrackGPS-red?style=for-the-badge&logo=arduino)](README.md) [![Version: v0.11](https://img.shields.io/badge/Version-v0.11-blue?style=for-the-badge&logo=v)]()
+<img alt="Schema1." src="images/Logo.png" width="128">&nbsp;
 
-A simple track GPS to SD card logger.
+A simple track GPS to SD card logger. 
 
-<img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480">&nbsp;
-<img alt="Location example." src="images/IMG_20211128_192557.jpg" width="240"><img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240">&nbsp;
+<img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480" align=center>&nbsp;
+
+<img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240" align=center>&nbsp;
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
 
@@ -22,9 +23,20 @@ It is tested on:
 This project use components list above:
 
   * Arduino © UNO board or equivalent AVR.
-  * NMEA 6 module.
-  * MicroSD module.
+  * NMEA 6,8 GPS module.
+  * MicroSD module and card.
   * LCD 16×2 char display module (wired or I2C), or OLED 0.96" I2C (SSD1306) (Optional).
+
+  I use this components:
+
+  * LGT8F328P LQFP-32 MiniEVB 32MHz board.
+  * U-blox NEO-M8N GPS module. A concurrent reception module up to 3 GNSS (GPS, Galileo, GLONASS, BeiDou)
+  * MicroSD module with MicroSD 4Gb Card FAT32 formatted.
+  * SSD1306 0.96" 128x64 OLED I2C display module.
+
+  Additional:
+  * Lipo 3,7V 900mAh with protect.
+  * MicroUsb charge module.
 
 ### NO DISPLAY
 Now you can use a minimal hardware to track GPS location. When no display use MicroSD module and card are mandatory. Comment all lines in 'config.h' file:
@@ -73,9 +85,13 @@ TinyTrackGPS uses this library by default. Use less flash memory and RAM. Fast r
 
 The project define a new font (TinyTrackGPS_font8x16), a modified version of ssd1306xled_font8x16 of lcdgfx fonts (canvas/fonts/fonts.c). For information about create a new font visit: https://github.com/lexus2k/lcdgfx/wiki/How-to-create-new-font-for-the-library. 
 
-<img alt="TinyTrackGPS_font" src="images/GLCD Font Creator.jpg" width="540">&nbsp;
+<img alt="TinyTrackGPS_font" src="images/GLCD Font Creator.jpg" width="370">&nbsp;
+
 <img alt="TinyTrackGPS_font" src="images/GLCD new font.jpg" width="240">&nbsp;
-<img alt="TinyTrackGPS_font" src="images/GLCD icons.jpg" width="370"><img alt="TinyTrackGPS_font" src="images/GLCD wait char.jpg" width="370">&nbsp;
+
+<img alt="TinyTrackGPS_font" src="images/GLCD icons.jpg" width="370">&nbsp; <img alt="TinyTrackGPS_font" src="images/GLCD wait char.jpg" width="370">&nbsp;
+
+<img alt="TinyTrackGPS_font" src="images/TinyTrackGPS_font.png" width="760">&nbsp;
 
 ### UST/UT Time.
 _(Universal Summer Timer/Universal Standard Time)_
@@ -328,7 +344,6 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
   * Use [LGTISP](LGTISP.md) when use LGT8F328P to burn TinyTrackGPS into board. No bootloader.
   * Added lcdgfx library from https://github.com/lexus2k/lcdgfx.
   * New logo for splash at start.
-   <img alt="Schema1." src="images/Logo.png" width="128">&nbsp;
 
 <img alt="Schema1." src="images/LogoScreenshot.jpg" width="240">&nbsp;
 ### V0.9
@@ -450,7 +465,7 @@ $GNGLL,3801.27758,N,00446.88703,W,102140.00,A,A*64
 
 You can get more information about [GPS - NMEA sentence information](http://aprs.gids.nl/nmea/) in the web page. Or [RF Wireless World](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html) page. And [SatSleuth Electronic circuits page](http://www.satsleuth.com/GPS_NMEA_sentences.aspx).
 
-All sentences of NMEA start with "$GX___" secuence. Where X could be 'G', 'L', 'N'. 
+All sentences of NMEA start with "$GX___" secuence. Where X could be 'P', 'L', 'A', 'N'. 
 * P - GPS satellital system.
 * L - GLONASS.
 * A - Galileo constellation.
@@ -616,9 +631,7 @@ To get altitude information is needed to decode GPGAA sentence, so call ```GPSRe
 
 ### Fixed TinyGPS on V0.10
 
-Fixed version is located on 'lib/TinyGPS_fixed'. Files are called 'TinyGPS_fixed.cpp' and 'FixedGPS_.h'.
-
-The function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC _and_ GPGGA sentence is decoded correctly. So all information is decoded at same time. Now ```GPSRefresh()``` is no neccessary.
+Now the function ```bool TinyGPS::encode(char c)``` call to ```bool TinyGPS::term_complete()``` and return `true` when GPRMC _and_ GPGGA sentence is decoded correctly. So all information is decoded at same time. Now ```GPSRefresh()``` is no neccessary.
 
 Original code TinyGPS:
 <img alt="TinyGPS" src="images/code_TinyGPS.png" width="760">&nbsp;
@@ -655,6 +668,15 @@ Or using apps like AlpineQuest.
 
 <img alt="AlpineQuest." src="images/map3.jpg" width="240">&nbsp;
 
+## SdFat Library
+
+SdFat library, Bill Greiman, used externat SPI driver config 'SdFatConfig.h' as:
+
+<img alt="SdFat fixed." src="images/code_SdFat_fix.png" width="760">&nbsp;
+
+I used SoftwareSPI driver as you can see in the example code 'SoftwareSPI.ino':
+
+<img alt="SoftwareSPI example." src="images/code_SoftwareSPI.png" width="760">&nbsp;
 ## License
 
 This file is part of TinyTrackGPS.
