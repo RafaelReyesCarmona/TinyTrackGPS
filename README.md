@@ -670,6 +670,21 @@ Or using apps like AlpineQuest.
 
 ## SdFat Library
 
+ SdFat library provides an SPI interface to connect an SD card module with any microcontroller which supports this communication interface. MicroSD module use SPI communication interface to connect with microcontrollers. Using a micro SD card becomes very handy for applications where we need to store files or any data as this project.
+
+ We will be able to read and write data to and from SD cards through the SPI communication protocol with the help of this library. There are different types of microSD card modules available in the market, but the most common pinout configuration has 6 terminals consisting of SPI and power supply terminals:
+
+|**Pin Name**	| **Description**|
+|:-------:|--------------------------------------------------------------------------------|
+|GND	    |This is the ground pin which should be connected with the ground pin of Arduino.|
+|VCC	    |This pin supplies power to the module. The power supply of ~4.5V-5.5V. The adapter consists of a 3.3V voltage regulator circuit as well. It is connected with 5V pin of Arduino.|
+|CS	      |This is the Chip Select pin for SPI communication.|
+|MOSI	    |This is called the ‘Master Out Slave In.’ It is used as the SPI input to the module.|
+|SCK	    |This is called the ‘Serial Clock’ pin which is used in SPI serial clock output.|
+|MISO	    |This is called the ‘Master in Slave Out.’ It is used as the SPI output from the module.|
+
+This page has more information about [Micro SD Card Interfacing with Arduino.](https://microcontrollerslab.com/micro-sd-card-interfacing-arduino-microsd-module/)
+
 SdFat library, Bill Greiman, used externat SPI driver config 'SdFatConfig.h' as:
 
 <img alt="SdFat fixed." src="images/code_SdFat_fix.png" width="760">&nbsp;
