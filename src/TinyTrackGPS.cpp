@@ -92,8 +92,8 @@ SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
 #endif
 
-SdFat card;   //SdFat.h library.
-File file;
+SdFat32 card;   //SdFat.h library.
+File32 file;
 bool SDReady;
 bool SaveOK;
 
