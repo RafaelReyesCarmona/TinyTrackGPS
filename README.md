@@ -445,6 +445,8 @@ $GPGSV,2,2,06,22,46,053,21,31,09,057,37*75
 $GPGLL,3753.16481,N,00447.76212,W,091620.00,A,A*78
 ```
 
+This [page](https://www.electroschematics.com/neo-6m-gps-module/) have all about NEO-6v2 and v3 modules information. 
+
 It is very important how to program for get GPS information correctly. (Fixed since V0.10) 
 
 With updated GPS module to Ublox NMEA-8M we recibe more information, now the module uses GPS+GLONASS+GALILEO systems. Information through serial port is like above:
