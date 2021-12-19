@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.11
+TinyTrackGPS v0.12
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -213,6 +213,23 @@ bool pinswitch();
 unsigned long iteration = 0;
 #endif
 
+#define BAT_MIN  2950
+#define BAT_MAX  4150
+
+long readVcc() 
+{
+  long result;
+  // Read 1.1V reference against AVcc
+  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  delay(2); // Wait for Vref to settle
+  ADCSRA |= _BV(ADSC); // Convert
+  while (bit_is_set(ADCSRA,ADSC));
+  result = ADCL;
+  result |= ADCH<<8;
+  result = 1125300L / result; // Back-calculate AVcc in mV
+  return result;
+}
+
 void setup(void) {
   #if defined(__LGT8F__)
   ECCR = 0x80;
@@ -387,7 +404,9 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   bool print_utm = false;
   bool print_grades = false;
   static unsigned short sats;
+  byte batt_level;
 
+  batt_level = map(constrain(readVcc(),BAT_MIN,BAT_MAX),BAT_MIN,BAT_MAX,0,10);
   sats = gps.satellites();
   #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   //if (LCD.display_type() == SDD1306_128X64) {
@@ -452,12 +471,19 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     #endif
     */
     static char line[11];
-    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
+    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
     dtostrf(flat, 8, 6, line);
     LCD.print(line);
-    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+      LCD.print("*,");
+    #endif
+    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
     dtostrf(flon, 8, 6, line);
     LCD.print(line);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+      LCD.print("+");
+      LCD.drawbattery(batt_level);
+    #endif
   }
 }
 
