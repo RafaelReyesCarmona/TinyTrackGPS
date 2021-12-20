@@ -50,9 +50,12 @@ rafael.reyes.carmona@gmail.com
 #undef nop
 #endif
 #include "SdFat.h"
+#include "Vcc.h"
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
+//#include <LowPower.h>
+
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -213,22 +216,13 @@ bool pinswitch();
 unsigned long iteration = 0;
 #endif
 
-#define BAT_MIN  2950
-#define BAT_MAX  4150
+#define BAT_MIN  3.200
+#define BAT_MAX  4.250
+#define BAT_MIN_mV  3200
+#define BAT_MAX_mV  4250
 
-long readVcc() 
-{
-  long result;
-  // Read 1.1V reference against AVcc
-  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-  delay(2); // Wait for Vref to settle
-  ADCSRA |= _BV(ADSC); // Convert
-  while (bit_is_set(ADCSRA,ADSC));
-  result = ADCL;
-  result |= ADCH<<8;
-  result = 1125300L / result; // Back-calculate AVcc in mV
-  return result;
-}
+Vcc vcc(1.0);
+uint8_t charge;
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -331,7 +325,9 @@ void loop(void) {
   utctime = makeTime(time_gps);
   localtime = TimeZone.toLocal(utctime);
 
-  if (gps_ok) {
+  charge = (int)vcc.Read_Perc(BAT_MIN, BAT_MAX) * 24.0 / 100.0;
+
+  if (gps_ok && charge>0) {
     if (utctime > prevtime) {
       GPSData(gps, utm);
       prevtime = utctime;
@@ -342,6 +338,9 @@ void loop(void) {
     #ifndef NO_DISPLAY
     ScreenPrint(LCD, gps, utm);
     #endif
+  } else {
+      //LCD.DrawLogo();
+      LCD.drawbattery(charge);
   }
   // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
   //LowPower.idle(SLEEP_12MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
@@ -379,7 +378,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   if (SDReady && !card.exists(GPSLogFile)) {
     if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
       //Serial.print(F("New GPSLogFile, adding heads..."));
-      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
+      file.println(F("Time,Latitude,Longitude,Altitude,UTM Coords(WGS84)"));
       //Serial.println(F("Done."));
       file.close();
       }
@@ -404,9 +403,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   bool print_utm = false;
   bool print_grades = false;
   static unsigned short sats;
-  byte batt_level;
 
-  batt_level = map(constrain(readVcc(),BAT_MIN,BAT_MAX),BAT_MIN,BAT_MAX,0,10);
   sats = gps.satellites();
   #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   //if (LCD.display_type() == SDD1306_128X64) {
@@ -475,14 +472,15 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     dtostrf(flat, 8, 6, line);
     LCD.print(line);
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-      LCD.print("*,");
+//      LCD.print(14, 2, ",");
     #endif
     LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
+    //dtostrf(batt_level, 8, 6, line);
     dtostrf(flon, 8, 6, line);
     LCD.print(line);
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-      LCD.print("+");
-      LCD.drawbattery(batt_level);
+//      LCD.print(14, 3, "+");
+      LCD.drawbattery(charge);
     #endif
   }
 }
