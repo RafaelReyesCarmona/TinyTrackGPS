@@ -300,14 +300,14 @@ void setup(void) {
 }
 
 void loop(void) {
-  bool gps_ok = false;
+  //bool gps_ok = false;
 
   while (gps_serial.available() > 0) {
     char c = gps_serial.read();
     //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
     if (gps.encode(c)) {
       gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
-      gps_ok = true;
+      //gps_ok = true;
     }
   }
   
@@ -325,9 +325,9 @@ void loop(void) {
   utctime = makeTime(time_gps);
   localtime = TimeZone.toLocal(utctime);
 
-  charge = (int)vcc.Read_Perc(BAT_MIN, BAT_MAX) * 24.0 / 100.0;
+  charge = (int)vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0;
 
-  if (gps_ok && charge>0) {
+  if (charge>0) {
     if (utctime > prevtime) {
       GPSData(gps, utm);
       prevtime = utctime;
@@ -339,7 +339,7 @@ void loop(void) {
     ScreenPrint(LCD, gps, utm);
     #endif
   } else {
-      //LCD.DrawLogo();
+      LCD.clr();
       LCD.drawbattery(charge);
   }
   // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
@@ -378,7 +378,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   if (SDReady && !card.exists(GPSLogFile)) {
     if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
       //Serial.print(F("New GPSLogFile, adding heads..."));
-      file.println(F("Time,Latitude,Longitude,Altitude,UTM Coords(WGS84)"));
+      file.println(F("Time,Lati.,Long.,Alt.,UTM(WGS84)"));
       //Serial.println(F("Done."));
       file.close();
       }

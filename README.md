@@ -152,7 +152,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
 
   * TinyGPS library fork, Paul Stoffregen (https://github.com/PaulStoffregen/TinyGPS). Fixed version on 'lib'.
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat). Fixed version on 'lib'.
-  * Lcdgfx library,Aleksei (https://github.com/lexus2k/lcdgfx).
+  * Lcdgfx library, Aleksei (https://github.com/lexus2k/lcdgfx).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
   * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
   * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
@@ -160,6 +160,8 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
   * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
+  * Vcc library, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc)
+
 
 ## How to compile
 ### Config
@@ -330,6 +332,11 @@ RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
 Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ```
 ## Changelog
+### V0.12
+  * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
+  * Change splash screen.
+  * Change headers of csv file.
+
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
 

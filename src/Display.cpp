@@ -324,7 +324,9 @@ void Display::DrawLogo() {
 
 void Display::drawbattery(uint8_t level){
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    NanoRect batt = { {122,(60-level)} , {125, 60} };
+    //uint8_t y = 60 - ((int)(level * 25.0 / 100.0));
+    uint8_t y = 60 - level;
+    NanoRect batt = { {122, y} , {125, 60} };
     this->print(14, 2, ",=");
     this->print(14, 3, "+>");
     display->fillRect(batt);
