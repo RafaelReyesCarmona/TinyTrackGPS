@@ -9,11 +9,11 @@ A simple track GPS to SD card logger.
 
 <img alt="Location example." src="images/InShot_20211018_010318084.jpg" width="240" align=center>&nbsp;
 
-This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar.
+This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. News functions and fix are tested and implemented on LGT8F328P board.
 
 It is tested on:
-* UNO R3 board (Arduino UNO compatible board based on Atmega328).
-* ProMini 5v 16MHz (Arduino ProMini compatible board based on Atmega328p).
+* UNO R3 board (Arduino UNO compatible board based on Atmega328). Tested until v0.11.
+* ProMini 5v 16MHz (Arduino ProMini compatible board based on Atmega328p). Tested until v0.11.
 * Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and since v0.10. (default option)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
@@ -35,7 +35,7 @@ This project use components list above:
   * SSD1306 0.96" 128x64 OLED I2C display module.
 
   Additional:
-  * Lipo 3,7V 900mAh with protect.
+  * Lipo 3,7V 450mAh 403040 with protect.
   * MicroUsb charge module.
 
 ### NO DISPLAY
@@ -150,7 +150,7 @@ Timezone usPT(usPDT, usPST);
 
 TinyTrackGPS is free software, see **License** section for more information. The code is based and get parts of the libraries above:
 
-  * TinyGPS library fork, Paul Stoffregen (https://github.com/PaulStoffregen/TinyGPS). Fixed version on 'lib'.
+  * TinyGPS library fork, Paul Stoffregen (https://github.com/PaulStoffregen/TinyGPS). Fork version to add NMEA Data Protocol v3.x and GLONASS support. Fixed version on 'lib'.
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat). Fixed version on 'lib'.
   * Lcdgfx library, Aleksei (https://github.com/lexus2k/lcdgfx).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
@@ -160,7 +160,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
   * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
-  * Vcc library, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc)
+  * Vcc library fork, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc). Fork version to add support to LGT8F328P board. Source on 'lib'.
 
 
 ## How to compile
@@ -337,6 +337,7 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
   * Use of EMA filter to calculate VCC supply level to prevent minimal deviations in measure.
   * Change splash screen.
   * It set minimal VCC level to prevent SD card damage. (3.2V)
+  * Change TinyTrackGPS_font8x16[] with new characters to draw battery icon and 'Charge%' text.
 
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
@@ -702,6 +703,52 @@ SdFat library, Bill Greiman, used externat SPI driver config 'SdFatConfig.h' as:
 I used SoftwareSPI driver as you can see in the example code 'SoftwareSPI.ino':
 
 <img alt="SoftwareSPI example." src="images/code_SoftwareSPI.png" width="760">&nbsp;
+
+## EMA filter and VCC library
+
+The EMA (exponential moving average) or EWMA (exponentially weighed moving average) is the name for what is probably the easiest realization of the (first-order) low-pass on discrete time-domain data. 
+```C++
+Y[n] = alpha * X[n] + (1 - alpha) * Y[n-1]
+```
+A moving average is commonly used with time series data to smooth out short-term fluctuations and highlight longer-term trends or cycles. When VCC library get the value, it can get small fluctuations in the measure. 
+
+The code below use an EMA filter (alpha = 0.80), and it is adapted to calculate the numbers of rows to draw the battery level from 0 to 25. When battery is full charge and USB connector is plugged, level is set to 26.
+
+<img alt="EMA filter and VCC measure." src="images/code_EMA and VCC.png" width="760">&nbsp;
+
+|**Volts**|**Charge**|**Charge %**|
+|:-------:|:--------:|:----------:|
+|4,25	    |25        |  100%      |
+|4,20     |24        |  95%       |
+|4,15	    |23        |  90%       |
+|4,10	    |22        |  86%       |
+|4,05	    |21        |  81%       |
+|4,00	    |19        |  76%       |
+|3,95	    |18        |  71%       |
+|3,90	    |17        |  67%       |
+|3,85	    |16        |  62%       |
+|3,80	    |15        |  57%       |
+|3,75	    |13        |  52%       |
+|3,70	    |12        |  48%       |
+|3,65	    |11        |  43%       |
+|3,60	    |10        |  38%       |
+|3,55	    |9         |  33%       |
+|3,50	    |7	       |  29%       |
+|3,45	    |6         |  24%       |
+|3,40	    |5         |  19%       |
+|3,35	    |4	       |  14%       |
+|3,30	    |3	       |  10%       |
+|3,25	    |1	       |  5%        |
+|3,20	    |0	       |  0%        |
+
+<img alt="TinyTrackGPS display data." src="images/IMG_20211221_124521.jpg" width="240">&nbsp;
+
+
+When VCC level is 3,20 V, stop to read GPS data and only display battery level.
+
+<img alt="Low Batt." src="images/IMG_20211221_174421.jpg" width="240">&nbsp;
+
+
 ## License
 
 This file is part of TinyTrackGPS.
