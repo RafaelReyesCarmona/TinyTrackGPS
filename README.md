@@ -334,8 +334,9 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
 ## Changelog
 ### V0.12
   * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
+  * Use of EMA filter to calculate VCC supply level to prevent minimal deviations in measure.
   * Change splash screen.
-  * Change headers of csv file.
+  * It set minimal VCC level to prevent SD card damage. (3.2V)
 
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)

@@ -26,7 +26,7 @@ rafael.reyes.carmona@gmail.com
 // Definimos nombre aplicación y versión.
 #define NAME "TinyTrackGPS"
 #define NAME_M "TINYTRACKGPS"
-#define VERSION "V0.12.13"
+#define VERSION "V0.12.14"
 
 // Descomentar solo uno de los displays utilizados. No cambiar para uso NO DISPLAY.
 //#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels

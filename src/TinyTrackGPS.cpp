@@ -39,7 +39,6 @@ rafael.reyes.carmona@gmail.com
 /
 /  - Conectar OLED 0.96" en SDA y SCL. pines A4 y A5 del Arduino UNO.
 ********************************************************************************/
-
 // Include libraries.
 #include <Arduino.h>
 #include "config.h"
@@ -54,8 +53,6 @@ rafael.reyes.carmona@gmail.com
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
-//#include <LowPower.h>
-
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -220,9 +217,10 @@ unsigned long iteration = 0;
 #define BAT_MAX  4.250
 #define BAT_MIN_mV  3200
 #define BAT_MAX_mV  4250
+#define ALFA_BAT   9.5238095238e1  // 100 / (BAT_MAX - BAT_MIN)
 
 Vcc vcc(1.0);
-uint8_t charge;
+uint8_t charge = 25;
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -325,7 +323,13 @@ void loop(void) {
   utctime = makeTime(time_gps);
   localtime = TimeZone.toLocal(utctime);
 
-  charge = (int)vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0;
+  //float charge_percent = (0.80 * (vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0)) + (0.20 * (float)charge);
+  //float charge_percent = 2e-1 * ((vcc.Read_Perc(BAT_MIN, BAT_MAX)) + (float)charge); // 2e-1 = 0.8 * 25 / 100
+  //charge = (int)(charge_percent);
+  //charge = (int)(vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0);
+  //charge = (int)(2e-1 * ((vcc.Read_Perc(BAT_MIN, BAT_MAX)) + (float)charge));
+  charge = (int)(2e-1 * (((vcc.Read_Volts()-BAT_MIN) * ALFA_BAT) + (float)charge));
+  charge = constrain(charge, 0, 26);
 
   if (charge>0) {
     if (utctime > prevtime) {
@@ -340,8 +344,8 @@ void loop(void) {
     #endif
   } else {
       LCD.clr();
-      LCD.drawbattery(charge);
   }
+  LCD.drawbattery(charge);
   // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
   //LowPower.idle(SLEEP_12MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
   // 
@@ -378,7 +382,7 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   if (SDReady && !card.exists(GPSLogFile)) {
     if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
       //Serial.print(F("New GPSLogFile, adding heads..."));
-      file.println(F("Time,Lati.,Long.,Alt.,UTM(WGS84)"));
+      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
       //Serial.println(F("Done."));
       file.close();
       }
@@ -480,7 +484,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     LCD.print(line);
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
 //      LCD.print(14, 3, "+");
-      LCD.drawbattery(charge);
+      //LCD.drawbattery(charge);
     #endif
   }
 }
