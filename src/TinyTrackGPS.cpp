@@ -92,8 +92,8 @@ SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
 #endif
 
-SdFat32 card;   //SdFat.h library.
-File32 file;
+SdFat card;   //SdFat.h library.
+File file;
 bool SDReady;
 bool SaveOK;
 
@@ -298,13 +298,14 @@ void setup(void) {
 }
 
 void loop(void) {
-  //bool gps_ok = false;
+  bool gps_ok = false;
 
   while (gps_serial.available() > 0) {
     char c = gps_serial.read();
     //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
     if (gps.encode(c)) {
       gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
+      (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
       //gps_ok = true;
     }
   }
@@ -331,7 +332,7 @@ void loop(void) {
   charge = (int)(2e-1 * (((vcc.Read_Volts()-BAT_MIN) * ALFA_BAT) + (float)charge));
   charge = constrain(charge, 0, 26);
 
-  if (charge>0) {
+  if (gps_ok && (charge>0)) {
     if (utctime > prevtime) {
       GPSData(gps, utm);
       prevtime = utctime;
@@ -342,7 +343,7 @@ void loop(void) {
     #ifndef NO_DISPLAY
     ScreenPrint(LCD, gps, utm);
     #endif
-  } else {
+  } else if (charge==0){
       LCD.clr();
   }
   LCD.drawbattery(charge);
