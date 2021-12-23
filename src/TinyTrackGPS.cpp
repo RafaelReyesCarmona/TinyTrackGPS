@@ -218,6 +218,7 @@ unsigned long iteration = 0;
 #define BAT_MIN_mV  3200
 #define BAT_MAX_mV  4250
 #define ALFA_BAT   9.5238095238e1  // 100 / (BAT_MAX - BAT_MIN)
+#define BETA_BAT   2.3809523809e1
 
 Vcc vcc(1.0);
 uint8_t charge = 25;
@@ -329,7 +330,8 @@ void loop(void) {
   //charge = (int)(charge_percent);
   //charge = (int)(vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0);
   //charge = (int)(2e-1 * ((vcc.Read_Perc(BAT_MIN, BAT_MAX)) + (float)charge));
-  charge = (int)(2e-1 * (((vcc.Read_Volts()-BAT_MIN) * ALFA_BAT) + (float)charge));
+  //charge = (int)(2e-1 * (((vcc.Read_Volts()-BAT_MIN) * ALFA_BAT) + (float)charge));
+  charge = (int)(((vcc.Read_Volts()-BAT_MIN) * BETA_BAT));  
   charge = constrain(charge, 0, 26);
 
   if (gps_ok && (charge>0)) {

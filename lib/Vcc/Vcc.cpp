@@ -22,6 +22,7 @@
 */
 
 #include "Vcc.h"
+#include "EMA.h"
 
 Vcc::Vcc( const float correction )
   : m_correction(correction)
@@ -76,6 +77,8 @@ float Vcc::Read_Volts(void)
   }
 
   uint16_t pVal;
+  uint16_t pVal_filtered;
+  static EMA<2> EMA_filter;
 
 #if defined(__LGT8FX8P__)
   uint16_t nVal;
@@ -97,8 +100,10 @@ float Vcc::Read_Volts(void)
   pVal -= (pVal >> 7);
 #endif
   
+  pVal_filtered = EMA_filter(pVal);
+
   // Calculate Vcc (in V)
-  float vcc = m_correction * _IVREF * _ADCMAXRES / pVal;
+  float vcc = m_correction * _IVREF * _ADCMAXRES / pVal_filtered;
 
   return vcc;
 } // end Read_Volts
