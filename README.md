@@ -164,7 +164,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
   * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
-  * Vcc library fork, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc). Fork version to add support to LGT8F328P board. Source on 'lib'.
+  * Vcc library fork, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc). Fork version to add support to LGT8F328P board and EMA implementation, more info about EMA (https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/C++Implementation.html). Source on 'lib'.
 
 
 ## How to compile
@@ -744,6 +744,12 @@ The code below use an EMA filter (alpha = 0.80), and it is adapted to calculate 
 |3,30	    |3	       |  10%       |
 |3,25	    |1	       |  5%        |
 |3,20	    |0	       |  0%        |
+
+But, AVR must make lot of float point calcs. And I have and overflow and inesperate reset, with lost of information in CSV file and SD card incoherent data. So I have modify VCC library to use EMA implementation of Peter P (tttapa)(https://github.com/tttapa/tttapa.github.io/blob/master/Pages-src/Raw-HTML/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/resources/EMA-Arduino.ino)
+
+<img alt="EMA Arduino implementation." src="images/code_EMA and VCC_2.png" width="760">&nbsp;
+
+TinyTrackGPS show this information on display:
 
 <img alt="TinyTrackGPS display data." src="images/IMG_20211221_124521.jpg" width="240">&nbsp;
 
