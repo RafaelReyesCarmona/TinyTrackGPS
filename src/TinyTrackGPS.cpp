@@ -204,7 +204,7 @@ void dateTime(uint16_t* date, uint16_t* time) {
 void GPSData(TinyGPS &gps, GPS_UTM &utm);
 #ifndef NO_DISPLAY
 void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm);
-#ifndef DISPLAY_TYPE_SDD1306_128X64
+#if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
 bool pinswitch();
 #endif
 #endif
@@ -213,15 +213,21 @@ bool pinswitch();
 unsigned long iteration = 0;
 #endif
 
-#define BAT_MIN  3.200
+#define BAT_MIN  3.250
 #define BAT_MAX  4.250
-#define BAT_MIN_mV  3200
+#define BAT_MIN_mV  3250
 #define BAT_MAX_mV  4250
-#define ALFA_BAT   9.5238095238e1  // 100 / (BAT_MAX - BAT_MIN)
-#define BETA_BAT   2.3809523809e1
+#define ALFA_BAT   1.0e2  // 100 / (BAT_MAX - BAT_MIN) -> 0..100%
+#define BETA_BAT   2.5e1  // ALFA_BAT / 4 -> 0..25
 
 Vcc vcc(1.0);
-uint8_t charge = 25;
+
+uint8_t charge_level(){
+    float f_charge = (vcc.Read_Volts() * BETA_BAT) - (BAT_MIN * BETA_BAT);
+    int i_charge = (int)f_charge; 
+    uint8_t charge = constrain(i_charge, 0, 26);
+    return charge;
+}
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -269,6 +275,7 @@ void setup(void) {
   do {
     #ifndef NO_DISPLAY
     LCD.wait_anin(time++);
+    LCD.drawbattery(charge_level());
     #endif
     for (unsigned long start = millis(); millis() - start < 1000;) {
       while (gps_serial.available() > 0) {
@@ -300,6 +307,7 @@ void setup(void) {
 
 void loop(void) {
   bool gps_ok = false;
+  uint8_t charge;
 
   while (gps_serial.available() > 0) {
     char c = gps_serial.read();
@@ -307,7 +315,6 @@ void loop(void) {
     if (gps.encode(c)) {
       gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
       (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
-      //gps_ok = true;
     }
   }
   
@@ -325,14 +332,7 @@ void loop(void) {
   utctime = makeTime(time_gps);
   localtime = TimeZone.toLocal(utctime);
 
-  //float charge_percent = (0.80 * (vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0)) + (0.20 * (float)charge);
-  //float charge_percent = 2e-1 * ((vcc.Read_Perc(BAT_MIN, BAT_MAX)) + (float)charge); // 2e-1 = 0.8 * 25 / 100
-  //charge = (int)(charge_percent);
-  //charge = (int)(vcc.Read_Perc(BAT_MIN, BAT_MAX) * 25.0 / 100.0);
-  //charge = (int)(2e-1 * ((vcc.Read_Perc(BAT_MIN, BAT_MAX)) + (float)charge));
-  //charge = (int)(2e-1 * (((vcc.Read_Volts()-BAT_MIN) * ALFA_BAT) + (float)charge));
-  charge = (int)(((vcc.Read_Volts()-BAT_MIN) * BETA_BAT));  
-  charge = constrain(charge, 0, 26);
+  charge = charge_level();
 
   if (gps_ok && (charge>0)) {
     if (utctime > prevtime) {
@@ -379,8 +379,6 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   //SdFile::dateTimeCallback(dateTime);
   FsDateTime::setCallback(dateTime);
   
-
-
   // Si no existe el fichero lo crea y añade las cabeceras.
   if (SDReady && !card.exists(GPSLogFile)) {
     if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
@@ -398,9 +396,9 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
     file.println(buffer);
     file.close();
     //Serial.println(F("Done."));
-  } else {
+  } //else {
     //Serial.println(F("** Error opening GPSLogFile. **"));
-  }
+  //}
   //} //else Serial.println(F("** GPS signal lost. **"));
   SaveOK = save;
 }
@@ -458,11 +456,21 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     sprintf(line, "%um", elev);
     #endif
     //Serial.println(line);
+
+    unsigned int elev_n = elev;
+    byte n = 1;
+    while (elev_n > 9){
+      elev_n /= 10;
+      n++;
+    }
+    LCD.print(15-n,1,line);
     
+    /*
     if (elev < 10) LCD.print(14,1,line);
     else if (elev < 100) LCD.print(13,1,line);
     else if (elev < 1000) LCD.print(12,1,line);
     else LCD.print(11,1,line);
+    */
   }
 
   if (print_grades) {
