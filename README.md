@@ -340,8 +340,9 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
   * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
   * Use of EMA filter to calculate VCC supply level to prevent minimal deviations in measure.
   * Change splash screen.
-  * It set minimal VCC level to prevent SD card damage. (3.2V)
-  * Change TinyTrackGPS_font8x16[] with new characters to draw battery icon and 'Charge%' text.
+  * It set minimal VCC level to prevent SD card damage. (3.25V)
+  * Change TinyTrackGPS_font8x16[] with new characters to draw battery icon, 'Charge%' text and logo.
+  * Fixed "SD" indicator when microSD card is extracted or data is no saved.
 
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
@@ -480,11 +481,15 @@ $GNGLL,3801.27758,N,00446.88703,W,102140.00,A,A*64
 
 You can get more information about [GPS - NMEA sentence information](http://aprs.gids.nl/nmea/) in the web page. Or [RF Wireless World](https://www.rfwireless-world.com/Terminology/GPS-sentences-or-NMEA-sentences.html) page. And [SatSleuth Electronic circuits page](http://www.satsleuth.com/GPS_NMEA_sentences.aspx).
 
-All sentences of NMEA start with "$GX___" secuence. Where X could be 'P', 'L', 'A', 'N'. 
-* P - GPS satellital system.
-* L - GLONASS.
-* A - Galileo constellation.
-* N - For a combination of 2 or more satellital system.
+All sentences of NMEA 0183 start with "$GX___" secuence. The $ is start character, and the two letter above are named 'GNSS Talker IDs'. Where X could be 'P', 'L', 'A', 'N', 'I' 'B' or 'Q'. 
+
+* GP - Global Positioning System (GPS).
+* GL - GLONASS Receiver.
+* GA - Galileo Positioning System.
+* GN - Global Navigation Satellite System (GNSS).
+* GB - BDS (BeiDou System).
+* GI - NavIC (IRNSS).
+* GQ - QZSS.
 
 The above information '_' could be replace with appropiate constellation.
 
@@ -660,6 +665,14 @@ In TinyTrackGPS V0.11, TinyGPS library is a modified version from https://github
 
 Fixed version is placed in 'lib/TinyGPS_GLONASS_fixed'. 
 <img alt="TinyGPS Glonass Fix" src="images/code_TinyGPS_GLONASS_fixed.png" width="760">&nbsp;
+
+### Fixed TinyGPS on V0.12
+
+In TinyTrackGPS V0.12, TinyGPS library is modificated to saved flash memory and make run faster. The are sentences as GSA and GSV that there are no decodified, so 'encode()' function run faster.
+
+This are the modifications on 'term_complete()' function:
+<img alt="TinyGPS Glonass Fix" src="images/code_TinyGPS_GLONASS_fixed-2.png" width="760">&nbsp;
+<img alt="TinyGPS Glonass Fix" src="images/code_TinyGPS_GLONASS_fixed-3.png" width="760">&nbsp;
 
 ## Accuracy
 

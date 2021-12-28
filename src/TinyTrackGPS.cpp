@@ -53,6 +53,7 @@ rafael.reyes.carmona@gmail.com
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
+#include <LowPower.h>
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -351,7 +352,8 @@ void loop(void) {
   LCD.drawbattery(charge);
   // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
   //LowPower.idle(SLEEP_12MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
-  // 
+  //
+  LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
   #ifdef NO_DISPLAY
   LowPower.powerSave(SLEEP_250MS, ADC_OFF, BOD_ON,TIMER2_OFF); // para NO_DISPLAY.
   #endif
@@ -361,7 +363,6 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
   static char buffer[62];
   static char line[11];
   static int index;
-  static bool save;
 
   if (age != TinyGPS::GPS_INVALID_AGE){
     index = snprintf(buffer,10, "%02d:%02d:%02d,", hour(localtime), minute(localtime), second(localtime));
@@ -391,16 +392,18 @@ void GPSData(TinyGPS &gps, GPS_UTM &utm) {
       //Serial.println(F("** Error creating GPSLogFile. **"));
       //}
   }
-  if (SDReady && (save = file.open(GPSLogFile, O_APPEND | O_WRITE))) {
+  if (SDReady && (file.open(GPSLogFile, O_APPEND | O_WRITE))) {
     //Serial.print(F("Open GPSLogFile to write..."));
     file.println(buffer);
     file.close();
+    SaveOK = true;
+    return;
     //Serial.println(F("Done."));
   } //else {
     //Serial.println(F("** Error opening GPSLogFile. **"));
   //}
   //} //else Serial.println(F("** GPS signal lost. **"));
-  SaveOK = save;
+  SaveOK = false;
 }
 
 #ifndef NO_DISPLAY

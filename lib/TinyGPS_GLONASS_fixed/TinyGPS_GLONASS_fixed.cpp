@@ -24,12 +24,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TinyGPS_GLONASS_fixed.h"
 
 #define _GPRMC_TERM   "GPRMC"
-#define _GPGGA_TERM   "GPGGA"
-#define _GPGSA_TERM   "GPGSA"
 #define _GNRMC_TERM   "GNRMC"
+#define _GLRMC_TERM   "GLRMC"
+#define _GARMC_TERM   "GARMC"
+
+#define _GPGGA_TERM   "GPGGA"
 #define _GNGGA_TERM   "GNGGA"
-#define _GNGNS_TERM   "GNGNS"
+#define _GLGGA_TERM   "GLGGA"
+#define _GAGGA_TERM   "GAGGA"
+
+#define _GPGSA_TERM   "GPGSA"
 #define _GNGSA_TERM   "GNGSA"
+#define _GNGNS_TERM   "GNGNS"
 #define _GPGSV_TERM   "GPGSV"
 #define _GLGSV_TERM   "GLGSV"
 
@@ -222,18 +228,20 @@ bool TinyGPS::term_complete()
   // the first term determines the sentence type
   if (_term_number == 0)
   {
-    if (!gpsstrcmp(_term, _GPRMC_TERM) || !gpsstrcmp(_term, _GNRMC_TERM))
+    if (!gpsstrcmp(_term, _GPRMC_TERM) || !gpsstrcmp(_term, _GNRMC_TERM) 
+        || !gpsstrcmp(_term, _GLRMC_TERM) || !gpsstrcmp(_term, _GARMC_TERM))
       _sentence_type = _GPS_SENTENCE_GPRMC;
-    else if (!gpsstrcmp(_term, _GPGGA_TERM) || !gpsstrcmp(_term, _GNGGA_TERM))
+    else if (!gpsstrcmp(_term, _GPGGA_TERM) || !gpsstrcmp(_term, _GNGGA_TERM) 
+              || !gpsstrcmp(_term, _GLGGA_TERM) || !gpsstrcmp(_term, _GAGGA_TERM))
       _sentence_type = _GPS_SENTENCE_GPGGA;
     else if (!gpsstrcmp(_term, _GNGNS_TERM))
       _sentence_type = _GPS_SENTENCE_GNGNS;
-    else if (!gpsstrcmp(_term, _GNGSA_TERM) || !gpsstrcmp(_term, _GPGSA_TERM))
-      _sentence_type = _GPS_SENTENCE_GNGSA;
-    else if (!gpsstrcmp(_term, _GPGSV_TERM))
-      _sentence_type = _GPS_SENTENCE_GPGSV;
-    else if (!gpsstrcmp(_term, _GLGSV_TERM))
-      _sentence_type = _GPS_SENTENCE_GLGSV;
+    //else if (!gpsstrcmp(_term, _GNGSA_TERM) || !gpsstrcmp(_term, _GPGSA_TERM))
+    //  _sentence_type = _GPS_SENTENCE_GNGSA;
+    //else if (!gpsstrcmp(_term, _GPGSV_TERM))
+    //  _sentence_type = _GPS_SENTENCE_GPGSV;
+    //else if (!gpsstrcmp(_term, _GLGSV_TERM))
+    //  _sentence_type = _GPS_SENTENCE_GLGSV;
     else
       _sentence_type = _GPS_SENTENCE_OTHER;
     return false;
@@ -299,6 +307,7 @@ bool TinyGPS::term_complete()
     case COMBINE(_GPS_SENTENCE_GPGGA, 9): // Altitude (GPGGA)
       _new_altitude = parse_decimal();
       break;
+    /*
     case COMBINE(_GPS_SENTENCE_GNGSA, 3): //satellites used in solution: 3 to 15
       //_sats_used[
       break;
@@ -328,7 +337,7 @@ bool TinyGPS::term_complete()
         _sat_index = msgId*4 + 12;   //Glonass offset by 12
       }
       break;
-  }
+      }
     case COMBINE(_GPS_SENTENCE_GPGSV, 4):   //satellite #
     case COMBINE(_GPS_SENTENCE_GPGSV, 8):
     case COMBINE(_GPS_SENTENCE_GPGSV, 12):
@@ -357,6 +366,7 @@ bool TinyGPS::term_complete()
         tracked_sat_rec[_sat_index + (_term_number-7)/4] = _tracked_satellites_index<<8 | stren<<1;
       }
       break;
+    */
   }
 
   return false;
