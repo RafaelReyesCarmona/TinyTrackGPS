@@ -202,9 +202,7 @@ void dateTime(uint16_t* date, uint16_t* time) {
 }
 //------------------------------------------------------------------------------
 
-void GPSData(TinyGPS &gps, GPS_UTM &utm);
 #ifndef NO_DISPLAY
-void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm);
 #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
 bool pinswitch();
 #endif
@@ -229,6 +227,186 @@ uint8_t charge_level(){
     uint8_t charge = constrain(i_charge, 0, 26);
     return charge;
 }
+
+bool GPSData(TinyGPS &gps, GPS_UTM &utm) {
+  static char buffer[62];
+  static char line[11];
+  static int index;
+  static bool save = false;
+
+  if (age != TinyGPS::GPS_INVALID_AGE){
+    index = snprintf(buffer,10, "%02d:%02d:%02d,", hour(localtime), minute(localtime), second(localtime));
+    dtostrf(flat, 10, 6, line);
+    index += snprintf(buffer+index,12,"%s,",line);
+    dtostrf(flon, 10, 6, line);
+    index += snprintf(buffer+index,12,"%s,",line);
+    index += snprintf(buffer+index,7,"%05u,",elev);
+    index += snprintf(buffer+index,19,"%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
+    //Serial.print(buffer);
+  }
+
+  sprintf(GPSLogFile, "%04d%02d%02d.csv", year(localtime), month(localtime), day(localtime));
+
+  //SdFile::dateTimeCallback(dateTime);
+  FsDateTime::setCallback(dateTime);
+  
+  // Si no existe el fichero lo crea y añade las cabeceras.
+  if (SDReady && !card.exists(GPSLogFile)) {
+    if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
+      //Serial.print(F("New GPSLogFile, adding heads..."));
+      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
+      //Serial.println(F("Done."));
+      file.close();
+      }
+      //else {
+      //Serial.println(F("** Error creating GPSLogFile. **"));
+      //}
+  }
+  if (SDReady && (file.open(GPSLogFile, O_APPEND | O_WRITE))) {
+    //Serial.print(F("Open GPSLogFile to write..."));
+    file.println(buffer);
+    file.close();
+    save = true;
+    //Serial.println(F("Done."));
+  } //else {
+    //Serial.println(F("** Error opening GPSLogFile. **"));
+  //}
+  //} //else Serial.println(F("** GPS signal lost. **"));
+  return (save && SDReady);
+}
+
+#ifndef NO_DISPLAY
+void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
+  bool print_utm = false;
+  bool print_grades = false;
+  static unsigned short sats;
+
+  sats = gps.satellites();
+  #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+  //if (LCD.display_type() == SDD1306_128X64) {
+    print_utm = true;
+    print_grades = true;
+  //}
+  #endif
+  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+  if (!pinswitch()) print_utm = true;
+  else print_grades = true;
+  #endif
+
+  if (print_utm) {
+    static char line[12];
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%02d%c?%ld?", utm.zone(), utm.band(), utm.X());
+    #else
+    sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
+    #endif
+    //Serial.println(line);
+    LCD.print(0,0,line);
+    LCD.print_PChar((byte)6);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%02hu?", sats);
+    #else
+    sprintf(line, "%02hu ", sats);
+    #endif
+    //Serial.println(line);
+    LCD.print(12,0,line);
+    (SaveOK) ? LCD.print_PChar((byte)7) : LCD.print("-");
+    
+    // New line
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%ld?", utm.Y());
+    #else
+    sprintf(line, "%ld ", utm.Y());
+    #endif
+    //Serial.println(line);
+    LCD.print(1,1,line);
+    LCD.print_PChar((byte)5);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    sprintf(line, "%u@", elev);
+    #else
+    sprintf(line, "%um", elev);
+    #endif
+    //Serial.println(line);
+
+    unsigned int elev_n = elev;
+    byte n = 1;
+    while (elev_n > 9){
+      elev_n /= 10;
+      n++;
+    }
+    LCD.print(15-n,1,line);
+    
+    /*
+    if (elev < 10) LCD.print(14,1,line);
+    else if (elev < 100) LCD.print(13,1,line);
+    else if (elev < 1000) LCD.print(12,1,line);
+    else LCD.print(11,1,line);
+    */
+  }
+
+  if (print_grades) {
+    /*
+    #ifndef DISPLAY_TYPE_SDD1306_128X64
+    LCD.print(0,0," ");
+    LCD.print(15,0," ");
+    //LCD.print(0,1," ");
+    LCD.print(15,1," ");
+    #endif
+    */
+    static char line[11];
+    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
+    dtostrf(flat, 8, 6, line);
+    LCD.print(line);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+//      LCD.print(14, 2, ",");
+    #endif
+    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
+    dtostrf(flon, 8, 6, line);
+    LCD.print(line);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+//      LCD.print(14, 3, "+");
+      //LCD.drawbattery(charge);
+    #endif
+  }
+}
+
+#if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+bool pinswitch() {
+  bool pin;
+  
+  pin = bitRead(iteration,4); // Change every 8 seconds.
+  //LCD.clr(); -> Too slow clear individual characters.
+  if ((iteration%16) == 0) {
+    LCD.print(0,0," ");
+    LCD.print(15,0," ");
+    //LCD.print(0,1," ");
+    LCD.print(15,1," ");
+  }
+  return pin;
+}
+#endif
+#endif
+/*
+void GPSRefresh()
+{
+    while (gps_serial.available() > 0)
+      gps.encode(gps_serial.read());
+}
+*/
+/*
+time_t makeTime_elements(int year, byte month, byte day, byte hour, byte minute, byte second){ 
+  static TimeElements tm;
+
+  tm.Year = year - 1970;
+  tm.Month = month;
+  tm.Day = day;
+  tm.Hour = hour;
+  tm.Minute = minute;
+  tm.Second = second;
+
+  return makeTime(tm);
+}
+*/
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -335,9 +513,11 @@ void loop(void) {
 
   charge = charge_level();
 
+  (!card.sdErrorCode()) ? SDReady = true : SDReady = false;
+
   if (gps_ok && (charge>0)) {
     if (utctime > prevtime) {
-      GPSData(gps, utm);
+      SaveOK = GPSData(gps, utm);
       prevtime = utctime;
       #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
       iteration++;
@@ -358,185 +538,3 @@ void loop(void) {
   LowPower.powerSave(SLEEP_250MS, ADC_OFF, BOD_ON,TIMER2_OFF); // para NO_DISPLAY.
   #endif
 }
-
-void GPSData(TinyGPS &gps, GPS_UTM &utm) {
-  static char buffer[62];
-  static char line[11];
-  static int index;
-
-  if (age != TinyGPS::GPS_INVALID_AGE){
-    index = snprintf(buffer,10, "%02d:%02d:%02d,", hour(localtime), minute(localtime), second(localtime));
-    dtostrf(flat, 10, 6, line);
-    index += snprintf(buffer+index,12,"%s,",line);
-    dtostrf(flon, 10, 6, line);
-    index += snprintf(buffer+index,12,"%s,",line);
-    index += snprintf(buffer+index,7,"%05u,",elev);
-    index += snprintf(buffer+index,19,"%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
-    //Serial.print(buffer);
-  }
-
-  sprintf(GPSLogFile, "%04d%02d%02d.csv", year(localtime), month(localtime), day(localtime));
-
-  //SdFile::dateTimeCallback(dateTime);
-  FsDateTime::setCallback(dateTime);
-  
-  // Si no existe el fichero lo crea y añade las cabeceras.
-  if (SDReady && !card.exists(GPSLogFile)) {
-    if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
-      //Serial.print(F("New GPSLogFile, adding heads..."));
-      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
-      //Serial.println(F("Done."));
-      file.close();
-      }
-      //else {
-      //Serial.println(F("** Error creating GPSLogFile. **"));
-      //}
-  }
-  if (SDReady && (file.open(GPSLogFile, O_APPEND | O_WRITE))) {
-    //Serial.print(F("Open GPSLogFile to write..."));
-    file.println(buffer);
-    file.close();
-    SaveOK = true;
-    return;
-    //Serial.println(F("Done."));
-  } //else {
-    //Serial.println(F("** Error opening GPSLogFile. **"));
-  //}
-  //} //else Serial.println(F("** GPS signal lost. **"));
-  SaveOK = false;
-}
-
-#ifndef NO_DISPLAY
-void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
-  bool print_utm = false;
-  bool print_grades = false;
-  static unsigned short sats;
-
-  sats = gps.satellites();
-  #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-  //if (LCD.display_type() == SDD1306_128X64) {
-    print_utm = true;
-    print_grades = true;
-  //}
-  #endif
-  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-  if (!pinswitch()) print_utm = true;
-  else print_grades = true;
-  #endif
-
-  if (print_utm) {
-    static char line[12];
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    sprintf(line, "%02d%c?%ld?", utm.zone(), utm.band(), utm.X());
-    #else
-    sprintf(line, "%02d%c %ld ", utm.zone(), utm.band(), utm.X());
-    #endif
-    //Serial.println(line);
-    LCD.print(0,0,line);
-    LCD.print_PChar((byte)6);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    sprintf(line, "%02hu?", sats);
-    #else
-    sprintf(line, "%02hu ", sats);
-    #endif
-    //Serial.println(line);
-    LCD.print(12,0,line);
-    if (SaveOK) LCD.print_PChar((byte)7);
-    else LCD.print("-");
-
-    // New line
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    sprintf(line, "%ld?", utm.Y());
-    #else
-    sprintf(line, "%ld ", utm.Y());
-    #endif
-    //Serial.println(line);
-    LCD.print(1,1,line);
-    LCD.print_PChar((byte)5);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    sprintf(line, "%u@", elev);
-    #else
-    sprintf(line, "%um", elev);
-    #endif
-    //Serial.println(line);
-
-    unsigned int elev_n = elev;
-    byte n = 1;
-    while (elev_n > 9){
-      elev_n /= 10;
-      n++;
-    }
-    LCD.print(15-n,1,line);
-    
-    /*
-    if (elev < 10) LCD.print(14,1,line);
-    else if (elev < 100) LCD.print(13,1,line);
-    else if (elev < 1000) LCD.print(12,1,line);
-    else LCD.print(11,1,line);
-    */
-  }
-
-  if (print_grades) {
-    /*
-    #ifndef DISPLAY_TYPE_SDD1306_128X64
-    LCD.print(0,0," ");
-    LCD.print(15,0," ");
-    //LCD.print(0,1," ");
-    LCD.print(15,1," ");
-    #endif
-    */
-    static char line[11];
-    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
-    dtostrf(flat, 8, 6, line);
-    LCD.print(line);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-//      LCD.print(14, 2, ",");
-    #endif
-    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
-    //dtostrf(batt_level, 8, 6, line);
-    dtostrf(flon, 8, 6, line);
-    LCD.print(line);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-//      LCD.print(14, 3, "+");
-      //LCD.drawbattery(charge);
-    #endif
-  }
-}
-
-#if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-bool pinswitch() {
-  bool pin;
-  
-  pin = bitRead(iteration,4); // Change every 8 seconds.
-  //LCD.clr(); -> Too slow clear individual characters.
-  if ((iteration%16) == 0) {
-    LCD.print(0,0," ");
-    LCD.print(15,0," ");
-    //LCD.print(0,1," ");
-    LCD.print(15,1," ");
-  }
-  return pin;
-}
-#endif
-#endif
-/*
-void GPSRefresh()
-{
-    while (gps_serial.available() > 0)
-      gps.encode(gps_serial.read());
-}
-*/
-/*
-time_t makeTime_elements(int year, byte month, byte day, byte hour, byte minute, byte second){ 
-  static TimeElements tm;
-
-  tm.Year = year - 1970;
-  tm.Month = month;
-  tm.Day = day;
-  tm.Hour = hour;
-  tm.Minute = minute;
-  tm.Second = second;
-
-  return makeTime(tm);
-}
-*/
