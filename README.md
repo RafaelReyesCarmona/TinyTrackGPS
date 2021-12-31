@@ -758,7 +758,7 @@ The code below use an EMA filter (alpha = 0.80), and it is adapted to calculate 
 |3,25	    |1	       |  5%        |
 |3,20	    |0	       |  0%        |
 
-But, AVR must make lot of float point calcs. And I have and overflow and inesperate reset, with lost of information in CSV file and SD card incoherent data. So I have modify VCC library to use EMA implementation of Peter P (tttapa)(https://github.com/tttapa/tttapa.github.io/blob/master/Pages-src/Raw-HTML/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/resources/EMA-Arduino.ino)
+But, AVR must make lot of float point calcs. And I had an overflow and inesperate reset, with lost of information in CSV file and SD card incoherent data. So I have modify VCC library to use EMA implementation of Peter P (tttapa)(https://github.com/tttapa/tttapa.github.io/blob/master/Pages-src/Raw-HTML/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/resources/EMA-Arduino.ino)
 
 <img alt="EMA Arduino implementation." src="images/code_EMA and VCC_2.png" width="760">&nbsp;
 

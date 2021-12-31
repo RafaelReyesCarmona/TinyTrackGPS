@@ -45,15 +45,14 @@ rafael.reyes.carmona@gmail.com
 #include "Display.h"
 //#include <SoftwareSerial.h>
 #include "TinyGPS_GLONASS_fixed.h"
-#if defined(__LGT8F__) && defined(nop)
-#undef nop
+#if defined(__LGT8F__)
+#include <LowPower.h>
 #endif
 #include "SdFat.h"
 #include "Vcc.h"
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
-#include <LowPower.h>
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -283,10 +282,8 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
 
   sats = gps.satellites();
   #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-  //if (LCD.display_type() == SDD1306_128X64) {
     print_utm = true;
     print_grades = true;
-  //}
   #endif
   #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
   if (!pinswitch()) print_utm = true;
@@ -311,7 +308,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     //Serial.println(line);
     LCD.print(12,0,line);
     (SaveOK) ? LCD.print_PChar((byte)7) : LCD.print("-");
-    
+
     // New line
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
     sprintf(line, "%ld?", utm.Y());
@@ -345,28 +342,14 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   }
 
   if (print_grades) {
-    /*
-    #ifndef DISPLAY_TYPE_SDD1306_128X64
-    LCD.print(0,0," ");
-    LCD.print(15,0," ");
-    //LCD.print(0,1," ");
-    LCD.print(15,1," ");
-    #endif
-    */
     static char line[11];
     LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
     dtostrf(flat, 8, 6, line);
     LCD.print(line);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-//      LCD.print(14, 2, ",");
-    #endif
+
     LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
     dtostrf(flon, 8, 6, line);
     LCD.print(line);
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-//      LCD.print(14, 3, "+");
-      //LCD.drawbattery(charge);
-    #endif
   }
 }
 
@@ -377,11 +360,9 @@ bool pinswitch() {
   pin = bitRead(iteration,4); // Change every 8 seconds.
   //LCD.clr(); -> Too slow clear individual characters.
   if ((iteration%16) == 0) {
-    LCD.print(0,0," ");
     LCD.print(15,0," ");
-    //LCD.print(0,1," ");
     LCD.print(15,1," ");
-  }
+  } else LCD.print(0,1," ");
   return pin;
 }
 #endif
@@ -429,8 +410,6 @@ void setup(void) {
   /* Iniciaización del display LCD u OLED */
   #ifndef NO_DISPLAY
   LCD.start();
-  //LCD.clr();
-
   #endif
 
   //Serial.print(F("Waiting for GPS signal..."));
@@ -440,7 +419,6 @@ void setup(void) {
   LCD.print(NAME, VERSION, "Waiting for ","GPS signal...");
   #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   #if defined(__LGT8F__)
-  //LCD.print(NAME_M, VERSION);
   LCD.DrawLogo();
   #else
   LCD.print(NAME_M, VERSION);
@@ -525,16 +503,21 @@ void loop(void) {
     }
     #ifndef NO_DISPLAY
     ScreenPrint(LCD, gps, utm);
-    #endif
   } else if (charge==0){
       LCD.clr();
+    #endif
   }
+  #ifndef NO_DISPLAY
   LCD.drawbattery(charge);
-  // Este código no hace verdaderamente ahorrar energía. Consume más que si no lo uso.
-  //LowPower.idle(SLEEP_12MS, ADC_OFF, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
-  //
+  #endif
+
+  #if defined(__LGT8F__)
   LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
+  #endif
+
   #ifdef NO_DISPLAY
   LowPower.powerSave(SLEEP_250MS, ADC_OFF, BOD_ON,TIMER2_OFF); // para NO_DISPLAY.
   #endif
+
+  //LCD.clr();
 }

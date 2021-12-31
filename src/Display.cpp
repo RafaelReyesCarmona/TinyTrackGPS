@@ -26,29 +26,21 @@ rafael.reyes.carmona@gmail.com
 #include "Display.h"
 
 Display::Display(Display_Type t):_screen(t){
-    //if (_screen == SDD1306_128X64){
-        _width = 16;
-        _height = (_screen > 0) ? 2 : 8;
-        //_offset = 0;
-    //} else if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C){
-    //    _width = 16;
-    //    _height = 2;
-        //_offset = 0;
-    //}
+    _width = 16;
+    _height = (_screen > 0) ? 2 : 8;
 }
 
 void Display::start(){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C){
-        #if defined(DISPLAY_TYPE_LCD_16X2)
+    #if defined(DISPLAY_TYPE_LCD_16X2)
         lcd = new LiquidCrystal(LCD_RS, LCD_ENABLE, LCD_D0, LCD_D1, LCD_D2, LCD_D3);
         lcd->begin(_width, _height);
-        #elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #elif defined(DISPLAY_TYPE_LCD_16X2_I2C)
         lcd = new LiquidCrystal_I2C(I2C,_width,_height);
         lcd->init();
         lcd->backlight();
-        #endif
+    #endif
 
-        #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
         // DEFINICION DE CARACTERES PERSONALIZADOS
         static byte alt[8] = { 0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x04, 0x04 };
         static byte ant[8] = { 0x0E, 0x11, 0x15, 0x11, 0x04, 0x04, 0x0E, 0x00 };
@@ -66,56 +58,50 @@ void Display::start(){
         lcd->createChar(5, alt);
         lcd->createChar(6, ant);
         lcd->createChar(7, sd);
-        #endif
-    //}
+    #endif
 
-    //if (_screen == SDD1306_128X64) {
-        #if defined(DISPLAY_TYPE_SDD1306_128X64)
+    #if defined(DISPLAY_TYPE_SDD1306_128X64)
         u8x8_SSD1306 = new U8X8_SSD1306_128X64_NONAME_HW_I2C(U8X8_PIN_NONE, SCL, SDA);
         u8x8_SSD1306->begin();
         u8x8_SSD1306->setFont(u8x8_font_7x14B_1x2_r);
-        #endif
-    //}
-    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    display = new DisplaySSD1306_128x64_I2C(-1);
-    display->begin();
-    //display->setFixedFont(ssd1306xled_font8x16);
-    //display->setFixedFont(ssd1306xled_font6x8);
-    display->setFixedFont(TinyTrackGPS_font8x16);
-    this->clr();
     #endif
+
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+        display = new DisplaySSD1306_128x64_I2C(-1);
+        display->begin();
+        //display->setFixedFont(ssd1306xled_font8x16);
+        //display->setFixedFont(ssd1306xled_font6x8);
+        display->setFixedFont(TinyTrackGPS_font8x16);
+    #endif
+    this->clr();
 }
 
 void Display::clr(){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
-        #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
         lcd->clear();
-        #endif
-    //}
-    //else if (_screen == SDD1306_128X64) {
-        #if defined(DISPLAY_TYPE_SDD1306_128X64)
+    #endif
+
+    #if defined(DISPLAY_TYPE_SDD1306_128X64)
         u8x8_SSD1306->clear();
-        #endif
-    //}
-        #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    #endif
+
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->clear();
-        #endif
+    #endif
 }
 
 void Display::print(int vertical, int horizontal, const char text[]){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
-        #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
         lcd->setCursor(vertical, horizontal);
         this->print(text);
-        #endif
-    //}
-    //else if (_screen == SDD1306_128X64) {
-        #if defined(DISPLAY_TYPE_SDD1306_128X64)
+    #endif
+    
+    #if defined(DISPLAY_TYPE_SDD1306_128X64)
         //u8x8_SSD1306->drawString(vertical, (horizontal*2),text);
         u8x8_SSD1306->setCursor(vertical, (horizontal*2));
         this->print(text);
-        #endif
-    //}
+    #endif
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->setTextCursor((vertical*8),(horizontal*16));
         this->print(text);
@@ -130,83 +116,65 @@ void Display::print(int line, const char text[]){
 }
 
 void Display::print(const char text[]){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-    lcd->print(text);
+        lcd->print(text);
     #endif
-    //}
-    //else if (_screen == SDD1306_128X64) {
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64)
-    u8x8_SSD1306->print(text);
-    u8x8_SSD1306->flush();
+        u8x8_SSD1306->print(text);
+        u8x8_SSD1306->flush();
     #endif
-    //}
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    display->write(text);
+        display->write(text);
     #endif
 }
 
 void Display::print(const char text1[], const char text2[]){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
-        this->print((_screen > 0)?0:1, text1);
-        this->print((_screen > 0)?1:2, text2);
-    //}
-    //else if (_screen == SDD1306_128X64) {
-    //    this->print(1, text1);
-    //    this->print(2, text2);
-    //}
+    this->print((_screen > 0)?0:1, text1);
+    this->print((_screen > 0)?1:2, text2);
 }
 
 void Display::print(const char text1[], const char text2[], const char text3[]){
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
         this->print(text1, text2);
         delay(750);
-        //for (unsigned long start = millis(); millis() - start < 750;) {}
-        //unsigned long start = millis();
-        //do {} while (millis() - start < 750);
-
         this->clr();
         this->print(0,text3);
-    //}
     #endif
+
     #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    //else if (_screen == SDD1306_128X64) {
         this->print(0, text1);
         this->print(1, text2);
         this->print(2, text3);
-    //}
     #endif
 }
 
 void Display::print(const char text1[], const char text2[], const char text3[], const char text4[]){
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-    this->print(text1,text2);
-    delay(750);
-    this->print(text3,text4);
+        this->print(text1,text2);
+        delay(750);
+        this->print(text3,text4);
     #endif
+
     #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    this->print(0, text1);
-    this->print(1, text2);
-    this->print(2, text3);
-    this->print(3, text4);
+        this->print(0, text1);
+        this->print(1, text2);
+        this->print(2, text3);
+        this->print(3, text4);
     #endif
 }
 
 void Display::wait_anin(unsigned int t){
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
-        #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
         lcd->setCursor(15,1);
         lcd->write((byte)t%5);
-        #endif
-    //}
-    //else if (_screen == SDD1306_128X64) {
-        #if defined(DISPLAY_TYPE_SDD1306_128X64)
-        
+    #endif
+    
+    #if defined(DISPLAY_TYPE_SDD1306_128X64)
         const char p[4] = {(char)47,(char)45,(char)92,(char)124};
         u8x8_SSD1306->setCursor((_width-1),6);
         u8x8_SSD1306->print(p[t%4]);
-        
         /*
         static uint8_t hourglass_UP[5][8] = {  0x01,0x1f,0x7f,0xff,0xff,0x7f,0x1f,0x01,
                                         0x01,0x1f,0x7d,0xf9,0xf9,0x7d,0x1f,0x01,
@@ -224,113 +192,64 @@ void Display::wait_anin(unsigned int t){
         u8x8_SSD1306->drawTile((_width-1), 6, 1, hourglass_UP[t%5]);
         u8x8_SSD1306->drawTile((_width-1), 7, 1, hourglass_DOWN[t%5]);
         */
-        #endif
-    //}
+    #endif
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        //const char p[5] = {(char)58,(char)59,(char)60,(char)61,(char)62};
         display->setTextCursor(0,48);
         display->printChar((char)(t%3)+58);
-
-        //display->drawWindow(0,0,0,0,"GPS Signal",true);
-        //display->drawProgressBar( t%100 );
-
-        //display->setTextCursor((_width-1)*8,48);
-        //display->printChar('-');
     #endif
 }
 
 void Display::print_PChar(byte c) {
-    //if (_screen == LCD_16X2 || _screen == LCD_16X2_I2C) {
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-    lcd->write(c);
+        lcd->write(c);
     #endif
-    //}
-    //else if (_screen == SDD1306_128X64) {
-    #if defined(DISPLAY_TYPE_SDD1306_128X64)
     
-    static uint8_t PChar_UP[3][8] = { 0x30,0x38,0x3c,0xff,0xff,0x3c,0x38,0x30,
-                                    0x3c,0x02,0x01,0xd9,0xd9,0x01,0x02,0x3c,
-                                    0x78,0x7c,0x6e,0x66,0x66,0x6e,0x7c,0x78
-                                    };
-    static uint8_t PChar_DOWN[3][8] = { 0x00,0x00,0x00,0xff,0xff,0x00,0x00,0x00,
-                                    0x00,0xc0,0xe0,0xff,0xff,0xe0,0xc0,0x00,
-                                    0x7c,0xfc,0xc0,0xf8,0x7c,0x0c,0xfc,0xf8
-                                    };
-    //char tile;
-    if (c == 5) {
-        //tile = (char)0x18;
-        u8x8_SSD1306->drawTile(9, 2, 1, PChar_UP[0]);
-        u8x8_SSD1306->drawTile(9, 3, 1, PChar_DOWN[0]);
-        //u8x8_SSD1306->setCursor(9, 2);
-    }
-    else if (c == 6) {
-        //tile = (char)0x7f;
-        u8x8_SSD1306->drawTile(11, 0, 1, PChar_UP[1]);
-        u8x8_SSD1306->drawTile(11, 1, 1, PChar_DOWN[1]);
-        //u8x8_SSD1306->setCursor(11, 0);
-    }
-    else if (c == 7) {
-        //tile = (char)0xda;
-        u8x8_SSD1306->drawTile(15, 0, 1, PChar_UP[2]);
-        u8x8_SSD1306->drawTile(15, 1, 1, PChar_DOWN[2]);
-        //u8x8_SSD1306->setCursor(15, 0);
-    }
-    //u8x8_SSD1306->print(tile);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64)
+        static uint8_t PChar_UP[3][8] = { 0x30,0x38,0x3c,0xff,0xff,0x3c,0x38,0x30,
+                                        0x3c,0x02,0x01,0xd9,0xd9,0x01,0x02,0x3c,
+                                        0x78,0x7c,0x6e,0x66,0x66,0x6e,0x7c,0x78
+                                        };
+        static uint8_t PChar_DOWN[3][8] = { 0x00,0x00,0x00,0xff,0xff,0x00,0x00,0x00,
+                                        0x00,0xc0,0xe0,0xff,0xff,0xe0,0xc0,0x00,
+                                        0x7c,0xfc,0xc0,0xf8,0x7c,0x0c,0xfc,0xf8
+                                        };
+        if (c == 5) {
+            u8x8_SSD1306->drawTile(9, 2, 1, PChar_UP[0]);
+            u8x8_SSD1306->drawTile(9, 3, 1, PChar_DOWN[0]);
+        }
+        else if (c == 6) {
+            u8x8_SSD1306->drawTile(11, 0, 1, PChar_UP[1]);
+            u8x8_SSD1306->drawTile(11, 1, 1, PChar_DOWN[1]);
+        }
+        else if (c == 7) {
+            u8x8_SSD1306->drawTile(15, 0, 1, PChar_UP[2]);
+            u8x8_SSD1306->drawTile(15, 1, 1, PChar_DOWN[2]);
+        }
     #endif
-    //}
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        //const char p[3] = {(char)94,(char)95,(char)96};
-        /*
-        switch (c) {
-        case '5':
-            display->setTextCursor(72,32);
-            break;
-        case '6':
-            display->setTextCursor(88,0);
-            break;
-        case '7':
-            display->setTextCursor(120,0);
-            break;
-        }
-        */
-        /*
-        if( c == 5) {
-            display->setTextCursor(72,32);
-            //display->printChar(p[0]);
-        }
-        else if( c == 6) {
-            display->setTextCursor(88,0);
-            //display->printChar(p[1]);
-        }
-        else if( c == 7) {
-            display->setTextCursor(120,0);
-            //display->printChar(p[2]);
-        }
-        */
-        //#ifndef __LGT8F__
-        //display->printChar((char)(c+86));
         display->print((char)(c+86));
-        //#endif
     #endif
 }
 
 void Display::DrawLogo() {
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    //display->drawBitmap1(48,24,32,32,Logo_32x32);
-    //display->drawBitmap1(32,18,96,16,TinyTrackGPS_96x16);
-    this->print(4,0,VERSION);
-    this->print(6,1,"^_`a");
-    this->print(6,2,"bcde");
+        //display->drawBitmap1(48,24,32,32,Logo_32x32);
+        //display->drawBitmap1(32,18,96,16,TinyTrackGPS_96x16);
+        this->print(4,0,VERSION);
+        this->print(6,1,"^_`a");
+        this->print(6,2,"bcde");
     #endif
 }
 
 void Display::drawbattery(uint8_t level){
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    uint8_t y = 60 - level;
-    NanoRect batt = { {122, y} , {125, 60} };
-    this->print(14, 2, ",=");
-    this->print(14, 3, "+>");
-    display->fillRect(batt);
+        uint8_t y = 60 - level;
+        NanoRect batt = { {122, y} , {125, 60} };
+        this->print(14, 2, ",=");
+        this->print(14, 3, "+>");
+        display->fillRect(batt);
     #endif
 }
 

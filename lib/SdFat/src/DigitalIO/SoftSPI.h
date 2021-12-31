@@ -30,6 +30,9 @@
 #include "DigitalPin.h"
 //------------------------------------------------------------------------------
 /** Nop for timing. */
+#ifdef nop
+#undef nop
+#endif
 #define nop asm volatile ("nop\n\t")
 //------------------------------------------------------------------------------
 /** Pin Mode for MISO is input.*/
