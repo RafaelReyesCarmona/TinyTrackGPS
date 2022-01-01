@@ -400,8 +400,8 @@ void setup(void) {
 
   //Serial.print(F("Initializing SD card..."));
 
-  #if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
-  SDReady = card.begin(SD_CONFIG);
+  #if defined(__LGT8F__)
+  SDReady = false; //SDReady = card.begin(SD_CONFIG);
   #else
   SDReady = card.begin(SS);
   #endif
@@ -491,8 +491,10 @@ void loop(void) {
 
   charge = charge_level();
 
-  (!card.sdErrorCode()) ? SDReady = true : SDReady = false;
-
+  #if defined(__LGT8F__)
+  (!card.sdErrorCode()) ? SDReady = true : SDReady = card.begin(SD_CONFIG);
+  #endif
+  
   if (gps_ok && (charge>0)) {
     if (utctime > prevtime) {
       SaveOK = GPSData(gps, utm);
@@ -513,6 +515,7 @@ void loop(void) {
 
   #if defined(__LGT8F__)
   LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
+  if(!SDReady) card.end();
   #endif
 
   #ifdef NO_DISPLAY

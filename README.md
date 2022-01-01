@@ -245,96 +245,56 @@ Reference describe unsigned long as : ```Unsigned long variables are extended si
 ### Platformio
 Run command `pio.exe run`.
 ```
-Processing Uno (platform: atmelavr; board: uno; framework: arduino)
--------------------------------------------------------------------------------------------------Verbose mode can be enabled via `-v, --verbose` option
-CONFIGURATION: https://docs.platformio.org/page/boards/atmelavr/uno.html
-PLATFORM: Atmel AVR (3.4.0) > Arduino Uno
-HARDWARE: ATMEGA328P 16MHz, 2KB RAM, 31.50KB Flash
-DEBUG: Current (avr-stub) On-board (avr-stub, simavr)
-PACKAGES:
- - framework-arduino-avr 5.1.0
- - toolchain-atmelavr 1.70300.191015 (7.3.0)
-LDF: Library Dependency Finder -> http://bit.ly/configure-pio-ldf
+Processing LGT_ISP (board: LGT8F328P; framework: arduino; platform: lgt8f)
+------------------------------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/lgt8f/LGT8F328P.html
+PLATFORM: Logic Green boards (1.0.1) > LGT8F328P
+HARDWARE: ATMEGA328P 32MHz, 2KB RAM, 32KB Flash
+PACKAGES: 
+ - framework-lgt8fx 1.0.6 
+ - toolchain-atmelavr 2.70300.201015 (7.3.0)
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
 LDF Modes: Finder ~ chain, Compatibility ~ soft
-Found 14 compatible libraries
+Found 26 compatible libraries
 Scanning dependencies...
 Dependency Graph
 |-- <LiquidCrystal> 1.0.7
-|-- <TinyGPS> 0.0.0-alpha+sha.db4ef9c97a
 |-- <U8g2> 2.28.8
 |   |-- <SPI> 1.0
 |   |-- <Wire> 1.0
-|-- <SdFat> 2.1.0
-|   |-- <SPI> 1.0
 |-- <LiquidCrystal_I2C> 1.1.4
 |   |-- <Wire> 1.0
 |-- <Low-Power> 1.81.0
-|-- <UTMConversion> 1.0.0
+|-- <UTMConversion> 1.0.1
 |-- <Timezone> 1.2.4
 |   |-- <Time> 1.6.1
-|-- <SoftwareSerial> 1.0
+|-- <lcdgfx> 1.1.1
+|   |-- <SPI> 1.0
+|   |-- <Wire> 1.0
+|-- <SdFat> 2.1.2
+|   |-- <SPI> 1.0
+|-- <TinyGPS_GLONASS_fixed>
+|-- <Vcc>
+|   |-- <EMA>
 Building in release mode
-Compiling .pio\build\Uno\src\Display.cpp.o
-Compiling .pio\build\Uno\src\TinyTrackGPS.cpp.o
-Linking .pio\build\Uno\firmware.elf
-Checking size .pio\build\Uno\firmware.elf
+Compiling .pio\build\LGT_ISP\src\TinyTrackGPS.cpp.o
+Linking .pio\build\LGT_ISP\firmware.elf
+Checking size .pio\build\LGT_ISP\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [=======   ]  68.6% (used 1404 bytes from 2048 bytes)
-Flash: [========= ]  85.7% (used 27634 bytes from 32256 bytes)
-Building .pio\build\Uno\firmware.hex
-================================== [SUCCESS] Took 3.33 seconds ==================================
+RAM:   [========  ]  84.4% (used 1728 bytes from 2048 bytes)
+Flash: [==========]  99.5% (used 32590 bytes from 32768 bytes)
+==================================== [SUCCESS] Took 5.64 seconds ====================================
+
 Environment    Status    Duration
 -------------  --------  ------------
-Uno            SUCCESS   00:00:03.332
-================================== 1 succeeded in 00:00:03.332 ==================================
+LGT_ISP        SUCCESS   00:00:05.636
+==================================== 1 succeeded in 00:00:05.636 ==================================== 
+
+Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 ```
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal. This project use LGT_ISP enviroment by default. To burn it use an LGTISP device as describe in [LGTISP](LGTISP.md).
 
-### Use of memory (Arduino UNO or equivalent) V0.7 vs. V0.9
-#### NO DISPLAY
-Compile V0.7:
-```
-RAM:   [=====     ]  50.3% (used 1031 bytes from 2048 bytes)
-Flash: [=======   ]  70.7% (used 22798 bytes from 32256 bytes)
-```
-Compile V0.9:
-```
-RAM:   [======    ]  58.6% (used 1200 bytes from 2048 bytes)
-Flash: [========  ]  76.7% (used 24748 bytes from 32256 bytes)
-```
-#### LCD 16x2 I2C
-Compile V0.7:
-```
-RAM:   [=======   ]  70.2% (used 1437 bytes from 2048 bytes)
-Flash: [========= ]  86.0% (used 27748 bytes from 32256 bytes)
-```
-Compile V0.9:
-```
-RAM:   [========  ]  79.6% (used 1631 bytes from 2048 bytes)
-Flash: [========= ]  90.2% (used 29100 bytes from 32256 bytes)
-```
-#### LCD 16x2 6-WIRED
-Compile V0.7:
-```
-RAM:   [======    ]  59.2% (used 1213 bytes from 2048 bytes)
-Flash: [========  ]  81.5% (used 26296 bytes from 32256 bytes)
-```
-Compile V0.9:
-```
-RAM:   [=======   ]  68.7% (used 1407 bytes from 2048 bytes)
-Flash: [========= ]  85.7% (used 27646 bytes from 32256 bytes)
-```
-#### OLED 0'96" 128x64 I2C
-Compile V0.7:
-```
-RAM:   [========  ]  79.7% (used 1632 bytes from 2048 bytes)
-Flash: [==========]  96.2% (used 31032 bytes from 32256 bytes)
-```
-Compile V0.9:
-```
-RAM:   [========= ]  85.2% (used 1744 bytes from 2048 bytes)
-Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
-```
 ## Changelog
 ### V0.12
   * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
@@ -343,6 +303,7 @@ Flash: [==========]  99.8% (used 32190 bytes from 32256 bytes)
   * It set minimal VCC level to prevent SD card damage. (3.25V)
   * Change TinyTrackGPS_font8x16[] with new characters to draw battery icon, 'Charge%' text and logo.
   * Fixed "SD" indicator when microSD card is extracted or data is no saved.
+  * Added support for "plug & play" (PnP) functionality of SD Card. 
 
 ### V0.11
   * TinyGPS upgrade for NMEA Data Protocol v3.x and GLONASS. Library from https://github.com/fmgomes/TinyGPS (fixed as describe in _TinyGPS library_ section.)
@@ -721,6 +682,9 @@ I used SoftwareSPI driver as you can see in the example code 'SoftwareSPI.ino':
 
 <img alt="SoftwareSPI example." src="images/code_SoftwareSPI.png" width="760">&nbsp;
 
+When SD card is extracted it is generated an error that can be read with ```card.sdErrorCode()``` function.
+Before write to card it is verified that no error code is return.
+
 ## EMA filter and VCC library
 
 The EMA (exponential moving average) or EWMA (exponentially weighed moving average) is the name for what is probably the easiest realization of the (first-order) low-pass on discrete time-domain data. 
@@ -767,11 +731,11 @@ TinyTrackGPS show this information on display:
 <img alt="TinyTrackGPS display data." src="images/IMG_20211221_124521.jpg" width="240">&nbsp;
 
 
-When VCC level is 3,20 V, stop to read GPS data and only display battery level.
+When VCC level is 3,25 V, stop to read GPS data and only display battery level.
 
 <img alt="Low Batt." src="images/IMG_20211221_174421.jpg" width="240">&nbsp;
 
-
+This video [TinyTRackGPS video](https://www.tiktok.com/@rafaelreyescarmona/video/7045623715593243909?is_from_webapp=1&sender_device=pc&web_id7047961867420141061) show shortly how to make the first prototipe.
 ## License
 
 This file is part of TinyTrackGPS.
