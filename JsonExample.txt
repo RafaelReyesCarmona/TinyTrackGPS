@@ -1,0 +1,42 @@
+#include <ArduinoJson.h>
+
+// Loads the configuration from a file
+void loadConfiguration() {
+  TimeChangeRule UST;
+  TimeChangeRule UT;
+  
+  DynamicJsonDocument TimeJSON(128);
+
+  file.open("TimeUST.json",O_RDONLY);
+  deserializeJson(TimeJSON,file.readString());
+  file.close();
+
+    strcpy(UST.abbrev,TimeJSON["abbrev"]);
+    UST.week = TimeJSON["week"];
+    UST.dow = TimeJSON["dow"];
+    UST.month = TimeJSON["month"];
+    UST.hour = TimeJSON["hour"];
+    UST.offset = TimeJSON["offset"];    //  Summer Time
+  
+  TimeJSON.clear();
+
+  file.open("TimeUT.json",O_RDONLY);
+
+  deserializeJson(TimeJSON,file.readString());
+  file.close();
+
+    strcpy(UT.abbrev,TimeJSON["abbrev"]);
+    UT.week = TimeJSON["week"];
+    UT.dow = TimeJSON["dow"];
+    UT.month = TimeJSON["month"];
+    UT.hour = TimeJSON["hour"];
+    UT.offset = TimeJSON["offset"];    // Standard Time
+
+  //}
+  Serial.print(UST.offset);
+  Serial.println(UST.abbrev);
+  Serial.print(UT.offset);
+  Serial.println(UT.abbrev);
+
+  TimeZone.setRules(UST,UT);
+}

@@ -1,6 +1,6 @@
 /*
 Display.cpp - A simple track GPS to SD card logger. Display module.
-TinyTrackGPS v0.12
+TinyTrackGPS v0.13
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -66,6 +66,12 @@ void Display::start(){
         u8x8_SSD1306->setFont(u8x8_font_7x14B_1x2_r);
     #endif
 
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        u8x8_SH1106 = new U8X8_SH1106_128X64_NONAME_HW_I2C(U8X8_PIN_NONE, SCL, SDA);
+        u8x8_SH1106->begin();
+        u8x8_SH1106->setFont(u8x8_font_7x14B_1x2_r);
+    #endif
+
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display = new DisplaySSD1306_128x64_I2C(-1);
         display->begin();
@@ -85,6 +91,10 @@ void Display::clr(){
         u8x8_SSD1306->clear();
     #endif
 
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        u8x8_SH1106->clear();
+    #endif
+
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->clear();
     #endif
@@ -99,6 +109,11 @@ void Display::print(int vertical, int horizontal, const char text[]){
     #if defined(DISPLAY_TYPE_SDD1306_128X64)
         //u8x8_SSD1306->drawString(vertical, (horizontal*2),text);
         u8x8_SSD1306->setCursor(vertical, (horizontal*2));
+        this->print(text);
+    #endif
+    
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        u8x8_SH1106->setCursor(vertical, (horizontal*2));
         this->print(text);
     #endif
     
@@ -125,6 +140,11 @@ void Display::print(const char text[]){
         u8x8_SSD1306->flush();
     #endif
     
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        u8x8_SH1106->print(text);
+        u8x8_SH1106->flush();
+    #endif
+    
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->write(text);
     #endif
@@ -143,7 +163,7 @@ void Display::print(const char text1[], const char text2[], const char text3[]){
         this->print(0,text3);
     #endif
 
-    #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx) || defined(DISPLAY_TYPE_SH1106_128X64)
         this->print(0, text1);
         this->print(1, text2);
         this->print(2, text3);
@@ -154,10 +174,11 @@ void Display::print(const char text1[], const char text2[], const char text3[], 
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
         this->print(text1,text2);
         delay(750);
+        this->clr();
         this->print(text3,text4);
     #endif
 
-    #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx) || defined(DISPLAY_TYPE_SH1106_128X64)
         this->print(0, text1);
         this->print(1, text2);
         this->print(2, text3);
@@ -193,6 +214,12 @@ void Display::wait_anin(unsigned int t){
         u8x8_SSD1306->drawTile((_width-1), 7, 1, hourglass_DOWN[t%5]);
         */
     #endif
+
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        const char p[4] = {(char)47,(char)45,(char)92,(char)124};
+        u8x8_SH1106->setCursor((_width-1),6);
+        u8x8_SH1106->print(p[t%4]);
+    #endif
     
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->setTextCursor(0,48);
@@ -202,7 +229,7 @@ void Display::wait_anin(unsigned int t){
 
 void Display::print_PChar(byte c) {
     #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
-        lcd->write(c);
+        lcd->write((byte)c);
     #endif
     
     #if defined(DISPLAY_TYPE_SDD1306_128X64)
@@ -227,7 +254,30 @@ void Display::print_PChar(byte c) {
             u8x8_SSD1306->drawTile(15, 1, 1, PChar_DOWN[2]);
         }
     #endif
-    
+
+    #if defined(DISPLAY_TYPE_SH1106_128X64)
+        static uint8_t PChar_UP[3][8] = { 0x30,0x38,0x3c,0xff,0xff,0x3c,0x38,0x30,
+                                        0x3c,0x02,0x01,0xd9,0xd9,0x01,0x02,0x3c,
+                                        0x78,0x7c,0x6e,0x66,0x66,0x6e,0x7c,0x78
+                                        };
+        static uint8_t PChar_DOWN[3][8] = { 0x00,0x00,0x00,0xff,0xff,0x00,0x00,0x00,
+                                        0x00,0xc0,0xe0,0xff,0xff,0xe0,0xc0,0x00,
+                                        0x7c,0xfc,0xc0,0xf8,0x7c,0x0c,0xfc,0xf8
+                                        };
+        if (c == 5) {
+            u8x8_SH1106->drawTile(9, 2, 1, PChar_UP[0]);
+            u8x8_SH1106->drawTile(9, 3, 1, PChar_DOWN[0]);
+        }
+        else if (c == 6) {
+            u8x8_SH1106->drawTile(11, 0, 1, PChar_UP[1]);
+            u8x8_SH1106->drawTile(11, 1, 1, PChar_DOWN[1]);
+        }
+        else if (c == 7) {
+            u8x8_SH1106->drawTile(15, 0, 1, PChar_UP[2]);
+            u8x8_SH1106->drawTile(15, 1, 1, PChar_DOWN[2]);
+        }
+    #endif
+
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
         display->print((char)(c+86));
     #endif
@@ -326,5 +376,6 @@ const PROGMEM uint8_t TinyTrackGPS_font8x16[] = {
     0xC0, 0xE0, 0x78, 0x26, 0x23, 0x10, 0x18, 0x08, 0x26, 0x64, 0x48, 0x48, 0xD0, 0x90, 0x90, 0x92, // char 99
     0x0D, 0x06, 0x03, 0x01, 0x00, 0x00, 0x00, 0x00, 0x92, 0x90, 0x90, 0xD0, 0x48, 0x48, 0x64, 0x26, // char 100
     0x00, 0x81, 0xC0, 0x30, 0x0F, 0xC0, 0x78, 0x0F, 0x32, 0x19, 0x08, 0x06, 0x03, 0x01, 0x00, 0x00, // char 101
+
 };
 #endif

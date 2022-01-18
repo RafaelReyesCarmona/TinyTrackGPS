@@ -176,6 +176,7 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
   * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
   * Vcc library fork, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc). Fork version to add support to LGT8F328P board and EMA implementation, more info about EMA (https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/C++Implementation.html). Source on 'lib'.
+  * ConfigFile library fork, Rafael Reyes. It is based on SDConfig library fork, Claus Mancini [Fuzzer11] (https://github.com/Fuzzer11/SDconfig). The fork version uses templates to allocate space at compile time to prevent the sketch from crashing and it is modificated to support SdFat library. 
 
 
 ## How to compile
@@ -185,6 +186,7 @@ Edit 'config.h' file before, to configure display type uncommenting the proper l
 // Descomentar solo uno de los displays utilizados.
 //#define DISPLAY_TYPE_SDD1306_128X64     // Para usar pantalla OLED 0.96" I2C 128x64 pixels
 #define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
+//#define DISPLAY_TYPE_SH1106_128X64         // Define para usar pantalla OLED 1.30" I2C 128x64 pixels (SH1106)
 //#define DISPLAY_TYPE_LCD_16X2             // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 ```
@@ -203,8 +205,15 @@ Modify I2C port for LCD 16x2 I2C: (connect in SCL and SDA pins)
 // Define direccion I2C para LCD16x2 char.
 #define I2C 0x27
 ```
+Comment the line below for define Timezone in sketch, uncomment for configure with 'Time.cfg' file.
+```C++
+// Define para establecer localtime en tiempo de ejecución o de compilación.
+#define TIMEZONE_FILE   // Comentar para establecer TimeZone (localtime) en tiempo de ejecución (Time.cfg)
+```
 ### Coding TimeChangeRules
 Normally these will be coded in pairs for a given time zone: One rule to describe when daylight (summer) time starts, and one to describe when standard time starts.
+
+New feature is implemented to configure Timezone. It can be defined in the sketch or by a config file saved on SD card (Time.cfg).
 
 As an example, here in the Eastern US time zone, Eastern Daylight Time (EDT) starts on the 2nd Sunday in March at 02:00 local time. Eastern Standard Time (EST) starts on the 1st Sunday in November at 02:00 local time.
 
@@ -239,7 +248,47 @@ TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European 
 ```
 
 For more information see Timezone info at: https://github.com/JChristensen/Timezone#readme
-### Set the Time Zone
+
+### Set the Time Zone in the 'Time.cfg' file
+
+Time Zone can be established by reading settings from a configuration file on an SD card. Use the same rules that is explained above for `TimeChangeRule`.
+# File format: <name>=<value>
+```conf
+## Max. long.###
+# per line #####
+
+# UST config.
+USTweek=0
+USTdow=1
+USTmonth=3
+USThour=2
+USToffset=120
+
+# UT config.
+UTweek=0
+UTdow=1
+UTmonth=10
+UThour=3
+UToffset=60
+```
+
+Change the values with appropiate set of 'week', 'dow', 'month', 'hour' and 'offset'. Don`t change the names.
+
+  * **week** - 0-Last, 1-First, 2-Second, 3-Third, 4-Fourth
+  * **dow** - 1-Sun, 2-Mon, 3-Tue, 4-Wed, 5-Thu, 6-Fri, 7-Sat
+  * **month** - 1-Jan, 2-Feb, 3-Mar, 4-Apr, 5-May, 6-Jun, 7-Jul, 8-Aug, 9-Sep, 10-Oct, 11-Nov, 12-Dec
+  * **hour** - 0 - 23 hours.
+  * **offset** - 0 - (+/-)720 minutes.
+
+  It is used some correlation with constants defined for TimeChangeRules in `Timezone.h`:
+```C++
+// convenient constants for TimeChangeRules
+enum week_t {Last, First, Second, Third, Fourth}; 
+enum dow_t {Sun=1, Mon, Tue, Wed, Thu, Fri, Sat};
+enum month_t {Jan=1, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec};
+```
+
+### Set the Time Zone in the sketch
 
 Change lines like above in `TinyTrackGPS.cpp` file, at line **111**, with appropriate definition for your time zone.
 
@@ -307,6 +356,9 @@ Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal. This project use LGT_ISP enviroment by default. To burn it use an LGTISP device as describe in [LGTISP](LGTISP.md).
 
 ## Changelog
+### V0.13
+  * Recode the function to save datalog information on SD card. Better performance. Used in v0.5.
+  * Added functionality to config Timezone with 'Time.cfg' file on SD card or defined in the sketch.
 ### V0.12
   * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
   * Use of EMA filter to calculate VCC supply level to prevent minimal deviations in measure.

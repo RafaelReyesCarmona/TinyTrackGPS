@@ -1,6 +1,6 @@
 /*
 config.h - Config file for TinyTrackGPS, a simple track GPS to SD card logger.
-TinyTrackGPS v0.12
+TinyTrackGPS v0.13
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -26,11 +26,12 @@ rafael.reyes.carmona@gmail.com
 // Definimos nombre aplicación y versión.
 #define NAME "TinyTrackGPS"
 #define NAME_M "TINYTRACKGPS"
-#define VERSION "V0.12.24"
+#define VERSION "V0.13.15"
 
 // Descomentar solo uno de los displays utilizados. Comentar todas las líneas para uso NO DISPLAY.
 //#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels
 #define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
+//#define DISPLAY_TYPE_SH1106_128X64         // Define para usar pantalla OLED 1.30" I2C 128x64 pixels (SH1106)
 //#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 
@@ -44,3 +45,6 @@ rafael.reyes.carmona@gmail.com
 
 // Define direccion I2C para LCD16x2 char.
 #define I2C 0x27
+
+// Define para establecer localtime en tiempo de ejecución o de compilación.
+#define TIMEZONE_FILE   // Comentar para establecer TimeZone (localtime) en tiempo de ejecución (Time.cfg)

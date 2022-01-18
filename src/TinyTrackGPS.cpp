@@ -1,6 +1,6 @@
 /*
 TinyTrackGPS.cpp - A simple track GPS to SD card logger.
-TinyTrackGPS v0.12
+TinyTrackGPS v0.13
 
 Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
 All rights reserved.
@@ -39,6 +39,7 @@ rafael.reyes.carmona@gmail.com
 /
 /  - Conectar OLED 0.96" en SDA y SCL. pines A4 y A5 del Arduino UNO.
 ********************************************************************************/
+
 // Include libraries.
 #include <Arduino.h>
 #include "config.h"
@@ -53,6 +54,7 @@ rafael.reyes.carmona@gmail.com
 #include <sdios.h>
 #include <UTMConversion.h>
 #include <Timezone.h>
+#include "ConfigFile.h"
 
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
@@ -61,6 +63,8 @@ Display LCD(LCD_16X2);
 Display LCD(LCD_16X2_I2C);
 #elif defined(DISPLAY_TYPE_SDD1306_128X64)
 Display LCD(SDD1306_128X64);
+#elif defined(DISPLAY_TYPE_SH1106_128X64)
+Display LCD(SDD1306_128X64);
 #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
 Display LCD(SDD1306_128X64);
 #else
@@ -68,13 +72,9 @@ Display LCD(SDD1306_128X64);
 #include <LowPower.h>
 #endif
 
-// Variables para grabar en SD.
-char GPSLogFile[] = "YYYYMMDD.csv"; // Formato de nombre de fichero. YYYY-Año, MM-Mes, DD-Día.
-
-#if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
 // Chip select may be constant or RAM variable.
 const uint8_t SD_CS_PIN = 10;
-//
+
 // Pin numbers in templates must be constants.
 const uint8_t SOFT_MISO_PIN = 12;
 const uint8_t SOFT_MOSI_PIN = 11;
@@ -88,9 +88,6 @@ SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 #else  // ENABLE_DEDICATED_SPI
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(0), &softSpi)
 #endif  // ENABLE_DEDICATED_SPI
-#else
-const uint8_t CHIP_SELECT = SS;  // SD card chip select pin. (10)
-#endif
 
 SdFat card;   //SdFat.h library.
 File file;
@@ -101,86 +98,81 @@ bool SaveOK;
 TinyGPS gps;
 GPS_UTM utm;
 //SoftwareSerial gps_serial(9, 8);
-#define gps_serial Serial
+#define gps_serial Serial   // Uses Serial to read GPS info.
 int year_gps;
 byte month_gps, day_gps, hour_gps, minute_gps, second_gps;
 float flat, flon;
 unsigned long age;
 unsigned int elev;
 
+// Variables para configurar Timezone.
+#ifndef TIMEZONE_FILE
 // Central European Time (Frankfurt, Paris) See below for other zone.
 TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
 TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
 Timezone CE(CEST, CET);
 #define TimeZone CE
+#else
+TimeChangeRule utcRule = {"UTC", Last, Sun, Mar, 1, 0};     // UTC
+TimeChangeRule UST;
+TimeChangeRule UT;
+Timezone TimeZone(utcRule);
 
+// Loads the configuration from a file
+bool loadConfiguration(TimeChangeRule *UST,TimeChangeRule *UT) {
+
+  boolean file;
+  ConfigFile<15> TimeConf;
+
+  if((file = TimeConf.begin("Time.cfg"))){
+  while(TimeConf.readNextSetting()){
+    // Put a nameIs() block here for each setting you have.
+    //if(TimeConf.nameIs("USTabbre"))
+    //  strcpy(UST.abbrev,"UST");
+    
+    if(TimeConf.nameIs("USTweek"))
+      UST->week = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("USTdow"))
+      UST->dow = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("USTmonth"))
+      UST->month = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("USThour"))
+      UST->hour = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("USToffset"))
+      UST->offset = TimeConf.getIntValue();
+
+    //else if(TimeConf.nameIs("UTabbre"))
+    //  strcpy(UST.abbrev,"UT");
+    else if(TimeConf.nameIs("UTweek"))
+      UT->week = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("UTdow"))
+      UT->dow = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("UTmonth"))
+      UT->month = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("UThour"))
+      UT->hour = TimeConf.getIntValue();
+    else if(TimeConf.nameIs("UToffset"))
+      UT->offset = TimeConf.getIntValue();
+
+    strcpy(UST->abbrev,"UST");
+    strcpy(UT->abbrev,"UT");
+  }
+  }
+  TimeConf.end();
+
+  //Serial.print(UST->offset);
+  //Serial.println(UST->abbrev);
+  //Serial.print(UT->offset);
+  //Serial.println(UT->abbrev);
+
+  if(file) return true;
+  return false;
+}
+#endif
 // Variables para gestionar el tiempo local.
-TimeElements time_gps;
 time_t utctime;
 time_t localtime;
 time_t prevtime;
-
-/*
----------------------------------------------------------------------------------------
- * Info for timezone:
-
-// Australia Eastern Time Zone (Sydney, Melbourne)
-TimeChangeRule aEDT = {"AEDT", First, Sun, Oct, 2, 660};    // UTC + 11 hours
-TimeChangeRule aEST = {"AEST", First, Sun, Apr, 3, 600};    // UTC + 10 hours
-Timezone ausET(aEDT, aEST);
-#define TimeZone ausET
-
-// Moscow Standard Time (MSK, does not observe DST)
-TimeChangeRule msk = {"MSK", Last, Sun, Mar, 1, 180};
-Timezone tzMSK(msk);
-#define TimeZone tzMSK
-
-// Central European Time (Frankfurt, Paris)
-TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
-TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
-Timezone CE(CEST, CET);
-#define TimeZone CE
-
-// United Kingdom (London, Belfast)
-TimeChangeRule BST = {"BST", Last, Sun, Mar, 1, 60};        // British Summer Time
-TimeChangeRule GMT = {"GMT", Last, Sun, Oct, 2, 0};         // Standard Time
-Timezone UK(BST, GMT);
-#define TimeZone UK
-
-// UTC
-TimeChangeRule utcRule = {"UTC", Last, Sun, Mar, 1, 0};     // UTC
-Timezone UTC(utcRule);
-#define TimeZone UTC
-
-// US Eastern Time Zone (New York, Detroit)
-TimeChangeRule usEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
-TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
-Timezone usET(usEDT, usEST);
-#define TimeZone usET
-
-// US Central Time Zone (Chicago, Houston)
-TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};
-TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};
-Timezone usCT(usCDT, usCST);
-#define TimeZone usCT
-
-// US Mountain Time Zone (Denver, Salt Lake City)
-TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
-TimeChangeRule usMST = {"MST", First, Sun, Nov, 2, -420};
-Timezone usMT(usMDT, usMST);
-#define TimeZone usMT
-
-// Arizona is US Mountain Time Zone but does not use DST
-Timezone usAZ(usMST);
-#define TimeZone usAZ
-
-// US Pacific Time Zone (Las Vegas, Los Angeles)
-TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};
-TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};
-Timezone usPT(usPDT, usPST);
-#define TimeZone usPT
-----------------------------------------------------------------------------------------
-*/
 
 //------------------------------------------------------------------------------
 /*
@@ -221,28 +213,18 @@ unsigned long iteration = 0;
 Vcc vcc(1.0);
 
 uint8_t charge_level(){
-    float f_charge = (vcc.Read_Volts() * BETA_BAT) - (BAT_MIN * BETA_BAT);
-    int i_charge = (int)f_charge; 
-    uint8_t charge = constrain(i_charge, 0, 26);
-    return charge;
+    //float f_charge = (vcc.Read_Volts() * BETA_BAT) - (BAT_MIN * BETA_BAT);
+    //int i_charge = (int)f_charge; 
+    //uint8_t charge = constrain(i_charge, 0, 26);
+    //return charge;
+    float f_charge = vcc.Read_Perc(BAT_MIN,BAT_MAX);
+    int i_charge = (int)f_charge;
+    return (i_charge >> 2);
 }
 
 bool GPSData(TinyGPS &gps, GPS_UTM &utm) {
-  static char buffer[62];
-  static char line[11];
-  static int index;
   static bool save = false;
-
-  if (age != TinyGPS::GPS_INVALID_AGE){
-    index = snprintf(buffer,10, "%02d:%02d:%02d,", hour(localtime), minute(localtime), second(localtime));
-    dtostrf(flat, 10, 6, line);
-    index += snprintf(buffer+index,12,"%s,",line);
-    dtostrf(flon, 10, 6, line);
-    index += snprintf(buffer+index,12,"%s,",line);
-    index += snprintf(buffer+index,7,"%05u,",elev);
-    index += snprintf(buffer+index,19,"%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
-    //Serial.print(buffer);
-  }
+  char GPSLogFile[13];
 
   sprintf(GPSLogFile, "%04d%02d%02d.csv", year(localtime), month(localtime), day(localtime));
 
@@ -253,7 +235,7 @@ bool GPSData(TinyGPS &gps, GPS_UTM &utm) {
   if (SDReady && !card.exists(GPSLogFile)) {
     if (file.open(GPSLogFile, O_CREAT | O_APPEND | O_WRITE)) {
       //Serial.print(F("New GPSLogFile, adding heads..."));
-      file.println(F("Time, Latitude, Longitude, Elevation, UTM Coords (WGS84)"));
+      file.println(F("Time,Latitude,Longitude,Elevation,UTM Coords(WGS84)"));
       //Serial.println(F("Done."));
       file.close();
       }
@@ -263,7 +245,21 @@ bool GPSData(TinyGPS &gps, GPS_UTM &utm) {
   }
   if (SDReady && (file.open(GPSLogFile, O_APPEND | O_WRITE))) {
     //Serial.print(F("Open GPSLogFile to write..."));
-    file.println(buffer);
+    static char str[19];
+    char comma = 0X2c;
+
+    sprintf(str, "%02d:%02d:%02d", hour(localtime), minute(localtime), second(localtime));
+    file.print(str);
+    file.print(comma);
+    file.print(flat,6);
+    file.print(comma);
+    file.print(flon,6);
+    file.print(comma);
+    file.print(elev);
+    file.print(comma);
+    sprintf(str, "%02d%c %ld %ld", utm.zone(), utm.band(), utm.X(), utm.Y());
+    file.print(str);
+    file.print("\n");
     file.close();
     save = true;
     //Serial.println(F("Done."));
@@ -281,7 +277,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   static unsigned short sats;
 
   sats = gps.satellites();
-  #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+  #if defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx) || defined(DISPLAY_TYPE_SH1106_128X64)
     print_utm = true;
     print_grades = true;
   #endif
@@ -291,7 +287,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   #endif
 
   if (print_utm) {
-    static char line[12];
+    char line[12];
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
     sprintf(line, "%02d%c?%ld?", utm.zone(), utm.band(), utm.X());
     #else
@@ -331,6 +327,11 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
       elev_n /= 10;
       n++;
     }
+    #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+    for(byte i = 5-n; i>0; i--) LCD.print(9+i,1," ");
+    #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    for(byte i = 5-n; i>0; i--) LCD.print(9+i,1,"?");
+    #endif
     LCD.print(15-n,1,line);
     
     /*
@@ -343,11 +344,19 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
 
   if (print_grades) {
     static char line[11];
-    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT/");
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    LCD.print(0, 2, "LAT/");
+    #else
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT=");
+    #endif
     dtostrf(flat, 8, 6, line);
     LCD.print(line);
 
-    LCD.print(0,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON/");
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    LCD.print(0, 3,"LON/");
+    #else
+    LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON=");
+    #endif
     dtostrf(flon, 8, 6, line);
     LCD.print(line);
   }
@@ -355,39 +364,33 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
 
 #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
 bool pinswitch() {
-  bool pin;
-  
-  pin = bitRead(iteration,4); // Change every 8 seconds.
-  //LCD.clr(); -> Too slow clear individual characters.
-  if ((iteration%16) == 0) {
-    LCD.print(15,0," ");
-    LCD.print(15,1," ");
-  } else LCD.print(0,1," ");
+  static bool prevpin = 0;
+  static bool pin = 0;
+  unsigned long time;
+  time = millis();
+
+  pin = bitRead(time,13); // Change every 8192 miliseconds.
+
+  if (prevpin^pin) LCD.clr(); // Clear display when change between modes.
+
   return pin;
 }
 #endif
 #endif
-/*
-void GPSRefresh()
-{
-    while (gps_serial.available() > 0)
-      gps.encode(gps_serial.read());
-}
-*/
-/*
-time_t makeTime_elements(int year, byte month, byte day, byte hour, byte minute, byte second){ 
-  static TimeElements tm;
 
-  tm.Year = year - 1970;
-  tm.Month = month;
-  tm.Day = day;
-  tm.Hour = hour;
-  tm.Minute = minute;
-  tm.Second = second;
+void set_time(){
+TimeElements time_gps;
 
-  return makeTime(tm);
+  time_gps.Year = year_gps - 1970;
+  time_gps.Month = month_gps;
+  time_gps.Day = day_gps;
+  time_gps.Hour = hour_gps;
+  time_gps.Minute = minute_gps;
+  time_gps.Second = second_gps;
+
+  utctime = makeTime(time_gps);
+  localtime = TimeZone.toLocal(utctime);
 }
-*/
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -400,13 +403,14 @@ void setup(void) {
 
   //Serial.print(F("Initializing SD card..."));
 
-  #if defined(__LGT8F__)
-  SDReady = false; //SDReady = card.begin(SD_CONFIG);
-  #else
-  SDReady = card.begin(SS);
-  #endif
+  SDReady = card.begin(SD_CONFIG);
   //(SDReady) ? Serial.println(F("Done.")) : Serial.println(F("FAILED!"));
-
+  
+  // Config TimeZone (localtime) with 'Time.cfg' file on SD.
+  #if defined(TIMEZONE_FILE)
+  if(loadConfiguration(&UST,&UT)) TimeZone.setRules(UST,UT);
+  #endif
+  
   /* Iniciaización del display LCD u OLED */
   #ifndef NO_DISPLAY
   LCD.start();
@@ -414,9 +418,8 @@ void setup(void) {
 
   //Serial.print(F("Waiting for GPS signal..."));
   #ifndef NO_DISPLAY
-  //LCD.clr();
-  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C) || defined(DISPLAY_TYPE_SDD1306_128X64)
-  LCD.print(NAME, VERSION, "Waiting for ","GPS signal...");
+  #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C) || defined(DISPLAY_TYPE_SDD1306_128X64) || defined(DISPLAY_TYPE_SH1106_128X64)
+  LCD.print(NAME, VERSION,"Waiting","GPS signal...");
   #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   #if defined(__LGT8F__)
   LCD.DrawLogo();
@@ -432,7 +435,9 @@ void setup(void) {
   do {
     #ifndef NO_DISPLAY
     LCD.wait_anin(time++);
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
     LCD.drawbattery(charge_level());
+    #endif
     #endif
     for (unsigned long start = millis(); millis() - start < 1000;) {
       while (gps_serial.available() > 0) {
@@ -446,14 +451,7 @@ void setup(void) {
     }
   }while(!config);
 
-  time_gps.Year = year_gps - 1970;
-  time_gps.Month = month_gps;
-  time_gps.Day = day_gps;
-  time_gps.Hour = hour_gps;
-  time_gps.Minute = minute_gps;
-  time_gps.Second = second_gps;
-  utctime = makeTime(time_gps);
-  localtime = TimeZone.toLocal(utctime);
+  set_time();
   prevtime = utctime;
   //Serial.println(F("Done."));
   //Serial.println(F("Configuration ended."));
@@ -463,15 +461,18 @@ void setup(void) {
 }
 
 void loop(void) {
-  bool gps_ok = false;
-  uint8_t charge;
+  static bool gps_ok = false;
+  static uint8_t charge;
+  static uint8_t errorSD;
 
   while (gps_serial.available() > 0) {
     char c = gps_serial.read();
     //Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-    if (gps.encode(c)) {
+    if (gps.encode(c)) {// Did a new valid sentence come in?
       gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
       (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
+      if(!SDReady) 
+        if(card.cardBegin(SD_CONFIG)) SDReady = card.begin(SD_CONFIG);
     }
   }
   
@@ -480,24 +481,20 @@ void loop(void) {
   else elev /= 100L;
   utm.UTM(flat, flon);
   
-  time_gps.Year = year_gps - 1970;
-  time_gps.Month = month_gps;
-  time_gps.Day = day_gps;
-  time_gps.Hour = hour_gps;
-  time_gps.Minute = minute_gps;
-  time_gps.Second = second_gps;
-  utctime = makeTime(time_gps);
-  localtime = TimeZone.toLocal(utctime);
+  set_time();
+
+  //Serial.println(utctime);
+  //Serial.println(localtime);
 
   charge = charge_level();
 
-  #if defined(__LGT8F__)
-  (!card.sdErrorCode()) ? SDReady = true : SDReady = card.begin(SD_CONFIG);
-  #endif
-  
   if (gps_ok && (charge>0)) {
     if (utctime > prevtime) {
-      SaveOK = GPSData(gps, utm);
+      (!(errorSD = card.sdErrorCode())) ? SDReady = true : SDReady = false;
+      if (errorSD == 11) card.end();
+      //Serial.println(errorSD);
+      if (!errorSD) SaveOK = GPSData(gps, utm);
+      else SaveOK = false;
       prevtime = utctime;
       #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
       iteration++;
@@ -505,22 +502,21 @@ void loop(void) {
     }
     #ifndef NO_DISPLAY
     ScreenPrint(LCD, gps, utm);
+    gps_ok = false;
   } else if (charge==0){
       LCD.clr();
     #endif
   }
-  #ifndef NO_DISPLAY
+
+  #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
   LCD.drawbattery(charge);
   #endif
 
   #if defined(__LGT8F__)
   LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
-  if(!SDReady) card.end();
   #endif
 
   #ifdef NO_DISPLAY
-  LowPower.powerSave(SLEEP_250MS, ADC_OFF, BOD_ON,TIMER2_OFF); // para NO_DISPLAY.
+  LowPower.idle(SLEEP_120MS,ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);// para NO_DISPLAY.
   #endif
-
-  //LCD.clr();
 }

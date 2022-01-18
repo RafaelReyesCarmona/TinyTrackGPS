@@ -1,0 +1,20 @@
+  if (gps_ok && (charge>0)) {
+    if (utctime > prevtime) {
+      (!(errorSD = card.sdErrorCode())) ? SDReady = true : SDReady = false;
+      if (errorSD == 11) card.end();
+      //Serial.println(errorSD);
+      if(!SDReady) SDReady = card.begin(SD_CONFIG);
+      if (!errorSD) SaveOK = GPSData(gps, utm);
+      else SaveOK = false;
+      //Serial.println(localtime);
+      prevtime = utctime;
+      #if defined(DISPLAY_TYPE_LCD_16X2) || defined(DISPLAY_TYPE_LCD_16X2_I2C)
+      iteration++;
+      #endif
+    }
+    #ifndef NO_DISPLAY
+    ScreenPrint(LCD, gps, utm);
+  } else if (charge==0){
+      LCD.clr();
+    #endif
+  }

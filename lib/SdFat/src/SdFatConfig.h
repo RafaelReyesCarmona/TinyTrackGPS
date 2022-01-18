@@ -83,7 +83,7 @@
  * contiguous files.  A small amount of flash is flash is used.
  */
 #ifndef USE_FAT_FILE_FLAG_CONTIGUOUS
-#define USE_FAT_FILE_FLAG_CONTIGUOUS 1
+#define USE_FAT_FILE_FLAG_CONTIGUOUS 0
 #endif  // USE_FAT_FILE_FLAG_CONTIGUOUS
 //------------------------------------------------------------------------------
 /**
@@ -121,7 +121,7 @@
 #if defined(__LGT8F__) || defined(__AVR_ATMEGA328P__)
 #define SPI_DRIVER_SELECT 2
 #else
-#define SPI_DRIVER_SELECT 0
+#define SPI_DRIVER_SELECT 2
 #endif
 #endif  // SPI_DRIVER_SELECT
 /**
@@ -204,7 +204,7 @@ typedef uint8_t SdCsPin_t;
  *
  */
 #ifndef USE_LONG_FILE_NAMES
-#define USE_LONG_FILE_NAMES 1
+#define USE_LONG_FILE_NAMES 0
 #endif  // USE_LONG_FILE_NAMES
 /**
  * Set USE_UTF8_LONG_NAMES nonzero to use UTF-8 file names. Use of UTF-8 names
