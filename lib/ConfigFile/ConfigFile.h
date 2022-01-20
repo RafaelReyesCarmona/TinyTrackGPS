@@ -23,7 +23,7 @@ class ConfigFile {
     boolean _atEnd;        // If true, there is no more of the file to read.
     char _line[K];           // the current line of the file (see _lineLength)
                            // Allocated by begin().
-    uint8_t _lineSize;     // size (bytes) of _line[]
+    //uint8_t _lineSize;     // size (bytes) of _line[]
     uint8_t _lineLength;   // length (bytes) of the current line so far.
     uint8_t _valueIndex;     // position in _line[] where the value starts
                            //  (or -1 if none)
@@ -35,11 +35,11 @@ class ConfigFile {
     boolean readNextSetting();
     boolean nameIs(const char *name);
     const char *getName();
-    const char *getValue();
+    //const char *getValue();
     int getIntValue();
     //IPAddress getIPAddress();
-    boolean getBooleanValue();
-    char *copyValue();
+    //boolean getBooleanValue();
+    //char *copyValue();
 };
 
 /*
@@ -52,14 +52,14 @@ class ConfigFile {
  */
 template <uint8_t K> boolean ConfigFile<K>::begin(const char *configFileName) {
   _lineLength = 0;
-  _lineSize = 0;
+  //_lineSize = 0;
   _valueIndex = -1;
   _atEnd = true;
 
   /*
    * Allocate a buffer for the current line.
    */
-  _lineSize = K + 1;
+  //_lineSize = K + 1;
   //_line = (char *) malloc(_lineSize);
   if (_line == 0) {
 #ifdef CONFIGFILE_DEBUG
@@ -155,7 +155,7 @@ template <uint8_t K> boolean ConfigFile<K>::readNextSetting() {
   // Copy from this first character to the end of the line.
 
   while (bint >= 0 && (char) bint != '\r' && (char) bint != '\n') {
-    if (_lineLength >= _lineSize - 1) { // -1 for a terminating null.
+    if (_lineLength >= K) { // -1 for a terminating null.
       _line[_lineLength] = '\0';
 #ifdef CONFIGFILE_DEBUG
       Serial.print("Line too long: ");
@@ -240,13 +240,14 @@ template <uint8_t K> const char *ConfigFile<K>::getName() {
  * or null if there was an error.
  * WARNING: calling this when an error has occurred can crash your sketch.
  */
+/*
 template <uint8_t K> const char *ConfigFile<K>::getValue() {
   if (_lineLength <= 0 || _valueIndex <= 1) {
     return 0;
   }
   return &_line[_valueIndex];
 }
-
+*/
 /*
  * Returns a persistent, dynamically-allocated copy of the value part
  * of the most-recently-read setting, or null if a failure occurred.
@@ -254,6 +255,7 @@ template <uint8_t K> const char *ConfigFile<K>::getValue() {
  * Unlike getValue(), the return value of this function
  * persists after readNextSetting() is called or end() is called.
  */
+/*
 template <uint8_t K> char *ConfigFile<K>::copyValue() {
   char *result = 0;
   int length;
@@ -272,17 +274,21 @@ template <uint8_t K> char *ConfigFile<K>::copyValue() {
 
   return result;
 }
-
+*/
 /*
  * Returns the value part of the most-recently-read setting
  * as an integer, or 0 if an error occurred.
  */
 template <uint8_t K> int ConfigFile<K>::getIntValue() {
-  const char *str = getValue();
+  /*
+  const char str[5] = getValue();
   if (!str) {
     return 0;
   }
   return atoi(str);
+  */
+  if (_lineLength <= 0 || _valueIndex <= 1) return 0;
+  else return atoi(&_line[_valueIndex]);
 }
 
 /*
@@ -314,11 +320,12 @@ IPAddress ConfigFile::getIPAddress(){
  * The value "true" corresponds to true;
  * all other values correspond to false.
  */
+/*
 template <uint8_t K> boolean ConfigFile<K>::getBooleanValue() {
   if (strcmp("true", getValue()) == 0) {
     return true;
   }
   return false;
 }
-
+*/
 #endif

@@ -44,7 +44,9 @@ Vcc::Vcc( const float correction )
 #elif defined(__LGT8FX8P__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX0))
   #define _IVREF 1.024
+  #define _IVREF_FAST 1024
   #define _ADCMAXRES 4096.0
+  #define _ADCMAXRES_FAST 4096
 #elif defined(__LGT8FX8E__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.25
@@ -52,7 +54,9 @@ Vcc::Vcc( const float correction )
 #else // defined(__AVR_ATmega328P__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.1
+  #define _IVREF_FAST 1100
   #define _ADCMAXRES 1024.0
+  #define _ADCMAXRES_FAST 1024
 #endif  
 
 uint16_t adcRead_(void){
@@ -61,7 +65,7 @@ uint16_t adcRead_(void){
   return ADC;
 }
 
-float Vcc::Read_Volts(void)
+uint16_t Read_(void)
 {
   analogReference(DEFAULT);    // Set AD reference to VCC
 #if defined(__LGT8FX8P__)
@@ -102,11 +106,32 @@ float Vcc::Read_Volts(void)
   
   pVal_filtered = EMA_filter(pVal);
 
+  return pVal_filtered;
+}
+
+float Vcc::Read_Volts(void)
+{
+  uint16_t pVal_filtered;
+
+  pVal_filtered = Read_();
+
   // Calculate Vcc (in V)
   float vcc = m_correction * _IVREF * _ADCMAXRES / pVal_filtered;
 
   return vcc;
 } // end Read_Volts
+
+uint16_t Vcc::Read_Volts_fast(void)
+{
+  uint16_t pVal_filtered;
+
+  pVal_filtered = Read_();
+
+  // Calculate Vcc (in mV)
+  unsigned long vcc = (long)(_IVREF_FAST) * (long)(_ADCMAXRES_FAST) / pVal_filtered;
+  //Serial.println(vcc);
+  return (uint16_t)vcc;
+} // end Read_Volts_fast
 
 float Vcc::Read_Perc(const float range_min, const float range_max, const boolean clip)
 {
