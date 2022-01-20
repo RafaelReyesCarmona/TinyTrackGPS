@@ -24,9 +24,6 @@ rafael.reyes.carmona@gmail.com
 */
 
 #include "Display.h"
-#if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    DisplaySSD1306_128x64_I2C display(-1);
-#endif
 
 Display::Display(Display_Type t):_screen(t){
     _width = 16;
@@ -76,11 +73,11 @@ void Display::start(){
     #endif
 
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        //display = new DisplaySSD1306_128x64_I2C(-1);
-        display.begin();
+        display = new DisplaySSD1306_128x64_I2C(-1);
+        display->begin();
         //display->setFixedFont(ssd1306xled_font8x16);
         //display->setFixedFont(ssd1306xled_font6x8);
-        display.setFixedFont(TinyTrackGPS_font8x16);
+        display->setFixedFont(TinyTrackGPS_font8x16);
     #endif
     this->clr();
 }
@@ -99,7 +96,7 @@ void Display::clr(){
     #endif
 
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        display.clear();
+        display->clear();
     #endif
 }
 
@@ -121,7 +118,7 @@ void Display::print(int vertical, int horizontal, const char text[]){
     #endif
     
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        display.setTextCursor((vertical*8),(horizontal*16));
+        display->setTextCursor((vertical*8),(horizontal*16));
         this->print(text);
         //display->printFixed((vertical*8),(horizontal*16),text);
     #endif
@@ -149,7 +146,7 @@ void Display::print(const char text[]){
     #endif
     
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        display.write(text);
+        display->write(text);
     #endif
 }
 
@@ -225,8 +222,8 @@ void Display::wait_anin(unsigned int t){
     #endif
     
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        display.setTextCursor(0,48);
-        display.printChar((char)(t%3)+58);
+        display->setTextCursor(0,48);
+        display->printChar((char)(t%3)+58);
     #endif
 }
 
@@ -282,7 +279,7 @@ void Display::print_PChar(byte c) {
     #endif
 
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-        display.print((char)(c+86));
+        display->print((char)(c+86));
     #endif
 }
 
@@ -302,7 +299,7 @@ void Display::drawbattery(uint8_t level){
         NanoRect batt = { {122, y} , {125, 60} };
         this->print(14, 2, ",=");
         this->print(14, 3, "+>");
-        display.fillRect(batt);
+        display->fillRect(batt);
     #endif
 }
 

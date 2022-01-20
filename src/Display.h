@@ -69,7 +69,7 @@ class Display {
         #elif defined(DISPLAY_TYPE_SH1106_128X64)
             U8X8_SH1106_128X64_NONAME_HW_I2C* u8x8_SH1106;
         #elif defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-//            DisplaySSD1306_128x64_I2C display(-1);
+            DisplaySSD1306_128x64_I2C* display;
         #elif defined(DISPLAY_TYPE_HX1230_96X68)
             U8G2_HX1230_96X68_1_3W_SW_SPI* u8g2_HX1230;
         #endif

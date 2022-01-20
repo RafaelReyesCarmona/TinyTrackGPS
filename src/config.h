@@ -30,9 +30,9 @@ rafael.reyes.carmona@gmail.com
 
 // Descomentar solo uno de los displays utilizados. Comentar todas las líneas para uso NO DISPLAY.
 //#define DISPLAY_TYPE_SDD1306_128X64 // Para usar pantalla OLED 0.96" I2C 128x64 pixels
-//#define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
+#define DISPLAY_TYPE_SDD1306_128X64_lcdgfx // Para usar pantalla OLED 0.96" I2C 128x64 pixels (lcdgfx library)
 //#define DISPLAY_TYPE_SH1106_128X64         // Define para usar pantalla OLED 1.30" I2C 128x64 pixels (SH1106)
-#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
+//#define DISPLAY_TYPE_LCD_16X2           // Para usar LCD 16 x 2 carateres.
 //#define DISPLAY_TYPE_LCD_16X2_I2C       // Para usar LCD 16 x 2 carateres. I2C.
 
 // Definiciones para display LCD 16x2 caracteres.
