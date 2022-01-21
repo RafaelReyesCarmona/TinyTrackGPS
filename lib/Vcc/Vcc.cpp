@@ -32,31 +32,39 @@ Vcc::Vcc( const float correction )
 #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.1
+  #define _IVREF 1100L
   #define _ADCMAXRES 1024.0
+  #define _ADCMAXRES 1024L
 #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
   #define ADMUX_VCCWRT1V1 (_BV(MUX5) | _BV(MUX0))
   #define _IVREF 1.1
+  #define _IVREF 1100L
   #define _ADCMAXRES 1024.0
-#elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+  #define _ADCMAXRES 1024L
+  #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
   #define ADMUX_VCCWRT1V1 (_BV(MUX3) | _BV(MUX2))
   #define _IVREF 1.1
+  #define _IVREF 1100L
   #define _ADCMAXRES 1024.0
+  #define _ADCMAXRES 1024L
 #elif defined(__LGT8FX8P__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX0))
   #define _IVREF 1.024
-  #define _IVREF_FAST 1024
+  #define _IVREF_FAST 1024L
   #define _ADCMAXRES 4096.0
-  #define _ADCMAXRES_FAST 4096
+  #define _ADCMAXRES_FAST 4096L
 #elif defined(__LGT8FX8E__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.25
+  #define _IVREF 1250L
   #define _ADCMAXRES 4096.0
+  #define _ADCMAXRES 4096L
 #else // defined(__AVR_ATmega328P__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.1
-  #define _IVREF_FAST 1100
+  #define _IVREF_FAST 1100L
   #define _ADCMAXRES 1024.0
-  #define _ADCMAXRES_FAST 1024
+  #define _ADCMAXRES_FAST 1024L
 #endif  
 
 uint16_t adcRead_(void){
@@ -128,7 +136,7 @@ uint16_t Vcc::Read_Volts_fast(void)
   pVal_filtered = Read_();
 
   // Calculate Vcc (in mV)
-  unsigned long vcc = (long)(_IVREF_FAST) * (long)(_ADCMAXRES_FAST) / pVal_filtered;
+  unsigned long vcc = _IVREF_FAST * _ADCMAXRES_FAST / pVal_filtered;
   //Serial.println(vcc);
   return (uint16_t)vcc;
 } // end Read_Volts_fast
