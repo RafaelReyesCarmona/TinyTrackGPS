@@ -306,17 +306,17 @@ enum month_t {Jan=1, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec};
 Run command `pio.exe run`.
 ```
 Processing LGT_ISP (board: LGT8F328P; framework: arduino; platform: lgt8f)
-------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
 Verbose mode can be enabled via `-v, --verbose` option
 CONFIGURATION: https://docs.platformio.org/page/boards/lgt8f/LGT8F328P.html
 PLATFORM: Logic Green boards (1.0.1) > LGT8F328P
 HARDWARE: ATMEGA328P 32MHz, 2KB RAM, 32KB Flash
-PACKAGES: 
- - framework-lgt8fx 1.0.6 
+PACKAGES:
+ - framework-lgt8fx 1.0.6
  - toolchain-atmelavr 2.70300.201015 (7.3.0)
 LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
 LDF Modes: Finder ~ chain, Compatibility ~ soft
-Found 26 compatible libraries
+Found 27 compatible libraries
 Scanning dependencies...
 Dependency Graph
 |-- <LiquidCrystal> 1.0.7
@@ -326,30 +326,31 @@ Dependency Graph
 |-- <LiquidCrystal_I2C> 1.1.4
 |   |-- <Wire> 1.0
 |-- <Low-Power> 1.81.0
-|-- <UTMConversion> 1.0.1
+|-- <UTMConversion> 1.1.0
 |-- <Timezone> 1.2.4
 |   |-- <Time> 1.6.1
 |-- <lcdgfx> 1.1.1
 |   |-- <SPI> 1.0
 |   |-- <Wire> 1.0
+|-- <ConfigFile>
+|   |-- <SdFat> 2.1.2
+|   |   |-- <SPI> 1.0
 |-- <SdFat> 2.1.2
 |   |-- <SPI> 1.0
 |-- <TinyGPS_GLONASS_fixed>
 |-- <Vcc>
 |   |-- <EMA>
 Building in release mode
-Compiling .pio\build\LGT_ISP\src\TinyTrackGPS.cpp.o
-Linking .pio\build\LGT_ISP\firmware.elf
 Checking size .pio\build\LGT_ISP\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [========  ]  84.4% (used 1728 bytes from 2048 bytes)
-Flash: [==========]  99.5% (used 32590 bytes from 32768 bytes)
-==================================== [SUCCESS] Took 5.64 seconds ====================================
+RAM:   [========  ]  82.7% (used 1694 bytes from 2048 bytes)
+Flash: [==========]  96.8% (used 31706 bytes from 32768 bytes)
+=================================== [SUCCESS] Took 2.50 seconds ===================================
 
 Environment    Status    Duration
 -------------  --------  ------------
-LGT_ISP        SUCCESS   00:00:05.636
-==================================== 1 succeeded in 00:00:05.636 ==================================== 
+LGT_ISP        SUCCESS   00:00:02.504
+=================================== 1 succeeded in 00:00:02.504 ===================================
 
 Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 ```
