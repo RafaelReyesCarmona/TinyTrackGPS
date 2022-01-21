@@ -111,55 +111,7 @@ The project define a new font (TinyTrackGPS_font8x16), a modified version of ssd
 ### UST/UT Time.
 _(Universal Summer Timer/Universal Standard Time)_
 
-Now TinyTrackGPS record the info in local time. It is used Timezone library for that. Select 
-the proper config at _line 111_ of `TinyTrackGPS.cpp` file. There are some info for time zone:
-```C++
-// Australia Eastern Time Zone (Sydney, Melbourne)
-TimeChangeRule aEDT = {"AEDT", First, Sun, Oct, 2, 660};    // UTC + 11 hours
-TimeChangeRule aEST = {"AEST", First, Sun, Apr, 3, 600};    // UTC + 10 hours
-Timezone ausET(aEDT, aEST);
-
-// Moscow Standard Time (MSK, does not observe DST)
-TimeChangeRule msk = {"MSK", Last, Sun, Mar, 1, 180};
-Timezone tzMSK(msk);
-
-// Central European Time (Frankfurt, Paris)
-TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
-TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
-Timezone CE(CEST, CET);
-
-// United Kingdom (London, Belfast)
-TimeChangeRule BST = {"BST", Last, Sun, Mar, 1, 60};        // British Summer Time
-TimeChangeRule GMT = {"GMT", Last, Sun, Oct, 2, 0};         // Standard Time
-Timezone UK(BST, GMT);
-
-// UTC
-TimeChangeRule utcRule = {"UTC", Last, Sun, Mar, 1, 0};     // UTC
-Timezone UTC(utcRule);
-
-// US Eastern Time Zone (New York, Detroit)
-TimeChangeRule usEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
-TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
-Timezone usET(usEDT, usEST);
-
-// US Central Time Zone (Chicago, Houston)
-TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};
-TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};
-Timezone usCT(usCDT, usCST);
-
-// US Mountain Time Zone (Denver, Salt Lake City)
-TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
-TimeChangeRule usMST = {"MST", First, Sun, Nov, 2, -420};
-Timezone usMT(usMDT, usMST);
-
-// Arizona is US Mountain Time Zone but does not use DST
-Timezone usAZ(usMST);
-
-// US Pacific Time Zone (Las Vegas, Los Angeles)
-TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};
-TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};
-Timezone usPT(usPDT, usPST);
-```
+Now TinyTrackGPS record the info in local time. It is used Timezone library for that. See [Coding TimeChangeRules] section for information how to config.
 
 ## Source
 
@@ -215,9 +167,9 @@ Normally these will be coded in pairs for a given time zone: One rule to describ
 
 New feature is implemented to configure Timezone. It can be defined in the sketch or by a config file saved on SD card (Time.cfg).
 
-As an example, here in the Eastern US time zone, Eastern Daylight Time (EDT) starts on the 2nd Sunday in March at 02:00 local time. Eastern Standard Time (EST) starts on the 1st Sunday in November at 02:00 local time.
+#### Set the Time Zone in the sketch
 
-Define a **TimeChangeRule** as follows:
+To define time zone on the sketch define a **TimeChangeRule** as follows, normally will need a pair of this:
 
 `TimeChangeRule myRule = {abbrev, week, dow, month, hour, offset};`
 
@@ -249,30 +201,92 @@ TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European 
 
 For more information see Timezone info at: https://github.com/JChristensen/Timezone#readme
 
-### Set the Time Zone in the 'Time.cfg' file
+Change lines like above in `TinyTrackGPS.cpp` file, at line **111**, with appropriate definition for your time zone.
 
-Time Zone can be established by reading settings from a configuration file on an SD card. Use the same rules that is explained above for `TimeChangeRule`.
-# File format: <name>=<value>
-```conf
-## Max. long.###
-# per line #####
+<img alt="Log File." src="images/Timezone CE - code.png" width="760">&nbsp;
 
-# UST config.
-USTweek=0
-USTdow=1
-USTmonth=3
-USThour=2
-USToffset=120
+If your time zone is Australia, you can use this lines:
 
-# UT config.
-UTweek=0
-UTdow=1
-UTmonth=10
-UThour=3
-UToffset=60
+<img alt="Log File." src="images/Timezone ausET - code.png" width="760">&nbsp;
+
+There are some info for time zone:
+```C++
+// Australia Eastern Time Zone (Sydney, Melbourne)
+TimeChangeRule aEDT = {"AEDT", First, Sun, Oct, 2, 660};    // UTC + 11 hours
+TimeChangeRule aEST = {"AEST", First, Sun, Apr, 3, 600};    // UTC + 10 hours
+Timezone ausET(aEDT, aEST);
+
+// Moscow Standard Time (MSK, does not observe DST)
+TimeChangeRule msk = {"MSK", Last, Sun, Mar, 1, 180};
+Timezone tzMSK(msk);
+
+// Central European Time (Frankfurt, Paris)
+TimeChangeRule CEST = {"CEST", Last, Sun, Mar, 2, 120};     // Central European Summer Time
+TimeChangeRule CET = {"CET ", Last, Sun, Oct, 3, 60};       // Central European Standard Time
+Timezone CE(CEST, CET);
+
+// United Kingdom (London, Belfast)
+TimeChangeRule BST = {"BST", Last, Sun, Mar, 1, 60};        // British Summer Time
+TimeChangeRule GMT = {"GMT", Last, Sun, Oct, 2, 0};         // Standard Time
+Timezone UK(BST, GMT);
+
+// UTC
+TimeChangeRule utcRule = {"UTC", Last, Sun, Mar, 1, 0};     // UTC
+Timezone UTC(utcRule);
+
+// US Eastern Time Zone (New York, Detroit)
+TimeChangeRule usEDT = {"EDT", Second, Sun, Mar, 2, -240};  // Eastern Daylight Time = UTC - 4 hours
+TimeChangeRule usEST = {"EST", First, Sun, Nov, 2, -300};   // Eastern Standard Time = UTC - 5 hours
+Timezone usET(usEDT, usEST);
+
+// US Central Time Zone (Chicago, Houston)
+TimeChangeRule usCDT = {"CDT", Second, Sun, Mar, 2, -300};
+TimeChangeRule usCST = {"CST", First, Sun, Nov, 2, -360};
+Timezone usCT(usCDT, usCST);
+
+// US Mountain Time Zone (Denver, Salt Lake City)
+TimeChangeRule usMDT = {"MDT", Second, Sun, Mar, 2, -360};
+TimeChangeRule usMST = {"MST", First, Sun, Nov, 2, -420};
+Timezone usMT(usMDT, usMST);
+
+// Arizona is US Mountain Time Zone but does not use DST
+Timezone usAZ(usMST);
+
+// US Pacific Time Zone (Las Vegas, Los Angeles)
+TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};
+TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};
+Timezone usPT(usPDT, usPST);
 ```
 
-Change the values with appropiate set of 'week', 'dow', 'month', 'hour' and 'offset'. Don`t change the names.
+Timezone uses Time library so time is based on the standard Unix time_t.
+The value is the number of seconds since Jan 1, 1970. And store in unsigned long variable. Arduino
+Reference describe unsigned long as : ```Unsigned long variables are extended size variables for number storage, and store 32 bits (4 bytes). Unlike standard longs unsigned longs won’t store negative numbers, making their range from 0 to 4,294,967,295 (2^32 - 1).``` It is predict to not be afected with 2038 effect. For more information see [Unix Time](https://en.wikipedia.org/wiki/Unix_time) at Wikipedia, and [Year 2038 problem](https://en.wikipedia.org/wiki/Year_2038_problem). Assuming that timestamp is 4,294,967,295 (maximal value of unsigned long in Arduino, 2^32 - 1), it wil be in: **GMT: Sunday, 7 February 2106 6:28:15** when time_t overflow. Then time_t reset to 0 and date will be **GMT: Thursday, 1 January 1970 0:00:00**. Visit https://www.epochconverter.com/, an utility for Epoch & Unix Timestamp Conversion.
+
+#### Set the Time Zone in the 'Time.cfg' file
+
+Time Zone can be established by reading settings from a configuration file on an SD card. Use the same rules that is explained above for `TimeChangeRule`. If file 'Time.cfg' isn`t place on SD card or Card not inserted, UTC time will take for default. **Card must be placed on power on to config Time Zone.**
+
+First section is rule for Summer Time of your region (UST), second one, it is for Standard Time. (UT)
+
+Example file 'Time.cfg' for Central European Time (Frankfurt, Paris)
+**File format: ```<name>=<value>```** 
+```conf
+# UST conf.
+USTw=0
+USTd=1
+USTm=3
+USTh=2
+USTo=120
+
+# UT conf.
+UTw=0
+UTd=1
+UTm=10
+UTh=3
+UTo=60
+```
+
+Change the values with appropiate set of **w**.-'week', **d**.-'dow', **m**.-'month', **h**.-'hour' and **o**.-'offset'. Don`t change the names.
 
   * **week** - 0-Last, 1-First, 2-Second, 3-Third, 4-Fourth
   * **dow** - 1-Sun, 2-Mon, 3-Tue, 4-Wed, 5-Thu, 6-Fri, 7-Sat
@@ -287,20 +301,6 @@ enum week_t {Last, First, Second, Third, Fourth};
 enum dow_t {Sun=1, Mon, Tue, Wed, Thu, Fri, Sat};
 enum month_t {Jan=1, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec};
 ```
-
-### Set the Time Zone in the sketch
-
-Change lines like above in `TinyTrackGPS.cpp` file, at line **111**, with appropriate definition for your time zone.
-
-<img alt="Log File." src="images/Timezone CE - code.png" width="760">&nbsp;
-
-If your time zone is Australia, you can use this lines:
-
-<img alt="Log File." src="images/Timezone ausET - code.png" width="760">&nbsp;
-
-Timezone uses Time library so time is based on the standard Unix time_t.
-The value is the number of seconds since Jan 1, 1970. And store in unsigned long variable. Arduino
-Reference describe unsigned long as : ```Unsigned long variables are extended size variables for number storage, and store 32 bits (4 bytes). Unlike standard longs unsigned longs won’t store negative numbers, making their range from 0 to 4,294,967,295 (2^32 - 1).``` It is predict to not be afected with 2038 effect. For more information see [Unix Time](https://en.wikipedia.org/wiki/Unix_time) at Wikipedia, and [Year 2038 problem](https://en.wikipedia.org/wiki/Year_2038_problem). Assuming that timestamp is 4,294,967,295 (maximal value of unsigned long in Arduino, 2^32 - 1), it wil be in: **GMT: Sunday, 7 February 2106 6:28:15** when time_t overflow. Then time_t reset to 0 and date will be **GMT: Thursday, 1 January 1970 0:00:00**. Visit https://www.epochconverter.com/, an utility for Epoch & Unix Timestamp Conversion.
 
 ### Platformio
 Run command `pio.exe run`.

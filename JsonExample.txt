@@ -40,3 +40,50 @@ void loadConfiguration() {
 
   TimeZone.setRules(UST,UT);
 }
+
+File: TimeUT.json
+{
+"abbrev": "CET",
+"week": 0,
+"dow": 1,
+"month": 10,
+"hour": 3,
+"offset": 60
+}
+
+File: TimeUST.json
+{
+"abbrev": "CEST",
+"week": 0,
+"dow": 1,
+"month": 3,
+"hour": 2,
+"offset": 120
+}
+
+Intentos anteriores:
+File: Time.json
+{
+"UST": {
+    "abbrev": "CEST",
+    "week": 0,
+    "dow": 1,
+    "month": 3,
+    "hour": 2,
+    "offset": 120
+    },
+"UT": {
+    "abbrev": "CET",
+    "week": 0,
+    "dow": 1,
+    "month": 10,
+    "hour": 3,
+    "offset": 60
+    }
+}
+
+File: (first version) Time.json
+{
+"UST": ["CEST",0,1,3,2,120],
+"UT": ["CET",0,1,10,3,60]
+}
