@@ -7,6 +7,7 @@ A simple track GPS to SD card logger.
 
 <img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480" align=center>&nbsp;
 
+<img alt="Location example." src="images/IMG_20220121_215427.jpg" width="240" align=center>&nbsp;
 <img alt="Location example." src="images/IMG_20211221_124521.jpg" width="240" align=center>&nbsp;
 
 ## Features
