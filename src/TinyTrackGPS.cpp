@@ -122,24 +122,57 @@ Timezone TimeZone(UT);
 bool loadConfiguration(TimeChangeRule *UST,TimeChangeRule *UT) {
 
   boolean file;
+  uint8_t read;
   ConfigFile<12> TimeConf;
 
   if((file = TimeConf.begin("Time.cfg"))){
-  while(TimeConf.readNextSetting()){
+    read = 0;
+    while(TimeConf.readNextSetting()){
     
-    char opt[5];
-    strcpy(opt,TimeConf.getName());
-    if (!strcmp(opt,"USTw")) UST->week = TimeConf.getIntValue();
-    else if (!strcmp(opt,"USTd")) UST->dow = TimeConf.getIntValue();
-    else if (!strcmp(opt,"USTm")) UST->month = TimeConf.getIntValue();
-    else if (!strcmp(opt,"USTh")) UST->hour = TimeConf.getIntValue();
-    else if (!strcmp(opt,"USTo")) UST->offset = TimeConf.getIntValue();
+      char opt[5];
+      strcpy(opt,TimeConf.getName());
+
+      if (!strcmp(opt,"USTw")) {
+        read++;
+        UST->week = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"USTd")) {
+        read++;
+        UST->dow = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"USTm")) {
+        read++;
+        UST->month = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"USTh")) {
+        read++;
+        UST->hour = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"USTo")) {
+        read++;
+        UST->offset = TimeConf.getIntValue();
+      }
     
-    else if (!strcmp(opt,"UTw")) UT->week = TimeConf.getIntValue();
-    else if (!strcmp(opt,"UTd")) UT->dow = TimeConf.getIntValue();
-    else if (!strcmp(opt,"UTm")) UT->month = TimeConf.getIntValue();
-    else if (!strcmp(opt,"UTh")) UT->hour = TimeConf.getIntValue();
-    else if (!strcmp(opt,"UTo")) UT->offset = TimeConf.getIntValue();
+      else if (!strcmp(opt,"UTw")) {
+        read++;
+        UT->week = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"UTd")) {
+        read++;
+        UT->dow = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"UTm")) {
+        read++;
+        UT->month = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"UTh")) {
+        read++;
+        UT->hour = TimeConf.getIntValue();
+      }
+      else if (!strcmp(opt,"UTo")) {
+        read++;
+        UT->offset = TimeConf.getIntValue();
+      }
     /*
     // Put a nameIs() block here for each setting you have.
     //if(TimeConf.nameIs("USTabbre"))
@@ -180,7 +213,7 @@ bool loadConfiguration(TimeChangeRule *UST,TimeChangeRule *UT) {
   //Serial.print(UT->offset);
   //Serial.println(UT->abbrev);
 
-  if(file) return true;
+  if(read == 10) return true;
   return false;
 }
 #endif
