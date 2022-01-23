@@ -47,4 +47,4 @@ rafael.reyes.carmona@gmail.com
 #define I2C 0x27
 
 // Define para establecer localtime en tiempo de ejecución o de compilación.
-#define TIMEZONE_FILE   // Comentar para establecer TimeZone (localtime) en tiempo de ejecución (Time.cfg)
+#define TIMEZONE_FILE   // Descomentar para establecer TimeZone (localtime) en tiempo de ejecución (Time.cfg)
