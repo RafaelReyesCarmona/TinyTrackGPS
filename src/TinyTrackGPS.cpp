@@ -57,6 +57,8 @@ rafael.reyes.carmona@gmail.com
 #if defined(TIMEZONE_FILE)
 #include "ConfigFile.h"
 #endif
+#include "Semphr.h"
+
 // Definimos el Display
 #if defined(DISPLAY_TYPE_LCD_16X2)
 Display LCD(LCD_16X2);
@@ -75,7 +77,6 @@ Display LCD(SDD1306_128X64);
 
 // Chip select may be constant or RAM variable.
 const uint8_t SD_CS_PIN = 10;
-
 // Pin numbers in templates must be constants.
 const uint8_t SOFT_MISO_PIN = 12;
 const uint8_t SOFT_MOSI_PIN = 11;
@@ -89,7 +90,6 @@ SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
 #else  // ENABLE_DEDICATED_SPI
 #define SD_CONFIG SdSpiConfig(SD_CS_PIN, SHARED_SPI, SD_SCK_MHZ(0), &softSpi)
 #endif  // ENABLE_DEDICATED_SPI
-
 SdFat card;   //SdFat.h library.
 File file;
 bool SDReady;
@@ -393,10 +393,10 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
   }
 
   if (print_grades) {
-    static char line[11];
+    static char line[12];
   #endif
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    LCD.print(0, 2, "LAT/");
+    LCD.print(0, 2, ")?");
     #else
     LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 2 : 0,"LAT=");
     #endif
@@ -404,7 +404,7 @@ void ScreenPrint(Display &LCD, TinyGPS &gps, GPS_UTM &utm){
     LCD.print(line);
 
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    LCD.print(0, 3,"LON/");
+    LCD.print(0, 3,"*?");
     #else
     LCD.print(1,(LCD.display_type() == SDD1306_128X64) ? 3 : 1,"LON=");
     #endif
@@ -443,6 +443,12 @@ inline void set_time(){
   localtime = TimeZone.toLocal(utctime);
 }
 
+Semphr semaphore;
+
+void drawBatteryIcon(){
+    LCD.drawbattery(charge_level());
+}
+
 void setup(void) {
   #if defined(__LGT8F__)
   ECCR = 0x80;
@@ -461,7 +467,7 @@ void setup(void) {
   #if defined(TIMEZONE_FILE)
   if(loadConfiguration(&UST,&UT)) TimeZone.setRules(UST,UT);
   #endif
-  
+
   /* Iniciaización del display LCD u OLED */
   #ifndef NO_DISPLAY
   LCD.start();
@@ -488,7 +494,7 @@ void setup(void) {
     #ifndef NO_DISPLAY
     LCD.wait_anin(time++);
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-    LCD.drawbattery(charge_level());
+    drawBatteryIcon();
     #endif
     #endif
     for (unsigned long start = millis(); millis() - start < 1000;) {
@@ -525,6 +531,7 @@ void loop(void) {
 //      gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
       gps.crack_datetime(&year_gps, &time_gps.Month, &time_gps.Day, &time_gps.Hour, &time_gps.Minute, &time_gps.Second, NULL, &age);
       (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
+      semaphore.set();
       if(!SDReady) 
         if(card.cardBegin(SD_CONFIG)) SDReady = card.begin(SD_CONFIG);
     }
@@ -563,7 +570,8 @@ void loop(void) {
   }
 
   #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-  LCD.drawbattery(charge);
+  //if((flon < 100.0) && (flon > -100.0)) LCD.drawbattery_charge();
+  semaphore(drawBatteryIcon);
   #endif
 
   #if defined(__LGT8F__)

@@ -358,9 +358,15 @@ Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 For upload to Arduino use Platformio enviroment or use `platformio.exe run --target upload` command on terminal. This project use LGT_ISP enviroment by default. To burn it use an LGTISP device as describe in [LGTISP](LGTISP.md).
 
 ## Changelog
+### V0.14
+  * Fixed error when display longitudes in grades for numbers grather than 99 o slower than -10.
+  * Better performance showing battery level.
+  * Reduce the consuption of current. More battery live.
+
 ### V0.13
   * Recode the function to save datalog information on SD card. Better performance. Used in v0.5.
   * Added functionality to config Timezone with 'Time.cfg' file on SD card or defined in the sketch.
+
 ### V0.12
   * Added Vcc measure support and display battery level in percent (%), using Vcc library to read VCC supply level without external components.
   * Use of EMA filter to calculate VCC supply level to prevent minimal deviations in measure.
@@ -386,8 +392,10 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * New logo for splash at start.
 
 <img alt="Schema1." src="images/LogoScreenshot.jpg" width="240">&nbsp;
+
 ### V0.9
   * Added Timezone library for local time log.
+
 ### V0.8
   * Added UTMConversion library for conversion to UTM coordinates. It has been implemented From library UTMconversion.h (TinyTrackGPS V0.7). Now it is an independent library.
 
@@ -396,11 +404,13 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * No display support for minimal implementation.
   * Fixed some errors when displays on LCD 16x2.
   * Fixed error when save log on SD. Sometimes data didn't save correctly.
+
 ### V0.6
   * Fixed error GPS log file when compiling for OLED 0'96".
   * Added wait animation for OLED 0'96" 128x64.
   * Written new procedure to save data in GPS log file.
   * Less global variables, so code with less size when compile it.
+
 ### V0.5
   * Added wait animation for LCD 16x2 on "Waitting for GPS signal..." screen.
   * Added support for OLED 0'96" 128x64. 
