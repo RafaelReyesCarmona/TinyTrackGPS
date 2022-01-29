@@ -314,14 +314,14 @@ PLATFORM: Logic Green boards (1.0.1) > LGT8F328P
 HARDWARE: ATMEGA328P 32MHz, 2KB RAM, 32KB Flash
 PACKAGES:
  - framework-lgt8fx 1.0.6
- - toolchain-atmelavr 2.70300.201015 (7.3.0)
+ - toolchain-atmelavr 3.70300.0 (7.3.0)
 LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
 LDF Modes: Finder ~ chain, Compatibility ~ soft
-Found 27 compatible libraries
+Found 28 compatible libraries
 Scanning dependencies...
 Dependency Graph
 |-- <LiquidCrystal> 1.0.7
-|-- <U8g2> 2.28.8
+|-- <U8g2> 2.32.10
 |   |-- <SPI> 1.0
 |   |-- <Wire> 1.0
 |-- <LiquidCrystal_I2C> 1.1.4
@@ -330,7 +330,7 @@ Dependency Graph
 |-- <UTMConversion> 1.1.0
 |-- <Timezone> 1.2.4
 |   |-- <Time> 1.6.1
-|-- <lcdgfx> 1.1.1
+|-- <lcdgfx> 1.1.2
 |   |-- <SPI> 1.0
 |   |-- <Wire> 1.0
 |-- <ConfigFile>
@@ -338,20 +338,21 @@ Dependency Graph
 |   |   |-- <SPI> 1.0
 |-- <SdFat> 2.1.2
 |   |-- <SPI> 1.0
+|-- <Semphr>
 |-- <TinyGPS_GLONASS_fixed>
 |-- <Vcc>
 |   |-- <EMA>
 Building in release mode
 Checking size .pio\build\LGT_ISP\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [========  ]  82.7% (used 1694 bytes from 2048 bytes)
-Flash: [==========]  96.8% (used 31706 bytes from 32768 bytes)
-=================================== [SUCCESS] Took 2.50 seconds ===================================
+RAM:   [========  ]  82.6% (used 1691 bytes from 2048 bytes)
+Flash: [==========]  97.5% (used 31964 bytes from 32768 bytes)
+=================================== [SUCCESS] Took 2.93 seconds ===================================
 
 Environment    Status    Duration
 -------------  --------  ------------
-LGT_ISP        SUCCESS   00:00:02.504
-=================================== 1 succeeded in 00:00:02.504 ===================================
+LGT_ISP        SUCCESS   00:00:02.933
+=================================== 1 succeeded in 00:00:02.933 ===================================
 
 Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 ```
@@ -359,8 +360,10 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
 
 ## Changelog
 ### V0.14
-  * Fixed error when display longitudes in grades for numbers grather than 99 o slower than -10.
+  * Fixed error when display longitudes in grades for numbers grather than 99.999999 o slower than -9.999999.
   * Better performance showing battery level.
+  * Fixed error no save data when battery is low.
+  * Device not start when battery is low.
   * Reduce the consuption of current. More battery live.
 
 ### V0.13

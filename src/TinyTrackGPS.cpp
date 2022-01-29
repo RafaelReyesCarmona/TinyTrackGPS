@@ -252,9 +252,9 @@ bool pinswitch();
 unsigned long iteration = 0;
 #endif
 
-#define BAT_MIN  3.250
+#define BAT_MIN  3.500
 #define BAT_MAX  4.250
-#define BAT_MIN_mV  3250
+#define BAT_MIN_mV  3500
 #define BAT_MAX_mV  4250
 #define ALFA_BAT   1.0e2  // 100 / (BAT_MAX - BAT_MIN) -> 0..100%
 #define BETA_BAT   2.5e1  // ALFA_BAT / 4 -> 0..25
@@ -269,7 +269,9 @@ uint8_t charge_level(){
     //float f_charge = vcc.Read_Perc(BAT_MIN,BAT_MAX);
     //int i_charge = (int)f_charge;
     //return (i_charge >> 2);
+    uint16_t volt = vcc.Read_Volts_fast();
     uint16_t charge = map(vcc.Read_Volts_fast(),BAT_MIN_mV,BAT_MAX_mV,0,25);
+    if(volt < BAT_MIN_mV) return 0;
     return (constrain(charge,0,25));
 }
 
@@ -443,11 +445,13 @@ inline void set_time(){
   localtime = TimeZone.toLocal(utctime);
 }
 
+#if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
 Semphr semaphore;
 
 void drawBatteryIcon(){
     LCD.drawbattery(charge_level());
 }
+#endif
 
 void setup(void) {
   #if defined(__LGT8F__)
@@ -488,9 +492,19 @@ void setup(void) {
   unsigned int time = 0;
   #endif
 
+  for(uint8_t i = 8; i--;) charge_level();
+
   bool config = false;
 
   do {
+    if(charge_level() == 0) {
+    LCD.clr();
+    #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+    drawBatteryIcon();
+    #endif
+    while(charge_level() == 0);
+    setup();
+    }
     #ifndef NO_DISPLAY
     LCD.wait_anin(time++);
     #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
@@ -521,6 +535,7 @@ void setup(void) {
 
 void loop(void) {
   static bool gps_ok = false;
+  static bool needcharge = false;
   uint8_t charge;
   uint8_t errorSD;
 
@@ -531,7 +546,8 @@ void loop(void) {
 //      gps.crack_datetime(&year_gps, &month_gps, &day_gps, &hour_gps, &minute_gps, &second_gps, NULL, &age);
       gps.crack_datetime(&year_gps, &time_gps.Month, &time_gps.Day, &time_gps.Hour, &time_gps.Minute, &time_gps.Second, NULL, &age);
       (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
-      semaphore.set();
+      #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+      #endif
       if(!SDReady) 
         if(card.cardBegin(SD_CONFIG)) SDReady = card.begin(SD_CONFIG);
     }
@@ -549,7 +565,7 @@ void loop(void) {
 
   charge = charge_level();
 
-  if (gps_ok && (charge>0)) {
+  if (gps_ok && !(needcharge)) {
     if (utctime > prevtime) {
       (!(errorSD = card.sdErrorCode())) ? SDReady = true : SDReady = false;
       if (errorSD == 11) card.end();
@@ -566,13 +582,19 @@ void loop(void) {
     gps_ok = false;
   } else if (charge==0){
       LCD.clr();
+      needcharge = true;
     #endif
   }
 
   #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
-  //if((flon < 100.0) && (flon > -100.0)) LCD.drawbattery_charge();
+  if((charge==0) && bitRead(millis(),9))
+    semaphore.set();
+  else if((millis()&0x1ff) == 0x1ff)
+    semaphore.set();
   semaphore(drawBatteryIcon);
   #endif
+
+  if(needcharge) (charge > 5) ? needcharge = false : needcharge = true;
 
   #if defined(__LGT8F__)
   LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);

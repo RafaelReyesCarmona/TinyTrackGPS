@@ -299,7 +299,7 @@ void Display::drawbattery(uint8_t level){
         NanoRect batt = { {122, y} , {125, 60} };
         this->print(14, 2, ",=");
         this->print(14, 3, "+>");
-        display->fillRect(batt);
+        if(level>0) display->fillRect(batt);
     #endif
 }
 

@@ -20,6 +20,7 @@ class Semphr {
             }
         }
         void set(){_state = true;}
+        bool status(){return _state;}
 
     private:
         bool _state;
