@@ -547,6 +547,7 @@ void loop(void) {
       gps.crack_datetime(&year_gps, &time_gps.Month, &time_gps.Day, &time_gps.Hour, &time_gps.Minute, &time_gps.Second, NULL, &age);
       (age != TinyGPS::GPS_INVALID_AGE) ? gps_ok = true : gps_ok = false;
       #if defined(DISPLAY_TYPE_SDD1306_128X64_lcdgfx)
+      semaphore.set();
       #endif
       if(!SDReady) 
         if(card.cardBegin(SD_CONFIG)) SDReady = card.begin(SD_CONFIG);

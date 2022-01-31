@@ -8,7 +8,7 @@ A simple track GPS to SD card logger.
 <img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480" align=center>&nbsp;
 
 <img alt="Location example." src="images/IMG_20220121_215427.jpg" width="240" align=center>&nbsp;
-<img alt="Location example." src="images/IMG_20211221_124521.jpg" width="240" align=center>&nbsp;
+<img alt="Location example." src="images/IMG_20220130_233038.jpg" width="240" align=center>&nbsp;
 
 ## Features
 
@@ -343,16 +343,18 @@ Dependency Graph
 |-- <Vcc>
 |   |-- <EMA>
 Building in release mode
+Compiling .pio\build\LGT_ISP\src\Display.cpp.o
+Linking .pio\build\LGT_ISP\firmware.elf
 Checking size .pio\build\LGT_ISP\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
-RAM:   [========  ]  82.6% (used 1691 bytes from 2048 bytes)
-Flash: [==========]  97.5% (used 31964 bytes from 32768 bytes)
-=================================== [SUCCESS] Took 2.93 seconds ===================================
+RAM:   [========  ]  82.6% (used 1692 bytes from 2048 bytes)
+Flash: [==========]  97.5% (used 31950 bytes from 32768 bytes)
+=================================== [SUCCESS] Took 7.37 seconds ===================================
 
 Environment    Status    Duration
 -------------  --------  ------------
-LGT_ISP        SUCCESS   00:00:02.933
-=================================== 1 succeeded in 00:00:02.933 ===================================
+LGT_ISP        SUCCESS   00:00:07.369
+=================================== 1 succeeded in 00:00:07.369 ===================================
 
 Las tareas reutilizarán el terminal, presione cualquier tecla para cerrarlo.
 ```
@@ -364,7 +366,7 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * Better performance showing battery level.
   * Fixed error no save data when battery is low.
   * Device not start when battery is low.
-  * Reduce the consuption of current. More battery live.
+  * When the battery is low, the battery level indicator will flash, with no other information displayed on the screen.
 
 ### V0.13
   * Recode the function to save datalog information on SD card. Better performance. Used in v0.5.
