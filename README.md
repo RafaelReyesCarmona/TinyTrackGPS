@@ -808,7 +808,7 @@ But, AVR must make lot of float point calcs. And I had an overflow and inesperat
 
 TinyTrackGPS show this information on display:
 
-<img alt="TinyTrackGPS display data." src="images/IMG_20211221_124521.jpg" width="240">&nbsp;
+<img alt="TinyTrackGPS display data." src="images/IMG_20220130_233038.jpg" width="240">&nbsp;
 
 
 When VCC level is 3,25 V, stop to read GPS data and only display battery level.
