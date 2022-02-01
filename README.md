@@ -727,8 +727,7 @@ NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can 
   * `TinyGPS` was located at _(30S 341556 4194126)_, 7m error. 
   * `GPS device` reported _(30S 341553 4194111)_, 8m error. 
 
-The upgraded NMEA 8 GPS module have concurrent reception of up to 3 GNSS (GPS, Galileo, GLONASS, BeiDou),recognize multiple constellations simultaneously and provide outstanding 
-positioning accuracy in scenarios where urban canyon or weak signals are involved. For even better and faster positioning improvement. For more informatios see [ublox M8 series product page,](https://www.u-blox.com/en/product/neo-m8-series) and [DataSheet.](https://www.u-blox.com/sites/default/files/NEO-M8-FW3_DataSheet_UBX-15031086.pdf)
+The upgraded NMEA 8 GPS module have concurrent reception of up to 3 GNSS (GPS, Galileo, GLONASS, BeiDou),recognize multiple constellations simultaneously and provide outstanding positioning accuracy in scenarios where urban canyon or weak signals are involved. For even better and faster positioning improvement. For more informatios see [ublox M8 series product page,](https://www.u-blox.com/en/product/neo-m8-series) and [DataSheet.](https://www.u-blox.com/sites/default/files/NEO-M8-FW3_DataSheet_UBX-15031086.pdf)
 
 ## Draw track on map
 
