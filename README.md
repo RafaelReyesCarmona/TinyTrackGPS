@@ -15,7 +15,7 @@ A simple track GPS to SD card logger.
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. News functions and fix are tested and implemented on LGT8F328P board.
 
 It is tested on:
-* UNO R3 board (Arduino UNO compatible board based on Atmega328). Tested until v0.11.
+* UNO R3 board (Arduino UNO compatible board based on Atmega328). Tested until v0.11, v0.13 and v0.14
 * ProMini 5v 16MHz (Arduino ProMini compatible board based on Atmega328p). Tested until v0.11.
 * Lgt8f328p (a replacement Arduino Pro Mini).Tested v0.1, v0.2 and since v0.10. (default option)
 
@@ -53,6 +53,10 @@ This project use components list above:
   Additional:
   * Lipo 3,7V 450mAh 403040 with protect.
   * MicroUsb charge module.
+
+Current on this configuration is 60mA average.
+
+<img alt="Current" src="images/IMG_20220201_123759.jpg" width="480" align=center>&nbsp;
 
 ### NO DISPLAY
 Now you can use a minimal hardware to track GPS location. When no display use MicroSD module and card are mandatory. Comment all lines in 'config.h' file:
