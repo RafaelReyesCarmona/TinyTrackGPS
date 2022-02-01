@@ -129,7 +129,9 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
   * Time library, Paul Stoffregen (https://github.com/PaulStoffregen/Time).
   * Vcc library fork, LaZsolt (https://github.com/LaZsolt/Arduino_Vcc). Fork version to add support to LGT8F328P board and EMA implementation, more info about EMA (https://tttapa.github.io/Pages/Mathematics/Systems-and-Control-Theory/Digital-filters/Exponential%20Moving%20Average/C++Implementation.html). Source on 'lib'.
-  * ConfigFile library fork, Rafael Reyes. It is based on SDConfig library fork, Claus Mancini [Fuzzer11] (https://github.com/Fuzzer11/SDconfig). The fork version uses templates to allocate space at compile time to prevent the sketch from crashing and it is modificated to support SdFat library. 
+  * ConfigFile library fork, Rafael Reyes. It is based on SDConfig library fork, Claus Mancini [Fuzzer11] (https://github.com/Fuzzer11/SDconfig). The fork version uses templates to allocate space at compile time to prevent the sketch from crashing and it is modificated to support SdFat library.
+  * EMA library fork, Rafael Reyes. It is based on EMA library v0.1, Rafael Reyes (https://github.com/RafaelReyesCarmona/EMA).
+  * Semphr library, Rafael Reyes. It is a basic implementation of a control structure semaphore.
 
 
 ## How to compile
@@ -724,6 +726,9 @@ NMEA 6 GPS module accuracy is similar to others GPS devices. In the picture can 
   * `Ref` was at _(30S 341554 4194119)_ location exactly. 
   * `TinyGPS` was located at _(30S 341556 4194126)_, 7m error. 
   * `GPS device` reported _(30S 341553 4194111)_, 8m error. 
+
+The upgraded NMEA 8 GPS module have concurrent reception of up to 3 GNSS (GPS, Galileo, GLONASS, BeiDou),recognize multiple constellations simultaneously and provide outstanding 
+positioning accuracy in scenarios where urban canyon or weak signals are involved. For even better and faster positioning improvement. For more informatios see [ublox M8 series product page,](https://www.u-blox.com/en/product/neo-m8-series) and [DataSheet.](https://www.u-blox.com/sites/default/files/NEO-M8-FW3_DataSheet_UBX-15031086.pdf)
 
 ## Draw track on map
 

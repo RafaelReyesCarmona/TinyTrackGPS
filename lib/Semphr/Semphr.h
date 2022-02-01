@@ -1,3 +1,28 @@
+/*
+Semphr.h - Simple implementation of a semaphore for TinyTrackGPS, a simple track GPS to SD card logger.
+TinyTrackGPS v0.14
+
+Copyright © 2019-2021 Francisco Rafael Reyes Carmona.
+All rights reserved.
+
+rafael.reyes.carmona@gmail.com
+
+  This file is part of TinyTrackGPS.
+
+  TinyTrackGPS is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  TinyTrackGPS is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with TinyTrackGPS.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #ifndef Semphr_h
 #define Semphr_h
 
@@ -20,6 +45,7 @@ class Semphr {
             }
         }
         void set(){_state = true;}
+        void reset(){_state = false;}
         bool status(){return _state;}
 
     private:
