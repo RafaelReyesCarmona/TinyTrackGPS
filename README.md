@@ -4,9 +4,9 @@
 <img alt="Schema1." src="images/Logo.png" width="128">&nbsp;
 
 A simple track GPS to SD card logger. 
-
+<div align=center>
 <img alt="TinyTrackGPS" src="images/TinyTrackGPS_brown.jpg" width="480" align=center>&nbsp;
-
+</div>
 ## Features
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. News functions and fix are tested and implemented on LGT8F328P board.
@@ -20,9 +20,10 @@ It is tested on:
 
 When power on the first display shows version, logo, charge of battery and a waiting animation similar to hourglass. Device is waiting for GPS signal. When GPS signal is ready, it is showing the main display.
 
-
+<div align=center>
 <img alt="Location example." src="images/IMG_20220121_215427.jpg" width="240" align=center>&nbsp;
 <img alt="Location example." src="images/IMG_20220130_233038.jpg" width="240" align=center>&nbsp;
+</div>
 
 TinyTrackGPS features:
 * Show GPS coordenates in Grades and UTM (WG86) formats.
