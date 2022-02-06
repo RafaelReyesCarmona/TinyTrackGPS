@@ -7,6 +7,7 @@ A simple track GPS to SD card logger.
 <div align=center>
 <img alt="TinyTrackGPS" src="images/TinyTrackGPS_brown.jpg" width="480" align=center>&nbsp;
 </div>
+
 ## Features
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. News functions and fix are tested and implemented on LGT8F328P board.
