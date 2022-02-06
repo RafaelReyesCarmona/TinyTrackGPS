@@ -5,10 +5,7 @@
 
 A simple track GPS to SD card logger. 
 
-<img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480" align=center>&nbsp;
-
-<img alt="Location example." src="images/IMG_20220121_215427.jpg" width="240" align=center>&nbsp;
-<img alt="Location example." src="images/IMG_20220130_233038.jpg" width="240" align=center>&nbsp;
+<img alt="TinyTrackGPS" src="images/TinyTrackGPS_brown.jpg" width="480" align=center>&nbsp;
 
 ## Features
 
@@ -23,6 +20,10 @@ It is tested on:
 
 When power on the first display shows version, logo, charge of battery and a waiting animation similar to hourglass. Device is waiting for GPS signal. When GPS signal is ready, it is showing the main display.
 
+
+<img alt="Location example." src="images/IMG_20220121_215427.jpg" width="240" align=center>&nbsp;
+<img alt="Location example." src="images/IMG_20220130_233038.jpg" width="240" align=center>&nbsp;
+
 TinyTrackGPS features:
 * Show GPS coordenates in Grades and UTM (WG86) formats.
 * Save a tracklog in CSV format.
@@ -35,6 +36,8 @@ TinyTrackGPS features:
 <img alt="Location example." src="images/Display_parts.jpg" width="480" align=center>&nbsp;
 
 ## List of componets
+
+<img alt="Location example." src="images/IMG_20211130_103242_wide.jpg" width="480" align=center>&nbsp;
 
 This project use components list above:
 
