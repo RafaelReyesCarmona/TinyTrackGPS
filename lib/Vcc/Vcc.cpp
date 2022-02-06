@@ -59,7 +59,7 @@ Vcc::Vcc( const float correction )
   #define _IVREF 1250L
   #define _ADCMAXRES 4096.0
   #define _ADCMAXRES 4096L
-#else // defined(__AVR_ATmega328P__)
+#elif defined(__AVR_ATmega328P__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
   #define _IVREF 1.1
   #define _IVREF_FAST 1100L
