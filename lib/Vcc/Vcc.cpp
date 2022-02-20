@@ -47,7 +47,7 @@ Vcc::Vcc( const float correction )
   #define _IVREF 1100L
   #define _ADCMAXRES 1024.0
   #define _ADCMAXRES 1024L
-#elif defined(__LGT8FX8P__)
+#elif defined(__LGT8FX8P__) || defined(__LGT8F_SSOP20__)
   #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX0))
   #define _IVREF 1.024
   #define _IVREF_FAST 1024L
@@ -76,7 +76,7 @@ uint16_t adcRead_(void){
 uint16_t Read_(void)
 {
   analogReference(DEFAULT);    // Set AD reference to VCC
-#if defined(__LGT8FX8P__)
+#if defined(__LGT8FX8P__) || defined(__LGT8F_SSOP20__)
   ADCSRD |= _BV(BGEN);         // IVSEL enable
 #endif
   // Read 1.1V/1.024V/1.25V reference against AVcc
@@ -92,7 +92,7 @@ uint16_t Read_(void)
   uint16_t pVal_filtered;
   static EMA<2> EMA_filter;
 
-#if defined(__LGT8FX8P__)
+#if defined(__LGT8FX8P__) || defined(__LGT8F_SSOP20__)
   uint16_t nVal;
   ADCSRC |=  _BV(SPN);
   nVal = adcRead_();
@@ -101,14 +101,14 @@ uint16_t Read_(void)
   
   pVal = adcRead_();
 
-#if defined(__LGT8FX8P__)
+#if defined(__LGT8FX8P__) || defined(__LGT8F_SSOP20__)
   pVal = (pVal + nVal) >> 1;
 #endif
 
 // Logicgreen gain-error correction
 #if defined(__LGT8FX8E__)
   pVal -= (pVal >> 5);
-#elif defined(__LGT8FX8P__)
+#elif defined(__LGT8FX8P__)|| defined(__LGT8F_SSOP20__)
   pVal -= (pVal >> 7);
 #endif
   

@@ -22,7 +22,6 @@ rafael.reyes.carmona@gmail.com
   You should have received a copy of the GNU General Public License
   along with TinyTrackGPS.  If not, see <https://www.gnu.org/licenses/>.
 */
-
 /****************************************************************************
 /  Programa de localizacion por gps que graba las posiciones en
 /  un fichero de texto cada segundo, de forma diaria.
@@ -39,15 +38,14 @@ rafael.reyes.carmona@gmail.com
 /
 /  - Conectar OLED 0.96" en SDA y SCL. pines A4 y A5 del Arduino UNO.
 ********************************************************************************/
-
 // Include libraries.
 #include <Arduino.h>
 #include "config.h"
 #include "Display.h"
 //#include <SoftwareSerial.h>
 #include "TinyGPS_GLONASS_fixed.h"
-#if defined(__LGT8F__)
-#include <LowPower.h>
+#ifdef __LGT8F_SSOP20__
+  #error Platform not supported.
 #endif
 #include "SdFat.h"
 #include "Vcc.h"
@@ -76,11 +74,11 @@ Display LCD(SDD1306_128X64);
 #endif
 
 // Chip select may be constant or RAM variable.
-const uint8_t SD_CS_PIN = 10;
+const uint8_t SD_CS_PIN = SS; //10 for __LGT8F_SSOP20__ 9;
 // Pin numbers in templates must be constants.
-const uint8_t SOFT_MISO_PIN = 12;
-const uint8_t SOFT_MOSI_PIN = 11;
-const uint8_t SOFT_SCK_PIN  = 13;
+const uint8_t SOFT_MISO_PIN = MISO; //12;
+const uint8_t SOFT_MOSI_PIN = MOSI; //11;
+const uint8_t SOFT_SCK_PIN  = SCK; //13;
 
 // SdFat software SPI template
 SoftSpiDriver<SOFT_MISO_PIN, SOFT_MOSI_PIN, SOFT_SCK_PIN> softSpi;
@@ -253,9 +251,9 @@ unsigned long iteration = 0;
 #endif
 
 #define BAT_MIN  3.500
-#define BAT_MAX  4.250
+#define BAT_MAX  4.050
 #define BAT_MIN_mV  3500
-#define BAT_MAX_mV  4250
+#define BAT_MAX_mV  4050
 #define ALFA_BAT   1.0e2  // 100 / (BAT_MAX - BAT_MIN) -> 0..100%
 #define BETA_BAT   2.5e1  // ALFA_BAT / 4 -> 0..25
 
@@ -596,12 +594,4 @@ void loop(void) {
   #endif
 
   if(needcharge) (charge > 5) ? needcharge = false : needcharge = true;
-
-  #if defined(__LGT8F__)
-  LowPower.idle(SLEEP_120MS, ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);
-  #endif
-
-  #ifdef NO_DISPLAY
-  LowPower.idle(SLEEP_120MS,ADC_ON, TIMER2_OFF, TIMER1_OFF, TIMER0_OFF, SPI_ON, USART0_ON, TWI_ON);// para NO_DISPLAY.
-  #endif
 }

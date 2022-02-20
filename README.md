@@ -131,8 +131,8 @@ TinyTrackGPS is free software, see **License** section for more information. The
   * SdFat library, Bill Greiman (https://github.com/greiman/SdFat). Fixed version on 'lib'.
   * Lcdgfx library, Aleksei (https://github.com/lexus2k/lcdgfx).
   * U8g2 library, oliver (https://github.com/olikraus/u8g2).
-  * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power).
-  * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
+  * Low-Power library, Rocket Scream Electronics (https://github.com/rocketscream/Low-Power). Used in previous versions. I don't use it on last TinyTrackGPS version for incompatibility with LGT8F boards.
+ * LiquidCrystal library, Arduino Standard Libraries (Arduino IDE).
   * LiquidCrystal I2C library, John Rickman (https://github.com/johnrickman/LiquidCrystal_I2C).
   * UTMConversion library, Rafael Reyes (https://github.com/RafaelReyesCarmona/UTMConversion).
   * Timezone library, Jack Christensen (https://github.com/JChristensen/Timezone).
@@ -337,7 +337,6 @@ Dependency Graph
 |   |-- <Wire> 1.0
 |-- <LiquidCrystal_I2C> 1.1.4
 |   |-- <Wire> 1.0
-|-- <Low-Power> 1.81.0
 |-- <UTMConversion> 1.1.0
 |-- <Timezone> 1.2.4
 |   |-- <Time> 1.6.1
@@ -359,7 +358,7 @@ Linking .pio\build\LGT_ISP\firmware.elf
 Checking size .pio\build\LGT_ISP\firmware.elf
 Advanced Memory Usage is available via "PlatformIO Home > Project Inspect"
 RAM:   [========  ]  82.6% (used 1692 bytes from 2048 bytes)
-Flash: [==========]  97.5% (used 31950 bytes from 32768 bytes)
+Flash: [==========]  96.9% (used 31748 bytes from 32768 bytes)
 =================================== [SUCCESS] Took 7.37 seconds ===================================
 
 Environment    Status    Duration
@@ -378,6 +377,7 @@ For upload to Arduino use Platformio enviroment or use `platformio.exe run --tar
   * Fixed error no save data when battery is low.
   * Device not start when battery is low.
   * When the battery is low, the battery level indicator will flash, with no other information displayed on the screen.
+  * Remove LowPower library, so LGT8 don't support it.
 
 ### V0.13
   * Recode the function to save datalog information on SD card. Better performance. Used in v0.5.
@@ -672,7 +672,7 @@ Format is:
 
 ### Low Energy Comsuption
 `Low-Power` - the library is used to reduce power consumption and gain greater autonomy implementing the project portably using lithium batteries. Use only when no display configuration.
-Implemented in v0.4 first time and from v0.7. 
+Implemented in v0.4 first time and from v0.7 to 0.13. The last version don't use it because LGT8F don't work properly.
 
 ## TinyGPS library
 
