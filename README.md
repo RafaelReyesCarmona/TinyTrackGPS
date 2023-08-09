@@ -2,12 +2,18 @@
 
 # TinyTrackGPS
 <img alt="Schema1." src="images/Logo.png" width="128">&nbsp;
+[<img src="https://raw.githubusercontent.com/pedromxavier/flag-badges/main/badges/ES.svg" alt="made in ES">](https://github.com/pedromxavier/flag-badges)&nbsp;
 
 A simple track GPS to SD card logger. 
 <div align=center>
 <img alt="TinyTrackGPS" src="images/TinyTrackGPS_brown.jpg" width="480" align=center>&nbsp;
 </div>
 
+## Donations
+You can donate at:
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=TSCH5FJDVYWP6)
+
+Thanks.
 ## Features
 
 This program is written in C/C++ for Arduino © UNO R3 and other compatible microcontrollers based on Atmega328 and similar. News functions and fix are tested and implemented on LGT8F328P board.
